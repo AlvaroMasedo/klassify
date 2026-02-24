@@ -1,11 +1,86 @@
-@import 'tailwindcss';
+.k-button {
+    text-decoration: none;
+    background: linear-gradient(90deg, #583473 0%, #A485BC 100%);
+    color: white;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1.5rem;
+    border: solid 2px #808080;
+    border-radius: 10px;
+    padding: 1%;
+    font-weight: 600;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    height: 3rem;
+}
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+.k-button:hover {
+    transition: all 0.3s ease;
+    background: linear-gradient(90deg, #53326d 0%, #65457e 100%);
+    transform: scale(1.03);
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+.k-button-second {
+    text-decoration: none;
+    background: white;
+    color: #583473;
+    border: #808080 solid 2px;
+    border-radius: 10px;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1.5rem;
+    padding: 1%;
+    font-weight: 600;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    height: 3rem;
+}
+
+.k-button-second:hover {
+    transition: all 0.3s ease;
+    background: #f7f7f7;
+    transform: scale(1.03);
+}
+
+h1 {
+    background: linear-gradient(#583473 10%, #A485BC 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: 7rem;
+    font-family: "Inter", sans-serif;
+}
+
+h2 {
+    font-family: "Open Sans", sans-serif;
+    color: #583473;
+    font-size: 2.7rem;
+}
+
+h3 {
+    font-family: "Open Sans", sans-serif;
+    color: #583473;
+    font-size: 2.5rem;
+    margin-bottom: 0;
+}
+
+p {
+    font-family: "Open Sans", sans-serif;
+    font-size: 1.5rem;
+    color: #3F2453;
+}
+
+.p-pequeño {
+    font-size: 1rem;
+}
+
+.p-stroke {
+    font-weight: 700;
+}
+
+.p-new {
+    font-size: 1rem;
+    background-color: rgba(243, 164, 128, 0.733);
+    width: fit-content;
+    padding: 0.5%;
+    padding-left: 1%;
+    padding-right: 1%;
+    border-radius: 100px;
+    font-weight: 700;
 }
