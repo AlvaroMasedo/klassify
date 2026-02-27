@@ -1,0 +1,489 @@
+.k-header {
+    background: linear-gradient(90deg, #583473 0%, #A485BC 100%);
+    padding: 1rem 2rem;
+}
+
+.k-header-inner {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 18px;
+}
+
+.mobile-menu-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+}
+
+.mobile-menu-btn span {
+    width: 100%;
+    height: 3px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.mobile-menu-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+.k-header-actions {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.form {
+    --width-of-input: 280px;
+}
+
+.k-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    justify-self: start;
+}
+
+.k-logo {
+    height: 3.5rem;
+    width: auto;
+}
+
+.k-name {
+    text-decoration: none;
+    font-family: "Inter", sans-serif;
+    font-size: 2.7rem;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Estils afegir recurs */
+.add-button {
+    position: relative;
+    width: 150px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border: 1px solid #583473;
+    background-color: #ffffff;
+    border-radius: 20px 0 0 20px;
+}
+
+.add-button,
+.button__icon,
+.button__text {
+    transition: all 0.3s;
+}
+
+.add-button .button__text {
+    transform: translateX(30px);
+    color: #583473;
+    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+}
+
+.add-button .button__icon {
+    position: absolute;
+    transform: translateX(109px);
+    height: 100%;
+    width: 42px;
+    background-color: #583473;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #583473;
+
+}
+
+.add-button .svg {
+    width: 30px;
+    stroke: #fff;
+}
+
+.add-button:hover {
+    background: #583473;
+}
+
+.add-button:hover .button__text {
+    color: transparent;
+}
+
+.add-button:hover .button__icon {
+    width: 148px;
+    transform: translateX(0);
+    border-radius: 20px 0 0 20px;
+
+}
+
+.add-button:active .button__icon {
+    background-color: #3F2453;
+}
+
+.add-button:active {
+    border: 1px solid #3F2453;
+    background-color: #3F2453;
+    transform: scale(0.95);
+}
+
+/* Estils calendari*/
+.calendar-button {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%;
+    cursor: pointer;
+    transition-duration: .3s;
+    box-shadow: 2px 2px 10px #583473;
+    border: none;
+}
+
+.calendar-button:hover {
+    background: #583473;
+
+    g {
+        stroke: #ffffff;
+    }
+}
+
+.calendar-button:hover .svg-icon {
+    animation: slope 1s linear infinite;
+}
+
+.calendar-button:active {
+    transform: scale(0.8);
+}
+
+@keyframes slope {
+    0% {}
+
+    50% {
+        transform: rotate(10deg);
+    }
+
+    100% {}
+}
+
+/* Estils per la barra de cerca */
+.k-search {
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.form button {
+    border: none;
+    background: none;
+    color: #8b8ba7;
+}
+
+.form {
+    --timing: 0.3s;
+    --width-of-input: 270px;
+    --height-of-input: 40px;
+    --border-height: 2px;
+    --input-bg: #fff;
+    --border-color: #583473;
+    --border-radius: 0px 30px 30px 0px;
+    --after-border-radius: 1px;
+    position: relative;
+    width: var(--width-of-input);
+    height: var(--height-of-input);
+    display: flex;
+    align-items: center;
+    padding-inline: 0.8em;
+    border-radius: var(--border-radius);
+    transition: border-radius 0.5s ease;
+    background: var(--input-bg, #fff);
+}
+
+.input {
+    font-size: 0.9rem;
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    padding-inline: 0.5em;
+    padding-block: 0.7em;
+    border: none;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+}
+
+.form:before {
+    content: "";
+    position: absolute;
+    background: var(--border-color);
+    transform: scaleX(0);
+    transform-origin: center;
+    width: 100%;
+    height: var(--border-height);
+    left: 0;
+    bottom: 0;
+    border-radius: 1px;
+    transition: transform var(--timing) ease;
+}
+
+.form:focus-within {
+    border-radius: var(--after-border-radius);
+}
+
+input:focus {
+    outline: none;
+}
+
+.form:focus-within:before {
+    transform: scale(1);
+}
+
+.reset {
+    border: none;
+    background: none;
+    opacity: 0;
+    visibility: hidden;
+}
+
+input:not(:placeholder-shown)~.reset {
+    opacity: 1;
+    visibility: visible;
+}
+
+.form svg {
+    width: 17px;
+    margin-top: 3px;
+}
+
+/* Notifications button */
+.notifications-button {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%;
+    cursor: pointer;
+    transition-duration: .3s;
+    box-shadow: 2px 2px 10px #583473;
+    border: none;
+}
+
+.bell {
+    width: 18px;
+}
+
+.bell path {
+    fill: #583473;
+}
+
+.notifications-button:hover {
+    background-color: #583473;
+
+    .bell path {
+        fill: #ffffff;
+    }
+}
+
+.notifications-button:hover .bell {
+    animation: bellRing 0.9s both;
+}
+
+@keyframes bellRing {
+
+    0%,
+    100% {
+        transform-origin: top;
+    }
+
+    15% {
+        transform: rotateZ(10deg);
+    }
+
+    30% {
+        transform: rotateZ(-10deg);
+    }
+
+    45% {
+        transform: rotateZ(5deg);
+    }
+
+    60% {
+        transform: rotateZ(-5deg);
+    }
+
+    75% {
+        transform: rotateZ(2deg);
+    }
+}
+
+.notifications-button:active {
+    transform: scale(0.8);
+}
+
+/* Estils per la foto de perfil */
+.k-profile {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    transition-duration: .3s;
+}
+
+.k-profile:hover {
+
+    .k-profile-btn {
+        background: #583473;
+        color: #ffffff;
+    }
+    .k-profile-chev {
+        color: #ffffff;
+    }
+}
+
+.k-profile-btn {
+    height: 50px;
+    width: 120px;
+    padding: 0 14px 0 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background: #ffffff;
+    color: #583473;
+    cursor: pointer;
+    gap: 10px;
+    box-shadow: 2px 2px 10px #583473;
+
+}
+
+.k-profile-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 160px;
+    padding: 8px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid rgba(0, 0, 0, .08);
+    box-shadow: 0 18px 50px rgba(20, 10, 40, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity .15s ease, transform .15s ease, visibility .15s ease;
+    z-index: 200;
+}
+
+.k-profile-item {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #583473;
+    font-family: "Open Sans", sans-serif;
+    font-weight: 600;
+}
+
+.k-profile-item:hover {
+    background: rgba(88, 52, 115, 0.08);
+}
+
+.k-profile:hover .k-profile-menu,
+.k-profile:focus-within .k-profile-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.k-profile-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 999px;
+    object-fit: cover;
+    flex: 0 0 50px;
+}
+
+.k-profile-chev {
+    margin-left: 24px;
+    font-size: 24px;
+    line-height: 1;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+    .k-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    .k-header-inner {
+        grid-template-columns: auto 1fr auto;
+        gap: 8px;
+    }
+
+    .k-search {
+        display: none;
+    }
+
+    .k-header-actions {
+        gap: 6px;
+    }
+
+    .calendar-button,
+    .notifications-button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .calendar-button .svg-icon,
+    .notifications-button .bell {
+        width: 18px;
+        height: 18px;
+    }
+
+    .k-logo {
+        height: 2rem;
+    }
+
+    .k-name {
+        font-size: 1.5rem;
+    }
+
+    .k-profile-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .k-profile-chev {
+        font-size: 16px;
+    }
+}
