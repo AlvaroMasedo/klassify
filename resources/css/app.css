@@ -1,3 +1,6 @@
+body{
+    margin: 0;
+}
 .k-button {
     text-decoration: none;
     background: linear-gradient(90deg, #583473 0%, #A485BC 100%);

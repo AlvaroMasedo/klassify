@@ -10,7 +10,7 @@ Route::get('/', function () {
     }
 
     // Si NO hay usuario logueado -> mostramos welcome
-    return view('welcome');
+    return view('feed.index'); //CAMBIAR POR WELCOME 
 })->name('home');
 
 Route::get('/feed', function () {

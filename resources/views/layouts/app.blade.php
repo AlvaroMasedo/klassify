@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Klassify')</title>
     <link rel="icon" href="{{ asset('Favicon.ico') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/partials/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/partials/footer.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    @yield('page-css')
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,8 +22,6 @@
     <main class="k-main">
         @yield('content')
     </main>
-
-    @include('layouts.partials.footer')
 </body>
 
 </html>
