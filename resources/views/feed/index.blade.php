@@ -164,38 +164,14 @@
                 <div class="filter-container">
                     <select class="k-select" id="course-filter" name="course">
                         <option value="" selected disabled>Curso</option>
-                        <option value="primaria">Primaria</option>
-                        <option value="secundaria">Secundaria</option>
-                        <option value="bachillerato">Bachillerato</option>
-                        <option value="cfm-smr">CFM SMR</option>
-                        <option value="cfs-asir">CFS ASIR</option>
-                        <option value="cfs-daw">CFS DAW</option>
-                        <option value="magisterio">Magisterio</option>
-                        <option value="ingenieria-datos">Ingenieria de datos</option>
-                        <option value="ingenieria-informatica">Ingenieria informatica</option>
-                        <option value="ade">ADE</option>
-                        <option value="derecho">Derecho</option>
-                        <option value="medicina">Medicina</option>
-                        <option value="psicologia">Psicologia</option>
+                        @foreach ($courses as $course)
+                        <option value="{{ $course->id }}">{{ $course->name }}</option>
+                        @endforeach
                     </select>
-                    <select class="k-select" id="subject-filter" name="subject">
+                    <select class="k-select" id="subject-filter" name="subject" disabled>
                         <option value="" selected disabled>Materia</option>
-                        <option value="matematicas">Matematicas</option>
-                        <option value="lengua-castellana">Lengua castellana</option>
-                        <option value="lengua-catalana">Lengua catalana</option>
-                        <option value="ingles">Ingles</option>
-                        <option value="historia">Historia</option>
-                        <option value="geografia">Geografia</option>
-                        <option value="biologia">Biologia</option>
-                        <option value="fisica">Fisica</option>
-                        <option value="quimica">Quimica</option>
-                        <option value="programacion">Programacion</option>
-                        <option value="bases-datos">Bases de datos</option>
-                        <option value="sistemas">Sistemas informaticos</option>
-                        <option value="redes">Redes</option>
-                        <option value="fol">FOL</option>
-                        <option value="empresa">Empresa e iniciativa</option>
                     </select>
+
                     <div class="fileTypes-content">
                         <label for="text">Texto</label>
                         <input type="checkbox" name="fileType" id="text">
@@ -208,6 +184,13 @@
                     </div>
                 </div>
             </div>
+            
+            <script type="application/json" id="courses-with-subjects-data">@json($courses)</script>
+            <script>
+                window.coursesWithSubjects = JSON.parse(
+                    document.getElementById('courses-with-subjects-data')?.textContent ?? '[]'
+                );
+            </script>
 
             <div class="recurs-card">
                 <!-- Header del recurso -->
