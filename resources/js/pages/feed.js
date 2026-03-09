@@ -114,3 +114,49 @@ document.addEventListener('DOMContentLoaded', function () {
         mobileOverlay.addEventListener('click', toggleMenu);
     }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const courseSelect = document.getElementById('course-filter');
+    const subjectSelect = document.getElementById('subject-filter');
+    const availableCourses = Array.isArray(window.coursesWithSubjects)
+        ? window.coursesWithSubjects
+        : [];
+
+    function resetSubjects() {
+        subjectSelect.innerHTML = '<option value="" selected disabled>Materia</option>';
+        subjectSelect.disabled = true;
+    }
+
+    function loadSubjects(courseId) {
+        const selectedCourse = availableCourses.find(course => course.id == courseId);
+
+        subjectSelect.innerHTML = '<option value="" selected disabled>Materia</option>';
+
+        if (!selectedCourse || !selectedCourse.subjects || selectedCourse.subjects.length === 0) {
+            subjectSelect.disabled = true;
+            return;
+        }
+
+        selectedCourse.subjects.forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject.id;
+            option.textContent = subject.name;
+            subjectSelect.appendChild(option);
+        });
+
+        subjectSelect.disabled = false;
+    }
+
+    resetSubjects();
+
+    courseSelect.addEventListener('change', () => {
+        const courseId = courseSelect.value;
+
+        if (!courseId) {
+            resetSubjects();
+            return;
+        }
+
+        loadSubjects(courseId);
+    });
+});
