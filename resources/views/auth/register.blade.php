@@ -20,27 +20,43 @@
             <div class="k-registerForm-content">
                 <h2>Crea tu cuenta</h2>
                 <p>Accede a recursos educativos compartidos por docentes</p>
-                <form action="">
+                <form method="POST" action="{{ route('register.store') }}">
+                    @csrf
                     <div class="k-form-grid">
                         <label for="nombre">Nombre
-                            <input type="text" id="nombre" name="nombre" placeholder="nombre">
+                            <input type="text" id="nombre" name="nombre" placeholder="nombre" autofocus>
+                            @error('name')
+                            <p class="p-error">{{ $message }}</p>
+                            @enderror
                         </label>
 
                         <label for="apellido">Apellido
                             <input type="text" id="apellido" name="apellido" placeholder="apellido">
+                            @error('surname')
+                            <p class="p-error">{{ $message }}</p>
+                            @enderror
                         </label>
                     </div>
 
                     <label for="nickname">Nickname
                         <input type="text" id="nickname" name="nickname" placeholder="nickname">
+                        @error('nickname')
+                        <p class="p-error">{{ $message }}</p>
+                        @enderror
                     </label>
 
                     <label for="email">Email
                         <input type="text" id="email" name="email" placeholder="email@ejemplo.com">
+                        @error('email')
+                        <p class="p-error">{{ $message }}</p>
+                        @enderror
                     </label>
 
                     <label for="contraseña">Contraseña
                         <input type="password" id="contraseña" name="contraseña" placeholder="contraseña">
+                        @foreach ($errors->get('password') as $message)
+                        <p class="p-error">{{ $message }}</p>
+                        @endforeach
                     </label>
 
                     <label for="confirmar-contraseña">Confirmar Contraseña
@@ -81,6 +97,9 @@
                                     <option value="{{ $course->id }}">{{ $course->name }}</option>
                                     @endforeach
                                 </select>
+                                @error('specialization')
+                                    <p class="p-error">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="k-form-group">
@@ -121,9 +140,12 @@
                                 </p>
                             </div>
                             <label class="k-terms-checkbox">
-                                <input type="checkbox" name="terms">
+                                <input type="checkbox" name="terms" id="terms">
                                 Acepto los términos de uso
                             </label>
+                            @error('terms')
+                                <p class="p-error">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="k-form-actions">

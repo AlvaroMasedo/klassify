@@ -26,6 +26,13 @@ body {
     flex: 1;
 }
 
+.p-error{
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #d9534f;
+    font-weight: 700;
+}
+
 .k-content {
     background-color: rgba(221, 213, 236, 0.685);
     background-image: url('/assets/img/auth-waves.svg');

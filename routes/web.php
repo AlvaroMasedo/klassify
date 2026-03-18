@@ -4,6 +4,7 @@ use App\Http\Controllers\FeedController;
 use App\Models\Course;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/', function () {
     // Si hay usuario logueado -> vamos al feed
@@ -24,6 +25,16 @@ Route::get('/register', function () {
     $courses = Course::orderBy('name')->get()->unique('name')->values();
     return view('auth.register', compact('courses'));
 })->name('register');
+
+Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/register/review', [RegisteredUserController::class, 'review'])->name('register.review');
+    Route::post('/register/confirm', [RegisteredUserController::class, 'store'])->name('register.confirm');
+});
+
+Route::middleware('auth')->get('/feed', [FeedController::class, 'index'])->name('feed');
 
 Route::get('/login', function () {
     return view('auth.login');
