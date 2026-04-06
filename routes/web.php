@@ -19,8 +19,14 @@ Route::get('/login', function () {
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::get('/register/review', fn () => redirect()->route('register'));
     Route::post('/register/review', [RegisteredUserController::class, 'review'])->name('register.review');
+    Route::get('/register/confirm', fn () => redirect()->route('register'));
     Route::post('/register/confirm', [RegisteredUserController::class, 'store'])->name('register.confirm');
 });
 
 Route::middleware('auth')->get('/feed', [FeedController::class, 'index'])->name('feed');
+
+Route::get('/teacher/pending', function () {
+    return view('auth.teacher-pending');
+})->name('teacher.pending');
