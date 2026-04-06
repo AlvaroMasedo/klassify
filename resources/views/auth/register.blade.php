@@ -20,18 +20,22 @@
             <div class="k-registerForm-content">
                 <h2>Crea tu cuenta</h2>
                 <p>Accede a recursos educativos compartidos por docentes</p>
-                <form method="POST" action="{{ route('register.store') }}">
+                @php
+                    $selectedRole = old('role', $preview['role'] ?? 'TEACHER');
+                    $selectedCourseId = old('course_id', $preview['course_id'] ?? '');
+                @endphp
+                <form method="POST" action="{{ route('register.review') }}">
                     @csrf
                     <div class="k-form-grid">
-                        <label for="nombre">Nombre
-                            <input type="text" id="nombre" name="nombre" placeholder="nombre" autofocus>
+                        <label for="name">Nombre
+                            <input type="text" id="name" name="name" placeholder="nombre" autofocus value="{{ old('name', $preview['name'] ?? '') }}">
                             @error('name')
                             <p class="p-error">{{ $message }}</p>
                             @enderror
                         </label>
 
-                        <label for="apellido">Apellido
-                            <input type="text" id="apellido" name="apellido" placeholder="apellido">
+                        <label for="surname">Apellido
+                            <input type="text" id="surname" name="surname" placeholder="apellido" value="{{ old('surname', $preview['surname'] ?? '') }}">
                             @error('surname')
                             <p class="p-error">{{ $message }}</p>
                             @enderror
@@ -39,28 +43,28 @@
                     </div>
 
                     <label for="nickname">Nickname
-                        <input type="text" id="nickname" name="nickname" placeholder="nickname">
+                        <input type="text" id="nickname" name="nickname" placeholder="nickname" value="{{ old('nickname', $preview['nickname'] ?? '') }}">
                         @error('nickname')
                         <p class="p-error">{{ $message }}</p>
                         @enderror
                     </label>
 
                     <label for="email">Email
-                        <input type="text" id="email" name="email" placeholder="email@ejemplo.com">
+                        <input type="text" id="email" name="email" placeholder="email@ejemplo.com" value="{{ old('email', $preview['email'] ?? '') }}">
                         @error('email')
                         <p class="p-error">{{ $message }}</p>
                         @enderror
                     </label>
 
-                    <label for="contraseña">Contraseña
-                        <input type="password" id="contraseña" name="contraseña" placeholder="contraseña">
+                    <label for="password">Contraseña
+                        <input type="password" id="password" name="password" placeholder="contraseña">
                         @foreach ($errors->get('password') as $message)
                         <p class="p-error">{{ $message }}</p>
                         @endforeach
                     </label>
 
-                    <label for="confirmar-contraseña">Confirmar Contraseña
-                        <input type="password" id="confirmar-contraseña" name="confirmar-contraseña" placeholder="confirmar contraseña">
+                    <label for="password_confirmation">Confirmar Contraseña
+                        <input type="password" id="password_confirmation" name="password_confirmation" placeholder="confirmar contraseña">
                     </label>
 
                     <div class="k-role-selector">
@@ -68,7 +72,7 @@
 
                         <div class="k-role-toggle" id="role-toggle">
                             <span class="k-role-indicator" aria-hidden="true"></span>
-                            <button type="button" class="k-role-option is-active" data-role="TEACHER" aria-pressed="true">
+                            <button type="button" @class(['k-role-option', 'is-active' => $selectedRole === 'TEACHER']) data-role="TEACHER" aria-pressed="{{ $selectedRole === 'TEACHER' ? 'true' : 'false' }}">
                                 <span class="k-role-option-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" focusable="false">
                                         <path d="M12 3 1.5 8.25 12 13.5l8.59-4.3V16H22V8.25L12 3Zm-6.73 8.57V15c0 2.58 3.04 4.5 6.73 4.5s6.73-1.92 6.73-4.5v-3.43L12 15l-6.73-3.43Z" />
@@ -77,7 +81,7 @@
                                 <span class="k-role-option-text">Profesor</span>
                             </button>
 
-                            <button type="button" class="k-role-option" data-role="STUDENT" aria-pressed="false">
+                            <button type="button" @class(['k-role-option', 'is-active' => $selectedRole === 'STUDENT']) data-role="STUDENT" aria-pressed="{{ $selectedRole === 'STUDENT' ? 'true' : 'false' }}">
                                 <span class="k-role-option-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" focusable="false">
                                         <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.41 0-8 2.24-8 5v1h16v-1c0-2.76-3.59-5-8-5Z" />
@@ -87,31 +91,40 @@
                             </button>
                         </div>
 
-                        <input type="hidden" name="role" id="role-input" value="TEACHER">
+                        <input type="hidden" name="role" id="role-input" value="{{ $selectedRole }}">
                         <div id="teacher-fields">
                             <div class="k-form-group">
                                 <label for="course_id">Curso</label>
                                 <select name="course_id" id="course_id">
                                     <option value="">-- Selecciona un curso --</option>
                                     @foreach($courses as $course)
-                                    <option value="{{ $course->id }}">{{ $course->name }}</option>
+                                    <option value="{{ $course->id }}" @selected((string) $selectedCourseId === (string) $course->id)>{{ $course->name }}</option>
                                     @endforeach
                                 </select>
-                                @error('specialization')
-                                    <p class="p-error">{{ $message }}</p>
+                                @error('course_id')
+                                <p class="p-error">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div class="k-form-group">
                                 <h3 for="institucion_id">Institución donde enseñas</h3>
                                 <label for="nombre_institucion">Nombre</label>
-                                <input type="text" name="nombre_institucion" id="nombre_institucion" placeholder="nombre de la institución">
+                                <input type="text" name="name_institucion" id="nombre_institucion" placeholder="nombre de la institución" value="{{ old('name_institucion', $preview['name_institucion'] ?? '') }}">
+                                @error('name_institucion')
+                                <p class="p-error">{{ $message }}</p>
+                                @enderror
 
                                 <label for="direccion">Dirección</label>
-                                <input type="text" name="direccion" id="direccion" placeholder="dirección de la institución">
+                                <input type="text" name="direccion" id="direccion" placeholder="dirección de la institución" value="{{ old('direccion', $preview['direccion'] ?? '') }}">
+                                @error('direccion')
+                                <p class="p-error">{{ $message }}</p>
+                                @enderror
 
                                 <label for="email_institucional">Email institucional</label>
-                                <input type="email" name="email_institucional" id="email_institucional" placeholder="email institucional">
+                                <input type="email" name="email_institucional" id="email_institucional" placeholder="email institucional" value="{{ old('email_institucional', $preview['email_institucional'] ?? '') }}">
+                                @error('email_institucional')
+                                <p class="p-error">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
 
@@ -140,11 +153,11 @@
                                 </p>
                             </div>
                             <label class="k-terms-checkbox">
-                                <input type="checkbox" name="terms" id="terms">
+                                <input type="checkbox" name="terms" id="terms" @checked(old('terms', $preview['terms'] ?? false))>
                                 Acepto los términos de uso
                             </label>
                             @error('terms')
-                                <p class="p-error">{{ $message }}</p>
+                            <p class="p-error">{{ $message }}</p>
                             @enderror
                         </div>
 

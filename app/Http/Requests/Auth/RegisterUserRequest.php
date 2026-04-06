@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\Rule;
 use Closure;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RegisterUserRequest extends FormRequest
 {
@@ -21,6 +20,7 @@ class RegisterUserRequest extends FormRequest
             'surname' => ['required', 'string', 'max:255'],
             'nickname' => ['required', 'string', 'max:50', 'unique:users,nickname'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+
             'password' => [
                 'required',
                 'confirmed',
@@ -43,20 +43,34 @@ class RegisterUserRequest extends FormRequest
                     }
                 },
             ],
+
             'role' => ['required', Rule::in(['STUDENT', 'TEACHER'])],
             'terms' => ['accepted'],
 
-            'specialization' => [
-                Rule::requiredIf(fn() => $this->input('role') === 'TEACHER'),
+            'course_id' => [
+                Rule::requiredIf(fn () => $this->input('role') === 'TEACHER'),
+                'nullable',
+                'integer',
+                Rule::exists('courses', 'id'),
+            ],
+
+            'name_institucion' => [
+                Rule::requiredIf(fn () => $this->input('role') === 'TEACHER'),
                 'nullable',
                 'string',
                 'max:255',
             ],
-
-            'institution_id' => [
-                Rule::requiredIf(fn() => $this->input('role') === 'TEACHER'),
+            'direccion' => [
+                Rule::requiredIf(fn () => $this->input('role') === 'TEACHER'),
                 'nullable',
-                'integer',
+                'string',
+                'max:255',
+            ],
+            'email_institucional' => [
+                Rule::requiredIf(fn () => $this->input('role') === 'TEACHER'),
+                'nullable',
+                'email',
+                'max:255',
             ],
         ];
     }
@@ -74,9 +88,13 @@ class RegisterUserRequest extends FormRequest
             'password.required' => 'La contraseña es obligatoria.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.characters' => 'La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un caracter especial.',
             'terms.accepted' => 'Debes aceptar los términos de uso.',
-            'specialization.required' => 'La especialización es obligatoria para profesores.',
+            'course_id.required' => 'El curso es obligatorio para profesores.',
+            'course_id.exists' => 'El curso seleccionado no es válido.',
+            'name_institucion.required' => 'El nombre de la institución es obligatorio.',
+            'direccion.required' => 'La dirección de la institución es obligatoria.',
+            'email_institucional.required' => 'El email institucional es obligatorio.',
+            'email_institucional.email' => 'Introduce un email institucional válido.',
         ];
     }
 }
