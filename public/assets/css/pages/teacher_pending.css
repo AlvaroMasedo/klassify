@@ -1,0 +1,98 @@
+.k-body {
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+}
+
+.k-auth-main {
+	flex: 1;
+	display: grid;
+	place-items: center;
+	padding: clamp(1.25rem, 3vw, 2.25rem);
+}
+
+.k-card {
+	width: min(760px, 100%);
+	background: rgba(255, 255, 255, 0.86);
+	border: 1px solid rgba(166, 138, 191, 0.32);
+	border-radius: 24px;
+	box-shadow: 0 20px 40px rgba(54, 28, 73, 0.15);
+	padding: clamp(1.4rem, 3vw, 2.4rem);
+	backdrop-filter: blur(6px);
+}
+
+.k-card h2 {
+	margin: 0 0 0.75rem;
+	color: #5b3473;
+	font-family: "Inter", sans-serif;
+	font-size: clamp(1.9rem, 3.2vw, 2.7rem);
+	line-height: 1.1;
+}
+
+.k-card p {
+	margin: 0.75rem 0;
+	color: #3f2453;
+	font-family: "Open Sans", sans-serif;
+	font-size: clamp(1rem, 1.2vw, 1.08rem);
+	line-height: 1.6;
+}
+
+.k-card ul {
+	margin: 0.95rem 0 1.1rem;
+	padding: 0.85rem 1rem 0.85rem 2rem;
+	border-radius: 14px;
+	background: linear-gradient(90deg, rgba(88, 52, 115, 0.08), rgba(164, 133, 188, 0.06));
+	border: 1px solid rgba(166, 138, 191, 0.28);
+}
+
+.k-card li {
+	margin: 0.35rem 0;
+	color: #3f2453;
+	font-family: "Open Sans", sans-serif;
+	font-size: clamp(0.96rem, 1.1vw, 1.02rem);
+}
+
+.k-card .k-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 0.8rem;
+	min-height: 46px;
+	padding: 0.1rem 0.6rem;
+	border: 1px solid rgba(87, 55, 113, 0.42);
+	border-radius: 12px;
+	background: linear-gradient(125deg, #5b3473 0%, #7b4ea0 48%, #a485bc 100%);
+	color: #fff;
+	text-decoration: none;
+	font-family: "Open Sans", sans-serif;
+	font-size: 1rem;
+	font-weight: 700;
+	box-shadow: 0 10px 20px rgba(91, 52, 115, 0.25);
+	transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.k-card .k-button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 14px 24px rgba(91, 52, 115, 0.3);
+	filter: saturate(1.06);
+}
+
+.k-card .k-button:focus-visible {
+	outline: 3px solid rgba(123, 78, 160, 0.32);
+	outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+	.k-auth-main {
+		padding: 1rem;
+	}
+
+	.k-card {
+		border-radius: 18px;
+		padding: 1.1rem;
+	}
+
+	.k-card .k-button {
+		width: 100%;
+	}
+}

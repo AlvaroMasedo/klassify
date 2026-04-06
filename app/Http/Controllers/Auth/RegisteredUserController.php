@@ -101,6 +101,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        if ($user->role === 'TEACHER') {
+            return redirect()->route('teacher.pending');
+        }
+
         return redirect()->route('feed');
     }
 }
