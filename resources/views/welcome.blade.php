@@ -80,8 +80,8 @@
         <h3>Entra a Klassify</h3>
         <p>Empieza a descubrir recursos como profesor o alumno</p>
 
-        <a href="#" class="k-button">Crear Cuenta</a>
-        <a href="#" class="k-button-second">Iniciar Sesión</a>
+        <a href="{{ route('register') }}" class="k-button">Crear Cuenta</a>
+        <a href="{{ route('login') }}" class="k-button-second">Iniciar Sesión</a>
 
         <p class="p-pequeño">Al registrarte debes aceptar los términos y normas de la plataforma</p>
     </div>

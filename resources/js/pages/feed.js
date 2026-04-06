@@ -118,6 +118,10 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', () => {
     const courseSelect = document.getElementById('course-filter');
     const subjectSelect = document.getElementById('subject-filter');
+    if (!courseSelect || !subjectSelect) {
+        return;
+    }
+
     const availableCourses = Array.isArray(window.coursesWithSubjects)
         ? window.coursesWithSubjects
         : [];

@@ -1,0 +1,27 @@
+.k-auth-footer{
+    background-color: #F3F3F3;
+    color: white;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1.2rem;
+    padding: 2rem;
+    text-align: center;
+    border-top: solid 1.5px #583473;
+}
+
+.k-auth-footer-links a {
+    color: #583473;
+    text-decoration: none;
+    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
+    font-size: 17px;
+}
+.k-auth-footer-links a:hover {
+    font-weight: 700;
+}
+
+span{
+    color: #000000;
+    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
+    font-size: 15px;
+}
