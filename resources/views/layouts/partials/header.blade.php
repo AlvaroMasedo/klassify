@@ -63,6 +63,10 @@
 
                 <div class="k-profile-menu" role="menu" aria-label="Perfil">
                     <a class="k-profile-item" href="/perfil" role="menuitem">Perfil</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="k-profile-item" type="submit" role="menuitem">Cerrar sesión</button>
+                    </form>
                 </div>
             </div>
         </div>
