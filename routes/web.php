@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FeedController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -30,3 +31,7 @@ Route::middleware('auth')->get('/feed', [FeedController::class, 'index'])->name(
 Route::get('/teacher/pending', function () {
     return view('auth.teacher-pending');
 })->name('teacher.pending');
+
+Route::get('/login', [LoginController::class, 'create'])->name('login');
+Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+Route::post('/logout', [LoginController::class,'logout'])->name('logout');

@@ -414,6 +414,25 @@ input:not(:placeholder-shown)~.reset {
     background: rgba(88, 52, 115, 0.08);
 }
 
+.k-profile-menu form {
+    margin: 0;
+}
+
+.k-profile-menu form .k-profile-item {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.k-profile-menu form .k-profile-item:hover {
+    background: rgba(88, 52, 115, 0.08);
+} 
+
 .k-profile:hover .k-profile-menu,
 .k-profile:focus-within .k-profile-menu {
     opacity: 1;
