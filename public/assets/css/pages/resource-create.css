@@ -1,0 +1,131 @@
+* {
+    box-sizing: border-box;
+}
+
+.resource-page {
+    min-height: calc(100vh - 120px);
+    padding: clamp(1.5rem, 4vw, 4rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.82), transparent 35%),
+        linear-gradient(135deg, rgba(232, 221, 245, 0.95), rgba(194, 164, 219, 0.9));
+}
+
+.resource-card {
+    width: min(100%, 44rem);
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border: 4px solid rgba(255, 255, 255, 0.82);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 18px 40px rgba(91, 52, 115, 0.18);
+    backdrop-filter: blur(10px);
+}
+
+.resource-eyebrow {
+    margin: 0 0 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6e3f91;
+}
+
+.resource-card h1 {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    font-size: clamp(2.1rem, 3vw, 3rem);
+    line-height: 1.05;
+    color: #4b2f63;
+}
+
+.resource-intro {
+    margin: 0.85rem 0 1.5rem;
+    font-size: 1rem;
+    color: #3f2453;
+}
+
+.resource-status,
+.resource-link-box {
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(109, 66, 144, 0.18);
+    color: #4b2f63;
+}
+
+.resource-link-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.resource-link-box a {
+    color: #583473;
+    word-break: break-all;
+}
+
+.resource-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.resource-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    font-family: "Open Sans", sans-serif;
+    font-weight: 700;
+    color: #4b2f63;
+}
+
+.resource-form input,
+.resource-form textarea {
+    width: 100%;
+    padding: 0.95rem 1rem;
+    border: 1px solid #d6c8e6;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.88);
+    font: inherit;
+    outline: none;
+}
+
+.resource-form input:focus,
+.resource-form textarea:focus {
+    border-color: #8c63b0;
+}
+
+.resource-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.resource-actions .k-button,
+.resource-actions .k-button-second {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 12rem;
+}
+
+@media (max-width: 700px) {
+    .resource-page {
+        padding: 1rem;
+    }
+
+    .resource-card {
+        border-radius: 22px;
+        padding: 1.2rem;
+    }
+
+    .resource-actions .k-button,
+    .resource-actions .k-button-second {
+        width: 100%;
+        min-width: 0;
+    }
+}

@@ -19,9 +19,47 @@
 <body class="k-body">
     @include('layouts.partials.header')
 
+    @if(session('error') || session('success') || session('status'))
+    <div class="k-alert-stack" aria-live="polite" aria-atomic="true">
+        @if(session('error'))
+        <div class="k-alert k-alert--error js-k-alert" role="alert" data-autohide="5000">
+            {{ session('error') }}
+        </div>
+        @endif
+
+        @if(session('success'))
+        <div class="k-alert k-alert--success js-k-alert" role="status" data-autohide="5000">
+            {{ session('success') }}
+        </div>
+        @endif
+
+        @if(session('status'))
+        <div class="k-alert k-alert--success js-k-alert" role="status" data-autohide="5000">
+            {{ session('status') }}
+        </div>
+        @endif
+    </div>
+    @endif
+    
     <main class="k-main">
         @yield('content')
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.js-k-alert').forEach(function (alert) {
+                var timeoutMs = Number(alert.dataset.autohide || 5000);
+
+                window.setTimeout(function () {
+                    alert.classList.add('k-alert--hide');
+
+                    window.setTimeout(function () {
+                        alert.remove();
+                    }, 320);
+                }, timeoutMs);
+            });
+        });
+    </script>
 </body>
 
 </html>
