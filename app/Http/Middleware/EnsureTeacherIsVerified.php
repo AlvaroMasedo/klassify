@@ -17,8 +17,18 @@ class EnsureTeacherIsVerified
     {
         $user = $request->user();
 
-        if (!$user || $user->teacher_status !== 'ACTIVE') {
-            return redirect()->route('teacher.pending')->with('error', 'Tu cuenta de profesor está pendiente de aprobación. Por favor, espera a que un administrador revise tu solicitud.');
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        if ($user->role !== 'TEACHER') {
+            return redirect()->route('feed')
+                ->with('error', 'No tienes permiso para acceder a esta sección.');
+        }
+
+        if ($user->teacher_status !== 'ACTIVE') {
+            return redirect()->route('teacher.pending')
+                ->with('error', 'Tu cuenta de profesor aún está pendiente de validación.');
         }
         return $next($request);
     }
