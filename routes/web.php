@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\FeedController;
+use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,7 @@ Route::middleware('guest')->group(function () {
 
 // Rutas para usuarios autenticados
 Route::middleware('auth')->get('/feed', [FeedController::class, 'index'])->name('feed');
+Route::middleware('auth')->get('/resources/create', [ResourceController::class, 'entry'])->name('resources.create');
 
 // Ruta para la página de "pendiente de aprobación" de profesores
 Route::get('/teacher/pending', function () {
@@ -44,3 +46,21 @@ Route::get('/teacher/pending', function () {
 // Rutas de autenticación de sesión iniciada y cierre de sesión
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 Route::post('/logout', [LoginController::class,'logout'])->name('logout');
+
+// Rutas para profesores autenticados y verificados
+Route::middleware(['auth', 'teacher', 'teacher.verified'])
+    ->prefix('teacher')
+    ->name('teacher.')
+    ->group(function () {
+        Route::get('/resources/create', [ResourceController::class, 'create'])->name('resources.create');
+        Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
+    });
+
+// Rutas para administradores
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/resources/create', [ResourceController::class, 'create'])->name('resources.create');
+        Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
+});

@@ -87,3 +87,50 @@ p {
     border-radius: 100px;
     font-weight: 700;
 }
+
+.k-alert-stack {
+    position: fixed;
+    top: 5.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    pointer-events: none;
+}
+
+.k-alert {
+    width: min(92vw, 380px);
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    box-shadow: 0 10px 24px rgba(34, 20, 46, 0.22);
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+    background: #f8f3fc;
+    color: #43295b;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: auto;
+}
+
+.k-alert--error {
+    background: linear-gradient(90deg, #fff4f4 0%, #ffe9e9 100%);
+    border-color: #f3b2b2;
+    color: #8f1f2a;
+}
+
+.k-alert--success {
+    background: linear-gradient(90deg, #f4fff8 0%, #e7f8ef 100%);
+    border-color: #b4e2c4;
+    color: #1f6b3b;
+}
+
+.k-alert--hide {
+    opacity: 0;
+    transform: translateY(-8px);
+}
