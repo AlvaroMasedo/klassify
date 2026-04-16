@@ -199,6 +199,22 @@
 	color: #583473;
 }
 
+.teacher-request-badge--submitted,
+.teacher-request-badge--pending {
+	background: rgba(217, 171, 17, 0.16);
+	color: #8a6400;
+}
+
+.teacher-request-badge--rejected {
+	background: rgba(220, 38, 38, 0.14);
+	color: #991b1b;
+}
+
+.teacher-request-badge--approved {
+	background: rgba(22, 163, 74, 0.16);
+	color: #166534;
+}
+
 .teacher-requests-empty {
 	padding: clamp(1.3rem, 2.5vw, 2rem);
 	text-align: center;
