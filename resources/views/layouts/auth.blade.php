@@ -43,7 +43,7 @@
             <a href="#">Normas de la comunidad · </a>
             <a href="#">Privacidad · </a>
             <a href="#">Ayuda · </a>
-            <a href="#">Contacto · </a>
+            <a href="#">Contacto</a>
         </div>
         <span>© {{ date('Y') }} Klassify</span>
     </footer>

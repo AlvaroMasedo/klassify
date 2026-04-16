@@ -20,19 +20,6 @@
     padding: clamp(1rem, 2vw, 1.5rem);
 }
 
-.register-review-page .review-header,
-.register-review .review-header {
-    margin-bottom: 1rem;
-}
-
-.register-review-page .review-title,
-.register-review .review-title {
-    margin: 0;
-    font-size: clamp(1.9rem, 3vw, 2.7rem);
-    font-weight: 700;
-    line-height: 1.2;
-}
-
 .register-review-page .review-subtitle,
 .register-review .review-subtitle {
     margin: 0.4rem 0 0;
@@ -150,17 +137,6 @@
 .register-review .btn-primary:hover {
     background: linear-gradient(90deg, #583473 0%, #A485BC 100%);
     transform: translateY(-1px);
-}
-
-.register-review-page .review-alert,
-.register-review .review-alert {
-    margin-top: 0.9rem;
-    border: 1px solid #fecaca;
-    background: #fef2f2;
-    color: #991b1b;
-    border-radius: 10px;
-    padding: 0.7rem 0.85rem;
-    font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {
