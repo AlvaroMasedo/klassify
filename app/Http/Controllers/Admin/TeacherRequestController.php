@@ -3,32 +3,54 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TeacherInstitutionApprovalMail;
+use App\Models\Institution;
 use App\Models\TeacherRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use Illuminate\Support\Str;
-use App\Models\Institution;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class TeacherRequestController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $requests = TeacherRequest::with('user')
-            ->whereIn('status', ['SUBMITTED', 'REJECTED', 'APPROVED'])
+        $validStatuses = ['SUBMITTED', 'APPROVED', 'REJECTED'];
+        $status = $request->query('status');
+
+        $teacherRequests = TeacherRequest::with('user')
+            ->when(
+                $status && in_array($status, $validStatuses),
+                fn ($query) => $query->where('status', $status)
+            )
             ->latest('created_at')
             ->get();
 
-        return view('admin.teacher-requests.index', compact('requests'));
+        return view('admin.teacher-requests.index', [
+            'teacherRequests' => $teacherRequests,
+            'selectedStatus' => $status,
+        ]);
     }
 
     public function approve(TeacherRequest $teacherRequest): RedirectResponse
     {
-        $institution = Institution::create([
-            'name' => $teacherRequest->institution_name,
-            'email' => $teacherRequest->institution_email,
-            'address' => $teacherRequest->address,
-        ]);
+        if ($teacherRequest->status !== 'SUBMITTED') {
+            return redirect()->route('admin.teacher-requests.index')
+                ->with('error', 'Solo se pueden aprobar solicitudes enviadas.');
+        }
+
+        $institution = Institution::where('email', $teacherRequest->institution_email)
+            ->orWhere('name', $teacherRequest->institution_name)
+            ->first();
+
+        if (!$institution) {
+            $institution = Institution::create([
+                'name' => $teacherRequest->institution_name,
+                'email' => $teacherRequest->institution_email,
+                'city' => $this->extractCityFromAddress($teacherRequest->address),
+            ]);
+        }
 
         $token = Str::random(64);
 
@@ -37,30 +59,50 @@ class TeacherRequestController extends Controller
             'token' => $token,
         ]);
 
-        Mail::raw(
-            "Se ha solicitado validar al profesor {$teacherRequest->user->name} {$teacherRequest->user->surname}. 
-        Para aceptarlo, entra aquí: " . route('teacher-requests.institution-approve', $token),
-            function ($message) use ($teacherRequest) {
-                $message->to($teacherRequest->institution_email)
-                    ->subject('Validación de profesor en Klassify');
-            }
-        );
+        $confirmationUrl = route('teacher-requests.confirm', $token);
+
+        Mail::to($teacherRequest->institution_email)
+            ->send(new TeacherInstitutionApprovalMail($teacherRequest->fresh('user'), $confirmationUrl));
 
         return redirect()->route('admin.teacher-requests.index')
             ->with('success', 'Solicitud aprobada y correo enviado a la institución.');
     }
 
-    public function institutionApprove(string $token): RedirectResponse
+    public function reject(TeacherRequest $teacherRequest): RedirectResponse
+    {
+        if ($teacherRequest->status !== 'SUBMITTED') {
+            return redirect()->route('admin.teacher-requests.index')
+                ->with('error', 'Solo se pueden rechazar solicitudes enviadas.');
+        }
+
+        $teacherRequest->update([
+            'status' => 'REJECTED',
+            'token' => null,
+        ]);
+
+        return redirect()->route('admin.teacher-requests.index')
+            ->with('success', 'Solicitud rechazada correctamente.');
+    }
+
+    public function confirmByInstitution(string $token): View|RedirectResponse
     {
         $teacherRequest = TeacherRequest::with('user')
             ->where('token', $token)
             ->where('status', 'APPROVED')
-            ->firstOrFail();
+            ->first();
 
-        $institution = Institution::where('email', $teacherRequest->institution_email)->first();
+        if (!$teacherRequest) {
+            return redirect()->route('login')
+                ->with('error', 'La solicitud no existe o ya ha sido confirmada.');
+        }
+
+        $institution = Institution::where('email', $teacherRequest->institution_email)
+            ->orWhere('name', $teacherRequest->institution_name)
+            ->first();
 
         if (!$institution) {
-            return redirect()->route('home')->with('error', 'No se ha encontrado la institución.');
+            return redirect()->route('login')
+                ->with('error', 'No se ha encontrado la institución asociada.');
         }
 
         $teacherRequest->user->update([
@@ -69,11 +111,16 @@ class TeacherRequestController extends Controller
         ]);
 
         $teacherRequest->update([
-            'status' => 'APPROVED',
             'token' => null,
         ]);
 
-        return redirect()->route('login')
-            ->with('success', 'Profesor validado correctamente por la institución.');
+        return view('auth.teacher-confirmed');
+    }
+
+    private function extractCityFromAddress(string $address): string
+    {
+        $parts = array_map('trim', explode(',', $address));
+
+        return end($parts) ?: $address;
     }
 }

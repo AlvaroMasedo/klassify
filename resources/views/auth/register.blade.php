@@ -115,6 +115,8 @@
                                 @enderror
 
                                 <label for="direccion">Dirección</label>
+                                <p class="p-info">Introduce la direccion en este formato: <strong> direccion completa, ciudad </strong></p>
+
                                 <input type="text" name="direccion" id="direccion" placeholder="dirección de la institución" value="{{ old('direccion', $preview['direccion'] ?? '') }}">
                                 @error('direccion')
                                 <p class="p-error">{{ $message }}</p>
