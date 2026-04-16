@@ -29,6 +29,7 @@ class User extends Authenticatable
         'role',
         'teacher_status',
         'specialization',
+        'institution_id',
         'is_private',
     ];
 

@@ -26,6 +26,11 @@ body {
     flex: 1;
 }
 
+.p-info{
+    font-size: 0.85rem;
+    margin: 0;
+}
+
 .p-error{
     margin: 0.25rem 0 0;
     font-size: 0.85rem;

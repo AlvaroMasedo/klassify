@@ -24,9 +24,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
 
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::get('/register/review', fn () => redirect()->route('register'));
+    Route::get('/register/review', fn() => redirect()->route('register'));
     Route::post('/register/review', [RegisteredUserController::class, 'review'])->name('register.review');
-    Route::get('/register/confirm', fn () => redirect()->route('register'));
+    Route::get('/register/confirm', fn() => redirect()->route('register'));
     Route::post('/register/confirm', [RegisteredUserController::class, 'store'])->name('register.confirm');
 
     Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('forgot.password');
@@ -47,7 +47,7 @@ Route::get('/teacher/pending', function () {
 
 // Rutas de autenticación de sesión iniciada y cierre de sesión
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
-Route::post('/logout', [LoginController::class,'logout'])->name('logout');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Rutas para profesores autenticados y verificados
 Route::middleware(['auth', 'teacher', 'teacher.verified'])
@@ -65,13 +65,14 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
         Route::get('/resources/create', [ResourceController::class, 'create'])->name('resources.create');
         Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
-});
+    });
 
-
+// Rutas para la gestión de solicitudes de profesores por parte de administradores
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/teacher-requests', [TeacherRequestController::class, 'index'])->name('teacher-requests.index');
     Route::post('/teacher-requests/{teacherRequest}/approve', [TeacherRequestController::class, 'approve'])->name('teacher-requests.approve');
+    Route::post('/teacher-requests/{teacherRequest}/reject', [TeacherRequestController::class, 'reject'])->name('teacher-requests.reject');
 });
 
-Route::get('/teacher-requests/institution-approve/{token}', [TeacherRequestController::class, 'institutionApprove'])
-    ->name('teacher-requests.institution-approve');
+Route::get('/teacher-requests/confirm/{token}', [TeacherRequestController::class, 'confirmByInstitution'])
+    ->name('teacher-requests.confirm');
