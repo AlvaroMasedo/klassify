@@ -72,3 +72,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/teacher-requests', [TeacherRequestController::class, 'index'])->name('teacher-requests.index');
     Route::post('/teacher-requests/{teacherRequest}/approve', [TeacherRequestController::class, 'approve'])->name('teacher-requests.approve');
 });
+
+Route::get('/teacher-requests/institution-approve/{token}', [TeacherRequestController::class, 'institutionApprove'])
+    ->name('teacher-requests.institution-approve');

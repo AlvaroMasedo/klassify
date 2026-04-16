@@ -22,9 +22,13 @@
         </div>
 
         @forelse ($requests as $request)
+            @php
+                $status = strtolower((string) $request->status);
+            @endphp
             <article class="teacher-request-card">
                 <div class="teacher-request-card__top">
                     <div>
+                        <span class="teacher-request-badge teacher-request-badge--{{ $status }}">{{ strtoupper((string) $request->status) }}</span>
                         <h2>{{ data_get($request, 'user.name', 'Usuario eliminado') }} {{ data_get($request, 'user.surname', '') }}</h2>
                         <p>@<span>{{ data_get($request, 'user.nickname', 'sin-nickname') }}</span> · {{ data_get($request, 'user.email', 'sin-email') }}</p>
                     </div>
