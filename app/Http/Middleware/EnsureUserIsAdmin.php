@@ -18,7 +18,7 @@ class EnsureUserIsAdmin
         $user = $request->user();
 
         if (!$user || $user->role !== 'ADMIN') {
-            return redirect()->route('feed')->with('error', 'No tienes permiso para publicar recursos.');
+            return redirect()->route('feed')->with('error', 'No tienes permiso para acceder a esta sección.');
         }
 
         return $next($request);
