@@ -56,6 +56,7 @@
                     <div class="k-form-actions">
                         <button type="submit" class="k-submit-btn">Iniciar sesión</button>
                         <p class="k-auth-switch">¿No tienes una cuenta? <a class="k-auth-switch-link" href="{{ route('register') }}">Regístrate</a></p>
+                        <p class="k-auth-switch"><a class="k-auth-switch-link" href="{{ route('forgot.password') }}">¿Olvidaste tu contraseña?</a></p>
                     </div>
                 </form>
             </div>
