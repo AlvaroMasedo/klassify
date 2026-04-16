@@ -13,11 +13,35 @@
     color: var(--rr-text);
 }
 
+.k-body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.k-auth-main {
+    flex: 1;
+}
+
+.k-auth-main .register-review-page {
+    height: 100%;
+}
+
 .register-review-page .review-wrapper,
 .register-review .review-wrapper {
     width: min(980px, 100%);
     margin: 0 auto;
     padding: clamp(1rem, 2vw, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.register-review-page .review-title,
+.register-review .review-title {
+    margin: 0;
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    line-height: 1.2;
 }
 
 .register-review-page .review-subtitle,
@@ -30,6 +54,7 @@
 
 .register-review-page .review-card,
 .register-review .review-card {
+    margin-block: auto;
     background: var(--rr-bg);
     border: 1px solid var(--rr-border);
     border-radius: var(--rr-radius);

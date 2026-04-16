@@ -21,12 +21,15 @@ class EnsureTeacherIsVerified
             return redirect()->route('login');
         }
 
-        if ($user->role !== 'TEACHER') {
+        $role = strtoupper((string) ($user->role ?? ''));
+        $teacherStatus = strtoupper((string) ($user->teacher_status ?? ''));
+
+        if ($role !== 'TEACHER') {
             return redirect()->route('feed')
                 ->with('error', 'No tienes permiso para acceder a esta sección.');
         }
 
-        if ($user->teacher_status !== 'ACTIVE') {
+        if (!in_array($teacherStatus, ['ACTIVE', 'VERIFIED'], true)) {
             return redirect()->route('teacher.pending')
                 ->with('error', 'Tu cuenta de profesor aún está pendiente de validación.');
         }

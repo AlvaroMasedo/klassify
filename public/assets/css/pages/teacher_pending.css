@@ -57,8 +57,9 @@
 	align-items: center;
 	justify-content: center;
 	margin-top: 0.8rem;
-	min-height: 46px;
-	padding: 0.1rem 0.6rem;
+	min-width: 100px;
+	min-height: 10px;
+	padding: 0 0.6rem;
 	border: 1px solid rgba(87, 55, 113, 0.42);
 	border-radius: 12px;
 	background: linear-gradient(125deg, #5b3473 0%, #7b4ea0 48%, #a485bc 100%);
