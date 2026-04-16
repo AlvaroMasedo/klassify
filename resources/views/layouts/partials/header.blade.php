@@ -57,11 +57,15 @@
             <div class="k-profile" tabindex="0">
                 <button class="k-profile-btn" type="button" aria-haspopup="true" aria-expanded="false">
                     <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Foto de perfil" class="k-profile-icon">
+                    <span class="k-profile-name">{{ auth()->user()->name ?? 'Usuario' }}</span>
                     <span class="k-profile-chev">▾</span>
                 </button>
 
                 <div class="k-profile-menu" role="menu" aria-label="Perfil">
                     <a class="k-profile-item" href="/perfil" role="menuitem">Perfil</a>
+                        @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
+                        <a class="k-profile-item" href="{{ route('admin.teacher-requests.index') }}" role="menuitem">Solicitudes</a>
+                    @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="k-profile-item" type="submit" role="menuitem">Cerrar sesión</button>

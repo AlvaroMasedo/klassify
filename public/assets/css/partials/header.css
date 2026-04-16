@@ -363,12 +363,16 @@ input:not(:placeholder-shown)~.reset {
     .k-profile-chev {
         color: #ffffff;
     }
+    .k-profile-name{
+        color: #ffffff;
+    }
 }
 
 .k-profile-btn {
     height: 50px;
-    width: 120px;
-    padding: 0 14px 0 0;
+    width: auto;
+    min-width: 120px;
+    padding: 0 12px 0 0;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
@@ -382,6 +386,18 @@ input:not(:placeholder-shown)~.reset {
 
 }
 
+.k-profile-name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.93rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+
 .k-profile-menu {
     position: absolute;
     top: calc(100% + 10px);
@@ -390,7 +406,7 @@ input:not(:placeholder-shown)~.reset {
     padding: 8px;
     border-radius: 14px;
     background: rgba(255, 255, 255, .96);
-    border: 1px solid rgba(0, 0, 0, .08);
+    border: 1px solid rgba(0, 0 , 0, .08);
     box-shadow: 0 18px 50px rgba(20, 10, 40, 0.18);
     opacity: 0;
     visibility: hidden;
@@ -450,8 +466,8 @@ input:not(:placeholder-shown)~.reset {
 }
 
 .k-profile-chev {
-    margin-left: 24px;
-    font-size: 24px;
+    margin-left: 8px;
+    font-size: 18px;
     line-height: 1;
 }
 
@@ -505,5 +521,20 @@ input:not(:placeholder-shown)~.reset {
 
     .k-profile-chev {
         font-size: 16px;
+    }
+
+    .k-profile-btn {
+        min-width: 104px;
+        padding: 0 10px 0 0;
+    }
+
+    .k-profile-name {
+        max-width: 88px;
+        font-size: 0.82rem;
+    }
+
+    .k-profile-chev {
+        margin-left: 6px;
+        font-size: 14px;
     }
 }

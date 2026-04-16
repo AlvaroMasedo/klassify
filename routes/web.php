@@ -7,6 +7,8 @@ use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\TeacherRequestController;
+
 
 //Si el usuario ya ha iniciado sesión, redirige a la página de feed
 Route::get('/', function () {
@@ -63,4 +65,10 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
         Route::get('/resources/create', [ResourceController::class, 'create'])->name('resources.create');
         Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
+});
+
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/teacher-requests', [TeacherRequestController::class, 'index'])->name('teacher-requests.index');
+    Route::post('/teacher-requests/{teacherRequest}/approve', [TeacherRequestController::class, 'approve'])->name('teacher-requests.approve');
 });

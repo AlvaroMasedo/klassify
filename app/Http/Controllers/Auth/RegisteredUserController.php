@@ -5,14 +5,15 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\Course;
+use App\Models\TeacherRequest;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
-use App\Models\TeacherRequest;
 
 class RegisteredUserController extends Controller
 {
@@ -104,15 +105,29 @@ class RegisteredUserController extends Controller
         ]);
 
         if ($isTeacher) {
-            TeacherRequest::create([
+            $teacherRequestData = [
                 'user_id' => $user->id,
-                'institution_name' => $data['name_institucion'] ?? '',
-                'institution_email' => $data['email_institucional'] ?? '',
-                'address' => $data['direccion'] ?? '',
                 'status' => 'submitted',
-                'token' => null,
                 'created_at' => now(),
-            ]);
+            ];
+
+            if (Schema::hasColumn('teacher_requests', 'institution_name')) {
+                $teacherRequestData['institution_name'] = $data['name_institucion'] ?? '';
+            }
+
+            if (Schema::hasColumn('teacher_requests', 'institution_email')) {
+                $teacherRequestData['institution_email'] = $data['email_institucional'] ?? '';
+            }
+
+            if (Schema::hasColumn('teacher_requests', 'address')) {
+                $teacherRequestData['address'] = $data['direccion'] ?? '';
+            }
+
+            if (Schema::hasColumn('teacher_requests', 'token')) {
+                $teacherRequestData['token'] = null;
+            }
+
+            TeacherRequest::create($teacherRequestData);
         }
 
         session()->forget(['register.preview', 'register.password']);
