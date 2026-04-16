@@ -17,7 +17,7 @@ class EnsureUserIsAdmin
     {
         $user = $request->user();
 
-        if (!$user || $user->role !== 'ADMIN') {
+        if (!$user || strtoupper((string) ($user->role ?? '')) !== 'ADMIN') {
             return redirect()->route('feed')->with('error', 'No tienes permiso para acceder a esta sección.');
         }
 

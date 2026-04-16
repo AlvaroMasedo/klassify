@@ -18,12 +18,15 @@ class ResourceController extends Controller
             return redirect()->route('login');
         }
 
-        if ($user->role === 'ADMIN') {
+        $role = strtoupper((string) ($user->role ?? ''));
+        $teacherStatus = strtoupper((string) ($user->teacher_status ?? ''));
+
+        if ($role === 'ADMIN') {
             return redirect()->route('admin.resources.create');
         }
 
-        if ($user->role === 'TEACHER') {
-            if ($user->teacher_status === 'ACTIVE') {
+        if ($role === 'TEACHER') {
+            if (in_array($teacherStatus, ['ACTIVE', 'VERIFIED'], true)) {
                 return redirect()->route('teacher.resources.create');
             }
 

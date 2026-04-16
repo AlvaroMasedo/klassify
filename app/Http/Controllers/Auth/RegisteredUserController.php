@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\View\View;
+use App\Models\TeacherRequest;
 
 class RegisteredUserController extends Controller
 {
@@ -83,7 +84,12 @@ class RegisteredUserController extends Controller
                 ->withInput();
         }
 
-        $teacherStatus = $data['role'] === 'TEACHER' ? 'PENDING' : 'ACTIVE';
+        $rawRole = strtoupper((string) ($data['role'] ?? 'STUDENT'));
+        $isTeacher = $rawRole === 'TEACHER';
+
+        // Align with MySQL enum values used by the SQL bootstrap script.
+        $roleForDb = strtolower($rawRole);
+        $teacherStatus = $isTeacher ? 'pending' : null;
 
         $user = User::create([
             'name' => $data['name'],
@@ -91,17 +97,29 @@ class RegisteredUserController extends Controller
             'nickname' => $data['nickname'],
             'email' => $data['email'],
             'password' => Crypt::decryptString($encryptedPassword),
-            'role' => $data['role'],
+            'role' => $roleForDb,
             'teacher_status' => $teacherStatus,
-            'specialization' => $data['role'] === 'TEACHER' ? ($data['specialization'] ?? null) : null,
+            'specialization' => $isTeacher ? ($data['specialization'] ?? null) : null,
             'is_private' => false,
         ]);
+
+        if ($isTeacher) {
+            TeacherRequest::create([
+                'user_id' => $user->id,
+                'institution_name' => $data['name_institucion'] ?? '',
+                'institution_email' => $data['email_institucional'] ?? '',
+                'address' => $data['direccion'] ?? '',
+                'status' => 'submitted',
+                'token' => null,
+                'created_at' => now(),
+            ]);
+        }
 
         session()->forget(['register.preview', 'register.password']);
 
         Auth::login($user);
 
-        if ($user->role === 'TEACHER') {
+        if ($isTeacher) {
             return redirect()->route('teacher.pending');
         }
 

@@ -17,7 +17,7 @@ class EnsureUserIsTeacher
     {
         $user = $request->user();
 
-        if (!$user || $user->role !== 'TEACHER') {
+        if (!$user || strtoupper((string) ($user->role ?? '')) !== 'TEACHER') {
             return redirect()->route('feed')->with('error', 'No tienes permiso para publicar recursos.');
         }
 
