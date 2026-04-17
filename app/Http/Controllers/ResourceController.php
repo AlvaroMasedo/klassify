@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -39,11 +40,18 @@ class ResourceController extends Controller
     public function create(Request $request): View
     {
         $scope = $this->resolveScope($request);
+        $courses = Course::query()
+            ->with(['subjects' => function ($query) {
+                $query->orderBy('name');
+            }])
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return view('resources.create', [
             'scope' => $scope,
             'scopeLabel' => $scope === 'admin' ? 'Administrador' : 'Profesor verificado',
             'storeRoute' => route($scope . '.resources.store'),
+            'courses' => $courses,
         ]);
     }
 
