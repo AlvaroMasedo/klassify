@@ -350,6 +350,19 @@
     color: #7f718f;
 }
 
+.p-error {
+    margin: 0.2rem 0 0;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid rgba(197, 59, 81, 0.28);
+    border-left: 4px solid #c53b51;
+    border-radius: 10px;
+    background: rgba(255, 238, 241, 0.9);
+    color: #8f2538;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
 .resource-actions {
     display: flex;
     flex-wrap: wrap;

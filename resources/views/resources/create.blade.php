@@ -31,7 +31,7 @@
         </div>
         @endif
 
-        <form class="resource-form" method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data">
+        <form class="resource-form" method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" novalidate>
             @csrf
 
             <label for="title" class="resource-field-label">Título del recurso
@@ -123,27 +123,25 @@
         </form>
     </div>
 </section>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var input = document.getElementById('resource_file');
+        var fileInput = document.getElementById('resource_file');
         var fileName = document.getElementById('resource_file_name');
-        var description = document.getElementById('description');
-        var descriptionCount = document.getElementById('description_count');
         var courseSelect = document.getElementById('course_id');
         var subjectSelect = document.getElementById('subject_id');
+        var description = document.getElementById('description');
+        var descriptionCount = document.getElementById('description_count');
 
-        if (!input || !fileName) {
-            return;
-        }
+        if (fileInput && fileName) {
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files && fileInput.files.length > 0) {
+                    fileName.textContent = fileInput.files[0].name;
+                    return;
+                }
 
-        input.addEventListener('change', function() {
-            if (input.files && input.files.length > 0) {
-                fileName.textContent = input.files[0].name;
-            } else {
                 fileName.textContent = 'Ningún archivo seleccionado';
-            }
-        });
+            });
+        }
 
         if (description && descriptionCount) {
             var updateCounter = function() {
@@ -155,29 +153,56 @@
         }
 
         if (courseSelect && subjectSelect) {
-            var subjectOptions = Array.prototype.slice.call(subjectSelect.querySelectorAll('option[data-course-id]'));
+            var allSubjectOptions = Array.prototype.slice.call(
+                subjectSelect.querySelectorAll('option[data-course-id]')
+            ).map(function(option) {
+                return {
+                    value: option.value,
+                    label: option.textContent,
+                    courseId: option.getAttribute('data-course-id') || ''
+                };
+            });
 
-            var filterSubjects = function() {
-                var selectedCourse = courseSelect.value;
-                var previousValue = subjectSelect.value;
-                var hasVisibleSelected = false;
+            var defaultOption = subjectSelect.querySelector('option[value=""]');
+            var defaultLabel = defaultOption ? defaultOption.textContent : 'Selecciona una asignatura';
+            var oldSubjectId = "{{ (string) old('subject_id', '') }}";
 
-                subjectOptions.forEach(function(option) {
-                    var isVisible = selectedCourse !== '' && option.dataset.courseId === selectedCourse;
-                    option.hidden = !isVisible;
+            var renderSubjectOptions = function() {
+                var selectedCourseId = courseSelect.value;
+                var previousSubjectId = subjectSelect.value;
+                var selectedSubjectId = previousSubjectId || oldSubjectId;
 
-                    if (isVisible && option.value === previousValue) {
-                        hasVisibleSelected = true;
+                subjectSelect.innerHTML = '';
+
+                var placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = defaultLabel;
+                subjectSelect.appendChild(placeholderOption);
+
+                allSubjectOptions.forEach(function(subject) {
+                    if (selectedCourseId !== '' && subject.courseId === selectedCourseId) {
+                        var option = document.createElement('option');
+                        option.value = subject.value;
+                        option.textContent = subject.label;
+                        subjectSelect.appendChild(option);
                     }
                 });
 
-                if (!hasVisibleSelected) {
-                    subjectSelect.value = '';
+                if (selectedSubjectId !== '') {
+                    var exists = Array.prototype.some.call(subjectSelect.options, function(option) {
+                        return option.value === selectedSubjectId;
+                    });
+
+                    if (exists) {
+                        subjectSelect.value = selectedSubjectId;
+                    }
                 }
+
+                oldSubjectId = '';
             };
 
-            courseSelect.addEventListener('change', filterSubjects);
-            filterSubjects();
+            courseSelect.addEventListener('change', renderSubjectOptions);
+            renderSubjectOptions();
         }
     });
 </script>
