@@ -264,6 +264,12 @@
             </div>
             @endforelse
 
+            @if ($resources->hasMorePages())
+            <div class="feed-load-more">
+                <a href="{{ $resources->nextPageUrl() }}" class="feed-load-more-btn">Cargar 10 más</a>
+            </div>
+            @endif
+
             <div class="resource-preview-modal" id="resource-preview-modal" hidden>
                 <div class="resource-preview-backdrop" data-preview-close="true"></div>
                 <div class="resource-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="resource-preview-title">

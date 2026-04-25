@@ -22,14 +22,18 @@ class FeedController extends Controller{
                 'subject:id,name',
             ])
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
-        $resources->transform(function (Resource $resource) {
+        $resources->setCollection($resources->getCollection()->transform(function (Resource $resource) {
             $resource->display_url = $this->resolveDisplayUrl($resource->file_url);
             return $resource;
-        });
+        }));
 
-        $featuredResources = $resources->take(5);
+        $featuredResources = Resource::query()
+            ->latest()
+            ->take(5)
+            ->get(['id', 'title', 'type']);
 
         return view('feed.index', [
             'courses' => $courses,
