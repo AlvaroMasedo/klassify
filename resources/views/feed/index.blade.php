@@ -14,136 +14,33 @@
             <div class="k-recursosDestacados-card">
                 <h2>Recursos Destacados</h2>
 
-                <!-- Recursos destacados -->
+                @forelse ($featuredResources as $resource)
                 <div class="rd-card">
-                    <h3>Nom Recurs</h3>
-                    <p class="p-pequeño">Tipo: Video</p>
-
+                    <h3>{{ $resource->title }}</h3>
+                    <p class="p-pequeño">Tipo: {{ ucfirst((string) $resource->type) }}</p>
 
                     <div class="k-interacts">
-                        <!-- Icono Corazon -->
                         <div class="k-likes">
                             <svg class="icon-heart" data-favorite="false" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
                                 <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
                             </svg>
-                            <p class="p-numero-pequeño">123</p>
+                            <p class="p-numero-pequeño">0</p>
                         </div>
 
-                        <!-- Icono Comentarios -->
                         <div class="k-comments">
                             <svg class="icon-comment" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
                                 <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
                             </svg>
-                            <p class="p-numero-pequeño">45</p>
+                            <p class="p-numero-pequeño">0</p>
                         </div>
                     </div>
-
-
                 </div>
-                <!-- Recursos destacados -->
+                @empty
                 <div class="rd-card">
-                    <h3>Nom Recurs</h3>
-                    <p class="p-pequeño">Tipo: Video</p>
-
-
-                    <div class="k-interacts">
-                        <!-- Icono Corazon -->
-                        <div class="k-likes">
-                            <svg class="icon-heart" data-favorite="false" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
-                                <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
-                            </svg>
-                            <p class="p-numero-pequeño">123</p>
-                        </div>
-
-                        <!-- Icono Comentarios -->
-                        <div class="k-comments">
-                            <svg class="icon-comment" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
-                                <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
-                            </svg>
-                            <p class="p-numero-pequeño">45</p>
-                        </div>
-                    </div>
-
-
+                    <h3>No hay recursos destacados</h3>
+                    <p class="p-pequeño">Cuando haya publicaciones reales, aparecerán aquí.</p>
                 </div>
-                <!-- Recursos destacados -->
-                <div class="rd-card">
-                    <h3>Nom Recurs</h3>
-                    <p class="p-pequeño">Tipo: Video</p>
-
-
-                    <div class="k-interacts">
-                        <!-- Icono Corazon -->
-                        <div class="k-likes">
-                            <svg class="icon-heart" data-favorite="false" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
-                                <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
-                            </svg>
-                            <p class="p-numero-pequeño">123</p>
-                        </div>
-
-                        <!-- Icono Comentarios -->
-                        <div class="k-comments">
-                            <svg class="icon-comment" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
-                                <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
-                            </svg>
-                            <p class="p-numero-pequeño">45</p>
-                        </div>
-                    </div>
-
-
-                </div>
-                <!-- Recursos destacados -->
-                <div class="rd-card">
-                    <h3>Nom Recurs</h3>
-                    <p class="p-pequeño">Tipo: Video</p>
-
-
-                    <div class="k-interacts">
-                        <!-- Icono Corazon -->
-                        <div class="k-likes">
-                            <svg class="icon-heart" data-favorite="false" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
-                                <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
-                            </svg>
-                            <p class="p-numero-pequeño">123</p>
-                        </div>
-
-                        <!-- Icono Comentarios -->
-                        <div class="k-comments">
-                            <svg class="icon-comment" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
-                                <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
-                            </svg>
-                            <p class="p-numero-pequeño">45</p>
-                        </div>
-                    </div>
-
-
-                </div>
-                <!-- Recursos destacados -->
-                <div class="rd-card">
-                    <h3>Nom Recurs</h3>
-                    <p class="p-pequeño">Tipo: Video</p>
-
-
-                    <div class="k-interacts">
-                        <!-- Icono Corazon -->
-                        <div class="k-likes">
-                            <svg class="icon-heart" data-favorite="false" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
-                                <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
-                            </svg>
-                            <p class="p-numero-pequeño">123</p>
-                        </div>
-
-                        <!-- Icono Comentarios -->
-                        <div class="k-comments">
-                            <svg class="icon-comment" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#2d1b3d">
-                                <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
-                            </svg>
-                            <p class="p-numero-pequeño">45</p>
-                        </div>
-                    </div>
-
-
-                </div>
+                @endforelse
                 <div class="view-more">
                     <p>Mostrar más</p>
                 </div>
@@ -173,14 +70,14 @@
                     </select>
 
                     <div class="fileTypes-content">
-                        <label for="text">Texto</label>
-                        <input type="checkbox" name="fileType" id="text">
+                        <label for="imagen">Imagen</label>
+                        <input type="checkbox" name="fileType" id="imagen">
                         <label for="documento">Documento</label>
                         <input type="checkbox" name="fileType" id="documento">
                         <label for="video">Video</label>
                         <input type="checkbox" name="fileType" id="video">
-                        <label for="enlace">Enlace</label>
-                        <input type="checkbox" name="fileType" id="enlace">
+                        <label for="audio">Audio</label>
+                        <input type="checkbox" name="fileType" id="audio">
                     </div>
                 </div>
             </div>
@@ -192,8 +89,28 @@
                 );
             </script>
 
+            @forelse ($resources as $resource)
+            @php
+            $userName = trim(((string) ($resource->user->name ?? '')) . ' ' . ((string) ($resource->user->surname ?? '')));
+            $resourceUserName = $userName !== '' ? $userName : 'Usuario';
+            $resourceNickname = (string) ($resource->user->nickname ?? 'usuario');
+            $courseName = (string) ($resource->course->name ?? 'Sin curso');
+            $subjectName = (string) ($resource->subject->name ?? 'Sin asignatura');
+            $resourceDescription = (string) ($resource->description ?? 'Sin descripción.');
+            $resourceUrl = (string) ($resource->display_url ?? $resource->file_url ?? '');
+            $resourceMime = strtolower((string) ($resource->mime_type ?? ''));
+            $resourceExtension = strtolower(pathinfo((string) ($resource->file_name ?? ''), PATHINFO_EXTENSION));
+            $isImage = str_starts_with($resourceMime, 'image/');
+            $isVideo = str_starts_with($resourceMime, 'video/');
+            $isAudio = str_starts_with($resourceMime, 'audio/');
+            $isPdf = $resourceMime === 'application/pdf';
+            $isPreviewableImage = in_array($resourceMime, ['image/png', 'image/jpeg'], true)
+                || in_array($resourceExtension, ['png', 'jpeg', 'jpg'], true);
+            $isPreviewableVideo = $resourceMime === 'video/mp4' || $resourceExtension === 'mp4';
+            $isPreviewable = $isPreviewableImage || $isPreviewableVideo;
+            $previewKind = $isPreviewableVideo ? 'video' : 'image';
+            @endphp
             <div class="recurs-card">
-                <!-- Header del recurso -->
                 <div class="recurs-header">
                     <div class="recurs-user-info">
                         <div class="recurs-avatar">
@@ -201,13 +118,10 @@
                         </div>
                         <div class="recurs-user-details">
                             <div class="recurs-name-container">
-                                <span class="recurs-name">Nombre</span>
-                                <span class="recurs-username">@nick-name</span>
-                                <svg class="verified-badge" xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#1DA1F2">
-                                    <path d="m344-60-76-128-144-32 14-148-98-112 98-112-14-148 144-32 76-128 136 58 136-58 76 128 144 32-14 148 98 112-98 112 14 148-144 32-76 128-136-58-136 58Zm34-102 102-44 104 44 56-96 110-26-10-112 74-84-74-86 10-112-110-24-58-96-102 44-104-44-56 96-110 24 10 112-74 86 74 84-10 114 110 24 58 96Zm102-318Zm-42 142 226-226-56-58-170 170-86-84-56 56 142 142Z" />
-                                </svg>
+                                <span class="recurs-name">{{ $resourceUserName }}</span>
+                                <span class="recurs-username">{{ '@' . $resourceNickname }}</span>
                             </div>
-                            <p class="recurs-meta">Curso: Bachillerato | Asignatura: España</p>
+                            <p class="recurs-meta">Curso: {{ $courseName }} | Asignatura: {{ $subjectName }}</p>
                         </div>
                     </div>
                     <button class="recurs-more-btn">
@@ -217,109 +131,151 @@
                     </button>
                 </div>
 
-                <!-- Contenido del recurso -->
                 <div class="recurs-content">
-                    <h3 class="recurs-title">La Guerra Civil Española (1936-1939) – Resumen en vídeo</h3>
-                    <p class="recurs-description">Vídeo explicativo sobre las claves del desarrollo y las consecuencias de la Guerra Civil Española, pensado para alumnado de Bachillerato. El recurso incluye un repaso cronológico de los principales acontecimientos, así como de los conceptos clave necesarios para comprender el contexto histórico.</p>
+                    <h3 class="recurs-title">{{ $resource->title }}</h3>
+                    <p class="recurs-description">{{ $resourceDescription }}</p>
                 </div>
 
-                <!-- Thumbnail del video -->
                 <div class="recurs-media">
                     <div class="recurs-video-thumbnail">
-                        <img src="{{ asset('assets/images/video-placeholder.jpg') }}" alt="Video thumbnail">
-                        <div class="play-button-overlay">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#FFFFFF">
-                                <path d="M320-200v-560l440 280-440 280Z" />
-                            </svg>
+                        @if ($isPreviewable)
+                        <button
+                            type="button"
+                            class="resource-preview-thumb resource-preview-trigger"
+                            data-preview-url="{{ $resourceUrl }}"
+                            data-preview-kind="{{ $previewKind }}"
+                            data-preview-title="{{ $resource->title }}"
+                            aria-label="Abrir vista previa de {{ $resource->title }}"
+                        >
+                            @if ($isPreviewableImage)
+                            <img src="{{ $resourceUrl }}" alt="Recurso {{ $resource->title }}">
+                            @else
+                            <video preload="metadata" muted playsinline>
+                                <source src="{{ $resourceUrl }}" type="video/mp4">
+                            </video>
+                            <span class="resource-preview-play" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </span>
+                            @endif
+                        </button>
+                        @elseif ($isImage)
+                        <img src="{{ $resourceUrl }}" alt="Recurso {{ $resource->title }}">
+                        @elseif ($isVideo)
+                        <video controls preload="metadata" style="width:100%;height:auto;display:block;">
+                            <source src="{{ $resourceUrl }}" type="{{ $resource->mime_type }}">
+                            Tu navegador no soporta vídeo HTML5.
+                        </video>
+                        @elseif ($isAudio)
+                        @if ($resourceMime === 'audio/mpeg' || $resourceExtension === 'mp3')
+                        <div class="custom-audio-player" data-audio-player>
+                            <audio preload="metadata" data-audio-el>
+                                <source src="{{ $resourceUrl }}" type="audio/mpeg">
+                                Tu navegador no soporta audio HTML5.
+                            </audio>
+                            <button type="button" class="custom-audio-toggle" data-audio-toggle aria-label="Reproducir audio">
+                                <span data-audio-icon>▶</span>
+                            </button>
+                            <div class="custom-audio-track-wrap">
+                                <div class="custom-audio-times">
+                                    <span data-audio-current>0:00</span>
+                                    <span data-audio-duration>0:00</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value="0"
+                                    step="0.1"
+                                    class="custom-audio-seek"
+                                    data-audio-seek
+                                    aria-label="Progreso del audio"
+                                >
+                            </div>
+                            <div class="custom-audio-volume-wrap">
+                                <button type="button" class="custom-audio-volume-btn" data-audio-mute aria-label="Silenciar audio">
+                                    <span data-audio-volume-icon>🔊</span>
+                                </button>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value="100"
+                                    step="1"
+                                    class="custom-audio-volume"
+                                    data-audio-volume
+                                    aria-label="Volumen"
+                                >
+                            </div>
                         </div>
+                        @else
+                        <div style="padding: 1rem; background: #fff; border-radius: 10px;">
+                            <audio controls preload="metadata" style="width:100%;">
+                                <source src="{{ $resourceUrl }}" type="{{ $resource->mime_type }}">
+                                Tu navegador no soporta audio HTML5.
+                            </audio>
+                        </div>
+                        @endif
+                        @elseif ($isPdf)
+                        <iframe
+                            src="{{ $resourceUrl }}"
+                            title="PDF {{ $resource->title }}"
+                            style="width:100%;height:420px;border:0;background:#fff;"
+                        ></iframe>
+                        @else
+                        <div style="padding: 1rem; background: #fff; border-radius: 10px;">
+                            <a href="{{ $resourceUrl }}" target="_blank" rel="noreferrer">Abrir recurso</a>
+                            @if (!empty($resource->file_name))
+                            <p style="margin: 0.5rem 0 0;">{{ $resource->file_name }}</p>
+                            @endif
+                        </div>
+                        @endif
                     </div>
                 </div>
 
-                <!-- Interacciones del recurso -->
                 <div class="recurs-interactions">
                     <div class="recurs-action">
                         <svg class="icon-heart" data-favorite="false" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
                             <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
                         </svg>
-                        <span class="recurs-count">123</span>
+                        <span class="recurs-count">0</span>
                     </div>
                     <div class="recurs-action">
                         <svg class="icon-comment" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
                             <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
                         </svg>
-                        <span class="recurs-count">45</span>
+                        <span class="recurs-count">0</span>
                     </div>
                     <div class="recurs-action">
                         <svg class="icon-bookmark" data-saved="false" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
                             <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
                         </svg>
-                        <span class="recurs-count">12</span>
+                        <span class="recurs-count">0</span>
                     </div>
                 </div>
             </div>
+            @empty
             <div class="recurs-card">
-                <!-- Header del recurso -->
-                <div class="recurs-header">
-                    <div class="recurs-user-info">
-                        <div class="recurs-avatar">
-                            <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar">
-                        </div>
-                        <div class="recurs-user-details">
-                            <div class="recurs-name-container">
-                                <span class="recurs-name">Nombre</span>
-                                <span class="recurs-username">@nick-name</span>
-                                <svg class="verified-badge" xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#1DA1F2">
-                                    <path d="m344-60-76-128-144-32 14-148-98-112 98-112-14-148 144-32 76-128 136 58 136-58 76 128 144 32-14 148 98 112-98 112 14 148-144 32-76 128-136-58-136 58Zm34-102 102-44 104 44 56-96 110-26-10-112 74-84-74-86 10-112-110-24-58-96-102 44-104-44-56 96-110 24 10 112-74 86 74 84-10 114 110 24 58 96Zm102-318Zm-42 142 226-226-56-58-170 170-86-84-56 56 142 142Z" />
-                                </svg>
-                            </div>
-                            <p class="recurs-meta">Curso: Bachillerato | Asignatura: España</p>
-                        </div>
-                    </div>
-                    <button class="recurs-more-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2d1b3d">
-                            <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Contenido del recurso -->
                 <div class="recurs-content">
-                    <h3 class="recurs-title">La Guerra Civil Española (1936-1939) – Resumen en vídeo</h3>
-                    <p class="recurs-description">Vídeo explicativo sobre las claves del desarrollo y las consecuencias de la Guerra Civil Española, pensado para alumnado de Bachillerato. El recurso incluye un repaso cronológico de los principales acontecimientos, así como de los conceptos clave necesarios para comprender el contexto histórico.</p>
+                    <h3 class="recurs-title">Todavía no hay recursos publicados</h3>
+                    <p class="recurs-description">Cuando subas recursos reales, aparecerán aquí en esta misma estructura.</p>
                 </div>
+            </div>
+            @endforelse
 
-                <!-- Thumbnail del video -->
-                <div class="recurs-media">
-                    <div class="recurs-video-thumbnail">
-                        <img src="{{ asset('assets/images/video-placeholder.jpg') }}" alt="Video thumbnail">
-                        <div class="play-button-overlay">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="60px" viewBox="0 -960 960 960" width="60px" fill="#FFFFFF">
-                                <path d="M320-200v-560l440 280-440 280Z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+            @if ($resources->hasMorePages())
+            <div class="feed-load-more">
+                <a href="{{ $resources->nextPageUrl() }}" class="feed-load-more-btn">Cargar 10 más</a>
+            </div>
+            @endif
 
-                <!-- Interacciones del recurso -->
-                <div class="recurs-interactions">
-                    <div class="recurs-action">
-                        <svg class="icon-heart" data-favorite="false" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
-                            <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
-                        </svg>
-                        <span class="recurs-count">123</span>
-                    </div>
-                    <div class="recurs-action">
-                        <svg class="icon-comment" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
-                            <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
-                        </svg>
-                        <span class="recurs-count">45</span>
-                    </div>
-                    <div class="recurs-action">
-                        <svg class="icon-bookmark" data-saved="false" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
-                            <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
-                        </svg>
-                        <span class="recurs-count">12</span>
-                    </div>
+            <div class="resource-preview-modal" id="resource-preview-modal" hidden>
+                <div class="resource-preview-backdrop" data-preview-close="true"></div>
+                <div class="resource-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="resource-preview-title">
+                    <button type="button" class="resource-preview-close" data-preview-close="true" aria-label="Cerrar vista previa">&times;</button>
+                    <h3 class="resource-preview-title" id="resource-preview-title"></h3>
+                    <div class="resource-preview-stage" id="resource-preview-stage"></div>
                 </div>
             </div>
         </section>
