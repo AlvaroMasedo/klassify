@@ -113,6 +113,223 @@ document.addEventListener('DOMContentLoaded', function () {
         mobileMenuBtn.addEventListener('click', toggleMenu);
         mobileOverlay.addEventListener('click', toggleMenu);
     }
+
+    const previewModal = document.getElementById('resource-preview-modal');
+    const previewStage = document.getElementById('resource-preview-stage');
+    const previewTitle = document.getElementById('resource-preview-title');
+    const previewTriggers = document.querySelectorAll('.resource-preview-trigger');
+
+    if (previewModal && previewStage && previewTitle) {
+        previewModal.hidden = true;
+
+        const closePreview = () => {
+            previewModal.hidden = true;
+            previewStage.innerHTML = '';
+            previewTitle.textContent = '';
+            document.body.classList.remove('menu-open');
+        };
+
+        const openPreview = (url, kind, title) => {
+            previewStage.innerHTML = '';
+            previewTitle.textContent = title || 'Vista previa';
+
+            if (kind === 'video') {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.preload = 'metadata';
+                video.src = url;
+                previewStage.appendChild(video);
+            } else {
+                const image = document.createElement('img');
+                image.src = url;
+                image.alt = title || 'Vista previa del recurso';
+                previewStage.appendChild(image);
+            }
+
+            previewModal.hidden = false;
+            document.body.classList.add('menu-open');
+        };
+
+        if (previewTriggers.length > 0) {
+            previewTriggers.forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const url = trigger.getAttribute('data-preview-url') || '';
+                    const kind = trigger.getAttribute('data-preview-kind') || 'image';
+                    const title = trigger.getAttribute('data-preview-title') || 'Vista previa';
+
+                    if (!url) {
+                        return;
+                    }
+
+                    openPreview(url, kind, title);
+                });
+            });
+        }
+
+        previewModal.querySelectorAll('[data-preview-close="true"]').forEach(closeEl => {
+            closeEl.addEventListener('click', (event) => {
+                event.preventDefault();
+                closePreview();
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !previewModal.hidden) {
+                closePreview();
+            }
+        });
+    }
+
+    const audioPlayers = document.querySelectorAll('[data-audio-player]');
+
+    if (audioPlayers.length > 0) {
+        const allAudio = Array.from(audioPlayers)
+            .map(player => player.querySelector('[data-audio-el]'))
+            .filter(Boolean);
+
+        const formatTime = (seconds) => {
+            if (!Number.isFinite(seconds) || seconds < 0) {
+                return '0:00';
+            }
+
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${String(secs).padStart(2, '0')}`;
+        };
+
+        audioPlayers.forEach((player) => {
+            const audio = player.querySelector('[data-audio-el]');
+            const toggle = player.querySelector('[data-audio-toggle]');
+            const icon = player.querySelector('[data-audio-icon]');
+            const seek = player.querySelector('[data-audio-seek]');
+            const volume = player.querySelector('[data-audio-volume]');
+            const muteBtn = player.querySelector('[data-audio-mute]');
+            const volumeIcon = player.querySelector('[data-audio-volume-icon]');
+            const currentEl = player.querySelector('[data-audio-current]');
+            const durationEl = player.querySelector('[data-audio-duration]');
+
+            if (!audio || !toggle || !icon || !seek || !currentEl || !durationEl || !volume || !muteBtn || !volumeIcon) {
+                return;
+            }
+
+            let scrubbing = false;
+            let lastVolume = 1;
+
+            const updateProgress = () => {
+                const duration = audio.duration || 0;
+                const current = audio.currentTime || 0;
+                const progress = duration > 0 ? (current / duration) * 100 : 0;
+
+                seek.value = String(progress);
+                seek.style.setProperty('--progress', `${progress}%`);
+                currentEl.textContent = formatTime(current);
+            };
+
+            const setPausedState = (isPaused) => {
+                icon.textContent = isPaused ? '▶' : '❚❚';
+                toggle.setAttribute('aria-label', isPaused ? 'Reproducir audio' : 'Pausar audio');
+            };
+
+            const setVolumeUi = () => {
+                const volumePercent = Math.round((audio.volume || 0) * 100);
+                volume.value = String(volumePercent);
+                volume.style.setProperty('--volume', `${volumePercent}%`);
+
+                if (audio.muted || volumePercent === 0) {
+                    volumeIcon.textContent = '🔇';
+                    muteBtn.setAttribute('aria-label', 'Activar sonido');
+                } else if (volumePercent < 45) {
+                    volumeIcon.textContent = '🔉';
+                    muteBtn.setAttribute('aria-label', 'Silenciar audio');
+                } else {
+                    volumeIcon.textContent = '🔊';
+                    muteBtn.setAttribute('aria-label', 'Silenciar audio');
+                }
+            };
+
+            audio.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(audio.duration || 0);
+                updateProgress();
+            });
+
+            audio.addEventListener('timeupdate', () => {
+                if (!scrubbing) {
+                    updateProgress();
+                }
+            });
+
+            audio.addEventListener('ended', () => {
+                setPausedState(true);
+                audio.currentTime = 0;
+                updateProgress();
+            });
+
+            toggle.addEventListener('click', () => {
+                if (audio.paused) {
+                    allAudio.forEach(other => {
+                        if (other !== audio) {
+                            other.pause();
+                        }
+                    });
+
+                    audio.play().catch(() => {
+                        setPausedState(true);
+                    });
+                    setPausedState(false);
+                } else {
+                    audio.pause();
+                    setPausedState(true);
+                }
+            });
+
+            seek.addEventListener('input', () => {
+                scrubbing = true;
+                const progress = Number(seek.value);
+                seek.style.setProperty('--progress', `${progress}%`);
+                const duration = audio.duration || 0;
+                currentEl.textContent = formatTime((progress / 100) * duration);
+            });
+
+            seek.addEventListener('change', () => {
+                const duration = audio.duration || 0;
+                audio.currentTime = (Number(seek.value) / 100) * duration;
+                scrubbing = false;
+                updateProgress();
+            });
+
+            volume.addEventListener('input', () => {
+                const nextVolume = Number(volume.value) / 100;
+                audio.volume = Math.min(1, Math.max(0, nextVolume));
+                audio.muted = nextVolume === 0;
+
+                if (nextVolume > 0) {
+                    lastVolume = nextVolume;
+                }
+
+                setVolumeUi();
+            });
+
+            muteBtn.addEventListener('click', () => {
+                if (audio.muted || audio.volume === 0) {
+                    audio.muted = false;
+                    audio.volume = lastVolume > 0 ? lastVolume : 0.75;
+                } else {
+                    lastVolume = audio.volume;
+                    audio.muted = true;
+                }
+
+                setVolumeUi();
+            });
+
+            audio.addEventListener('pause', () => setPausedState(true));
+            audio.addEventListener('play', () => setPausedState(false));
+
+            audio.volume = 0.8;
+            setPausedState(true);
+            updateProgress();
+            setVolumeUi();
+        });
+    }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
