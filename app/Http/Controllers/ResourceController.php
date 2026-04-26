@@ -13,9 +13,39 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class ResourceController extends Controller
 {
+    public function preview(Request $request, Resource $resource): Response
+    {
+        $fileUrl = (string) ($resource->file_url ?? '');
+
+        if ($fileUrl === '') {
+            abort(404);
+        }
+
+        $path = parse_url($fileUrl, PHP_URL_PATH);
+
+        if (!is_string($path) || $path === '') {
+            abort(404);
+        }
+
+        $normalizedPath = ltrim($path, '/');
+        $bucket = (string) config('filesystems.disks.s3.bucket');
+
+        if ($bucket !== '' && str_starts_with($normalizedPath, $bucket . '/')) {
+            $normalizedPath = substr($normalizedPath, strlen($bucket) + 1);
+        }
+
+        /** @var FilesystemAdapter $s3 */
+        $s3 = Storage::disk('s3');
+
+        return $s3->response($normalizedPath, $resource->file_name ?: null, [
+            'Content-Disposition' => 'inline',
+        ]);
+    }
+
     public function entry(Request $request): RedirectResponse
     {
         $user = $request->user();

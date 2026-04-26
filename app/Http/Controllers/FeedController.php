@@ -4,36 +4,75 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Resource;
-use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
-use Throwable;
 
 class FeedController extends Controller{
     public function index(): View{
-        $courses = Course::with('subjects')
-            ->orderBy('name')
-            ->get();
+        $feedCache = Cache::store('file');
+        $currentUser = request()->user();
+        $isStudent = strtoupper((string) ($currentUser?->role ?? '')) === 'STUDENT';
 
-        $resources = Resource::query()
+        $courses = $feedCache->remember('feed:v2:courses:with-subjects', now()->addMinutes(30), function () {
+            return Course::with('subjects')
+                ->orderBy('name')
+                ->get();
+        });
+
+        $resourceQuery = Resource::query()
+            ->select([
+                'id',
+                'user_id',
+                'course_id',
+                'subject_id',
+                'title',
+                'description',
+                'type',
+                'file_url',
+                'file_name',
+                'mime_type',
+                'created_at',
+            ])
             ->with([
-                'user:id,name,surname,nickname,teacher_status',
+                'user:id,name,surname,nickname,teacher_status,is_private',
                 'course:id,name',
                 'subject:id,name',
             ])
+            ->whereHas('user', function ($query) {
+                $query->where('is_private', false);
+            });
+
+        if ($isStudent) {
+            $resourceQuery->where('type', '!=', 'exam');
+        }
+
+        $resources = $resourceQuery
             ->latest()
-            ->paginate(10)
+            ->simplePaginate(10)
             ->withQueryString();
 
-        $resources->setCollection($resources->getCollection()->transform(function (Resource $resource) {
-            $resource->display_url = $this->resolveDisplayUrl($resource->file_url);
-            return $resource;
-        }));
+        foreach ($resources->items() as $resource) {
+            if ($resource instanceof Resource) {
+                $resource->display_url = $this->resolveDisplayUrl($resource);
+            }
+        }
 
-        $featuredResources = Resource::query()
-            ->latest()
-            ->take(5)
-            ->get(['id', 'title', 'type']);
+        $featuredResources = $feedCache->remember('feed:v2:featured-resources:' . ($isStudent ? 'student' : 'staff'), now()->addMinutes(10), function () use ($isStudent) {
+            $query = Resource::query()
+                ->latest()
+                ->select(['id', 'user_id', 'title', 'type'])
+                ->with(['user:id,is_private']);
+
+            $query->whereHas('user', function ($userQuery) {
+                $userQuery->where('is_private', false);
+            });
+
+            if ($isStudent) {
+                $query->where('type', '!=', 'exam');
+            }
+
+            return $query->take(5)->get();
+        });
 
         return view('feed.index', [
             'courses' => $courses,
@@ -42,32 +81,14 @@ class FeedController extends Controller{
         ]);
     }
 
-    private function resolveDisplayUrl(?string $fileUrl): ?string
+    private function resolveDisplayUrl(Resource $resource): ?string
     {
-        if (!$fileUrl) {
+        $fileUrl = (string) ($resource->file_url ?? '');
+
+        if ($fileUrl === '') {
             return null;
         }
 
-        $path = parse_url($fileUrl, PHP_URL_PATH);
-
-        if (!is_string($path) || $path === '') {
-            return $fileUrl;
-        }
-
-        $normalizedPath = ltrim($path, '/');
-        $bucket = (string) config('filesystems.disks.s3.bucket');
-
-        if ($bucket !== '' && str_starts_with($normalizedPath, $bucket . '/')) {
-            $normalizedPath = substr($normalizedPath, strlen($bucket) + 1);
-        }
-
-        try {
-            /** @var FilesystemAdapter $s3 */
-            $s3 = Storage::disk('s3');
-
-            return $s3->temporaryUrl($normalizedPath, now()->addMinutes(20));
-        } catch (Throwable) {
-            return $fileUrl;
-        }
+        return route('resources.preview', ['resource' => $resource->id]);
     }
 }

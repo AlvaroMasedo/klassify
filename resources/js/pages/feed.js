@@ -141,7 +141,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const iframe = document.createElement('iframe');
                 iframe.className = 'resource-preview-doc-frame';
                 iframe.setAttribute('title', title || 'Vista previa del documento');
-                iframe.src = `${url}#page=1&view=FitH`;
+                iframe.setAttribute('scrolling', 'no');
+                iframe.src = `${url}#page=1`;
 
                 docWrap.appendChild(iframe);
                 previewStage.appendChild(docWrap);
@@ -256,7 +257,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (kind === 'pdf') {
-                applyPreviewOrientation(thumb, 0.75);
+                if (thumb.classList.contains('resource-preview-thumb')) {
+                    applyPreviewOrientation(thumb, 0.75);
+                }
             }
 
             thumb.setAttribute('data-preview-ready', 'true');
@@ -274,7 +277,15 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const initAudioPlayers = (scope = document) => {
-        const players = scope.querySelectorAll('[data-audio-player]:not([data-audio-ready="true"])');
+        const players = [];
+
+        if (scope.matches && scope.matches('[data-audio-player]:not([data-audio-ready="true"])')) {
+            players.push(scope);
+        }
+
+        scope.querySelectorAll('[data-audio-player]:not([data-audio-ready="true"])').forEach((player) => {
+            players.push(player);
+        });
 
         players.forEach((player) => {
             const audio = player.querySelector('[data-audio-el]');
@@ -413,8 +424,47 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
+    const audioObserver = 'IntersectionObserver' in window
+        ? new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                initAudioPlayers(entry.target);
+                observer.unobserve(entry.target);
+            });
+        }, {
+            root: null,
+            rootMargin: '180px 0px',
+            threshold: 0.01,
+        })
+        : null;
+
+    const observeAudioPlayers = (scope = document) => {
+        const players = [];
+
+        if (scope.matches && scope.matches('[data-audio-player]:not([data-audio-observed="true"])')) {
+            players.push(scope);
+        }
+
+        scope.querySelectorAll('[data-audio-player]:not([data-audio-observed="true"])').forEach((player) => {
+            players.push(player);
+        });
+
+        players.forEach((player) => {
+            player.setAttribute('data-audio-observed', 'true');
+
+            if (audioObserver) {
+                audioObserver.observe(player);
+            } else {
+                initAudioPlayers(player);
+            }
+        });
+    };
+
     initPreviewThumbs();
-    initAudioPlayers();
+    observeAudioPlayers();
 
     const appCenter = document.querySelector('.app-center');
     const loadMoreContainer = document.querySelector('.feed-load-more');
@@ -461,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 newCards.forEach((card) => {
                     appCenter.insertBefore(card, loadMoreContainer);
                     initPreviewThumbs(card);
-                    initAudioPlayers(card);
+                    observeAudioPlayers(card);
                 });
 
                 const nextLoadMoreBtn = page.querySelector('[data-feed-load-more]');
