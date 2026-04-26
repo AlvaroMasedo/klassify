@@ -820,6 +820,29 @@ body::before {
     font-weight: 700;
     margin: 0;
     line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.recurs-title-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.recurs-title-badge--exam {
+    background: rgba(123, 80, 168, 0.14);
+    color: #6d4290;
+    border: 1px solid rgba(123, 80, 168, 0.2);
 }
 
 .recurs-description {
@@ -895,6 +918,33 @@ body::before {
     transform: translateY(-2px);
     border-color: #f7f3ff;
     box-shadow: 0 12px 22px rgba(0, 0, 0, 0.26);
+}
+
+.resource-preview-pdf-link {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0.1rem 0;
+    text-align: left;
+    cursor: pointer;
+}
+
+.resource-preview-pdf-link-text {
+    display: inline-block;
+    max-width: 100%;
+    color: #5a3a7b;
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.resource-preview-pdf-link:hover .resource-preview-pdf-link-text {
+    color: #40285b;
 }
 
 .resource-preview-media-image,
@@ -1045,7 +1095,7 @@ body::before {
     flex: 0 0 auto;
     gap: 0.4rem;
     min-height: 38px;
-    padding: 0.48rem 0.95rem;
+    padding: 0.28rem 0.65rem;
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.16);
     background: linear-gradient(140deg, #4f2f70 0%, #6f4a9b 56%, #8766ad 100%);
@@ -1055,7 +1105,7 @@ body::before {
     font-weight: 700;
     letter-spacing: 0.02em;
     text-decoration: none;
-    box-shadow: 0 8px 16px rgba(75, 47, 106, 0.32);
+    box-shadow: 0 8px 16px rgba(80, 70, 92, 0.32);
     transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
@@ -1239,6 +1289,21 @@ body::before {
     place-items: center;
 }
 
+.resource-preview-doc-wrap {
+    width: min(860px, 100%);
+    height: calc(92vh - 5.5rem);
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.resource-preview-doc-frame {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #ffffff;
+}
+
 .resource-preview-stage img,
 .resource-preview-stage video {
     width: auto;
@@ -1247,21 +1312,6 @@ body::before {
     max-height: calc(92vh - 5.5rem);
     object-fit: contain;
     display: block;
-}
-
-.resource-preview-doc-wrap {
-    width: min(860px, 100%);
-    height: calc(92vh - 5.5rem);
-    display: flex;
-    justify-content: center;
-}
-
-.resource-preview-doc-frame {
-    width: min(860px, 100%);
-    height: 100%;
-    border: 0;
-    border-radius: 8px;
-    background: #ffffff;
 }
 
 .resource-preview-doc-unavailable {

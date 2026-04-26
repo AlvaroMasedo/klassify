@@ -39,6 +39,7 @@ Route::middleware('guest')->group(function () {
 // Rutas para usuarios autenticados
 Route::middleware('auth')->get('/feed', [FeedController::class, 'index'])->name('feed');
 Route::middleware('auth')->get('/resources/create', [ResourceController::class, 'entry'])->name('resources.create');
+Route::middleware('auth')->get('/resources/{resource}/preview', [ResourceController::class, 'preview'])->name('resources.preview');
 
 // Ruta para la página de "pendiente de aprobación" de profesores
 Route::get('/teacher/pending', function () {
