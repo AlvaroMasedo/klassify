@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Subir recurso')
+@section('title', $pageTitle ?? 'Subir recurso')
 
 @section('page-css')
 <link rel="stylesheet" href="{{ asset('assets/css/pages/resource-create.css') }}">
@@ -13,8 +13,8 @@
 
         <header class="resource-hero">
             <div>
-                <h1>Subir recurso</h1>
-                <p class="resource-intro">Comparte materiales y ayuda a otros profesores y alumnos.</p>
+                <h1>{{ $pageTitle ?? 'Subir recurso' }}</h1>
+                <p class="resource-intro">{{ $pageIntro ?? 'Comparte materiales y ayuda a otros profesores y alumnos.' }}</p>
             </div>
         </header>
 
@@ -31,11 +31,25 @@
         </div>
         @endif
 
-        <form class="resource-form" method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" novalidate>
+        @php
+        $editingResource = $resource ?? null;
+        $titleValue = old('title', $editingResource ? (string) $editingResource->title : '');
+        $descriptionValue = old('description', $editingResource ? (string) $editingResource->description : '');
+        $courseValue = old('course_id', $editingResource ? (string) $editingResource->course_id : '');
+        $subjectValue = old('subject_id', $editingResource ? (string) $editingResource->subject_id : '');
+        $isExamValue = old('is_exam', $editingResource ? (($editingResource->type ?? '') === 'exam') : false);
+        $fileNameValue = $editingResource ? (string) $editingResource->file_name : 'Ningún archivo seleccionado';
+        $isEditMode = (bool) ($isEdit ?? false);
+        @endphp
+
+        <form class="resource-form" method="POST" action="{{ $formAction ?? $storeRoute }}" enctype="multipart/form-data" novalidate>
             @csrf
+            @if (($formMethod ?? 'POST') !== 'POST')
+            @method($formMethod)
+            @endif
 
             <label for="title" class="resource-field-label">Título del recurso
-                <input type="text" id="title" name="title" value="{{ old('title') }}" placeholder="Escribe el título del recurso" required>
+                <input type="text" id="title" name="title" value="{{ $titleValue }}" placeholder="Escribe el título del recurso" required>
                 @error('title')
                 <p class="p-error">{{ $message }}</p>
                 @enderror
@@ -46,7 +60,7 @@
                     <select id="course_id" name="course_id">
                         <option value="">Selecciona un curso</option>
                         @foreach ($courses as $course)
-                        <option value="{{ $course->id }}" @selected((string) old('course_id')===(string) $course->id)>
+                        <option value="{{ $course->id }}" @selected((string) $courseValue === (string) $course->id)>
                             {{ $course->name }}
                         </option>
                         @endforeach
@@ -61,7 +75,7 @@
                         <option value="">Selecciona una asignatura</option>
                         @foreach ($courses as $course)
                         @foreach ($course->subjects as $subject)
-                        <option value="{{ $subject->id }}" data-course-id="{{ $course->id }}" @selected((string) old('subject_id')===(string) $subject->id)>
+                        <option value="{{ $subject->id }}" data-course-id="{{ $course->id }}" @selected((string) $subjectValue === (string) $subject->id)>
                             {{ $subject->name }}
                         </option>
                         @endforeach
@@ -75,15 +89,15 @@
 
             <label class="resource-toggle" for="is_exam">
                 <span class="resource-toggle__text">¿Este recurso es un examen?</span>
-                <input type="checkbox" id="is_exam" name="is_exam" value="1" @checked(old('is_exam'))>
+                <input type="checkbox" id="is_exam" name="is_exam" value="1" @checked($isExamValue)>
                 <span class="resource-toggle__track" aria-hidden="true">
                     <span class="resource-toggle__thumb"></span>
                 </span>
             </label>
 
             <label for="description" class="resource-field-label">Descripción
-                <textarea id="description" name="description" rows="4" placeholder="Añade una descripción del recurso, objetivos, contenidos, indicaciones de uso...">{{ old('description') }}</textarea>
-                <span class="resource-counter"><span id="description_count">{{ mb_strlen((string) old('description', '')) }}</span> / 1000</span>
+                <textarea id="description" name="description" rows="4" placeholder="Añade una descripción del recurso, objetivos, contenidos, indicaciones de uso...">{{ $descriptionValue }}</textarea>
+                <span class="resource-counter"><span id="description_count">{{ mb_strlen((string) $descriptionValue) }}</span> / 1000</span>
                 @error('description')
                 <p class="p-error">{{ $message }}</p>
                 @enderror
@@ -105,10 +119,13 @@
                     <p class="resource-upload-help">Formatos admitidos: PDF, DOC, DOCX, PPT, PPTX, MP4, MP3, PNG, JPEG. Tamaño máximo: 80 MB.</p>
 
                     <div class="resource-upload-controls">
-                        <input type="file" id="resource_file" name="resource_file" class="resource-upload-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.mp3,.png,.jpeg" required>
+                        <input type="file" id="resource_file" name="resource_file" class="resource-upload-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.mp3,.png,.jpeg" @if(!$isEditMode) required @endif>
                         <label for="resource_file" class="resource-upload-button">Seleccionar archivo</label>
-                        <span class="resource-upload-filename" id="resource_file_name">Ningún archivo seleccionado</span>
+                        <span class="resource-upload-filename" id="resource_file_name">{{ $isEditMode ? $fileNameValue : 'Ningún archivo seleccionado' }}</span>
                     </div>
+                    @if ($isEditMode)
+                    <p class="resource-upload-help">Si no seleccionas uno nuevo, se mantendrá el archivo actual.</p>
+                    @endif
                 </div>
             </div>
 
@@ -118,7 +135,7 @@
 
             <div class="resource-actions">
                 <a class="resource-btn resource-btn--ghost" href="{{ route('feed') }}">&larr; Volver atrás</a>
-                <button type="submit" class="resource-btn resource-btn--primary">Subir</button>
+                <button type="submit" class="resource-btn resource-btn--primary">{{ $submitLabel ?? 'Subir' }}</button>
             </div>
         </form>
     </div>
@@ -165,7 +182,7 @@
 
             var defaultOption = subjectSelect.querySelector('option[value=""]');
             var defaultLabel = defaultOption ? defaultOption.textContent : 'Selecciona una asignatura';
-            var oldSubjectId = "{{ (string) old('subject_id', '') }}";
+            var oldSubjectId = "{{ (string) $subjectValue }}";
 
             var renderSubjectOptions = function() {
                 var selectedCourseId = courseSelect.value;

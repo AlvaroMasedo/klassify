@@ -108,6 +108,37 @@ document.addEventListener('DOMContentLoaded', function () {
     const previewModal = document.getElementById('resource-preview-modal');
     const previewStage = document.getElementById('resource-preview-stage');
     const previewTitle = document.getElementById('resource-preview-title');
+    const closeResourceMenus = () => {
+        document.querySelectorAll('[data-resource-menu-panel]:not([hidden])').forEach((panel) => {
+            panel.hidden = true;
+
+            const container = panel.closest('.recurs-more-container');
+
+            if (!container) {
+                return;
+            }
+
+            const toggle = container.querySelector('[data-resource-menu-toggle]');
+
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    };
+
+    const toggleResourceMenu = (toggle) => {
+        const container = toggle.closest('.recurs-more-container');
+        const panel = container ? container.querySelector('[data-resource-menu-panel]') : null;
+
+        if (!panel) {
+            return;
+        }
+
+        const shouldOpen = panel.hidden;
+        closeResourceMenus();
+        panel.hidden = !shouldOpen ? true : false;
+        toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    };
 
     if (previewModal && previewStage && previewTitle) {
         previewModal.hidden = true;
@@ -169,9 +200,31 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         document.addEventListener('click', (event) => {
+            const menuToggle = event.target.closest('[data-resource-menu-toggle]');
+
+            if (menuToggle) {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleResourceMenu(menuToggle);
+                return;
+            }
+
+            const deleteButton = event.target.closest('[data-resource-delete-form] button[type="submit"]');
+
+            if (deleteButton) {
+                const confirmed = window.confirm('¿Seguro que quieres eliminar este recurso?');
+
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+
+                return;
+            }
+
             const trigger = event.target.closest('.resource-preview-trigger');
 
             if (!trigger) {
+                closeResourceMenus();
                 return;
             }
 
@@ -182,6 +235,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!url) {
                 return;
             }
+
+            closeResourceMenus();
 
             openPreview(url, kind, title);
         });
@@ -196,6 +251,16 @@ document.addEventListener('DOMContentLoaded', function () {
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && !previewModal.hidden) {
                 closePreview();
+            }
+
+            if (event.key === 'Escape') {
+                closeResourceMenus();
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.recurs-more-container')) {
+                closeResourceMenus();
             }
         });
     }

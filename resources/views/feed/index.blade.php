@@ -129,6 +129,7 @@
             $previewOrientationClass = $isPreviewablePdf || in_array($resourceExtension, ['doc', 'docx', 'odt', 'rtf', 'txt', 'ppt', 'pptx'], true)
             ? 'resource-preview-thumb--portrait'
             : 'resource-preview-thumb--landscape';
+            $isResourceAuthor = auth()->check() && (int) auth()->id() === (int) $resource->user_id;
             @endphp
             <div class="recurs-card">
                 <div class="recurs-header">
@@ -144,11 +145,24 @@
                             <p class="recurs-meta">Curso: {{ $courseName }} | Asignatura: {{ $subjectName }}</p>
                         </div>
                     </div>
-                    <button class="recurs-more-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2d1b3d">
-                            <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
-                        </svg>
-                    </button>
+                    @if ($isResourceAuthor)
+                    <div class="recurs-more-container">
+                        <button class="recurs-more-btn" type="button" aria-label="Opciones del recurso" data-resource-menu-toggle aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2d1b3d">
+                                <path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
+                            </svg>
+                        </button>
+
+                        <div class="recurs-more-menu" hidden data-resource-menu-panel>
+                            <a href="{{ route('resources.edit', $resource) }}" class="recurs-more-menu__item">Modificar</a>
+                            <form method="POST" action="{{ route('resources.destroy', $resource) }}" data-resource-delete-form>
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="recurs-more-menu__item recurs-more-menu__item--danger">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="recurs-content">
