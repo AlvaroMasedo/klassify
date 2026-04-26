@@ -81,8 +81,10 @@
                     </div>
                 </div>
             </div>
-            
-            <script type="application/json" id="courses-with-subjects-data">@json($courses)</script>
+
+            <script type="application/json" id="courses-with-subjects-data">
+                @json($courses)
+            </script>
             <script>
                 window.coursesWithSubjects = JSON.parse(
                     document.getElementById('courses-with-subjects-data')?.textContent ?? '[]'
@@ -99,16 +101,32 @@
             $resourceDescription = (string) ($resource->description ?? 'Sin descripción.');
             $resourceUrl = (string) ($resource->display_url ?? $resource->file_url ?? '');
             $resourceMime = strtolower((string) ($resource->mime_type ?? ''));
-            $resourceExtension = strtolower(pathinfo((string) ($resource->file_name ?? ''), PATHINFO_EXTENSION));
+            $resourcePathFromUrl = (string) (parse_url((string) ($resource->file_url ?? ''), PHP_URL_PATH) ?? '');
+            $resourceDetectedName = (string) ($resource->file_name ?? basename($resourcePathFromUrl));
+            $resourceExtension = strtolower(pathinfo($resourceDetectedName, PATHINFO_EXTENSION));
             $isImage = str_starts_with($resourceMime, 'image/');
             $isVideo = str_starts_with($resourceMime, 'video/');
-            $isAudio = str_starts_with($resourceMime, 'audio/');
+            $isAudio = str_starts_with($resourceMime, 'audio/')
+                || in_array($resourceExtension, ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'], true);
             $isPdf = $resourceMime === 'application/pdf';
             $isPreviewableImage = in_array($resourceMime, ['image/png', 'image/jpeg'], true)
-                || in_array($resourceExtension, ['png', 'jpeg', 'jpg'], true);
+            || in_array($resourceExtension, ['png', 'jpeg', 'jpg'], true);
             $isPreviewableVideo = $resourceMime === 'video/mp4' || $resourceExtension === 'mp4';
-            $isPreviewable = $isPreviewableImage || $isPreviewableVideo;
-            $previewKind = $isPreviewableVideo ? 'video' : 'image';
+            $isPreviewablePdf = $isPdf || $resourceExtension === 'pdf';
+            $isPreviewable = !empty($resourceUrl) && !$isAudio;
+            $previewKind = $isPreviewableImage
+            ? 'image'
+            : ($isPreviewableVideo
+            ? 'video'
+            : ($isPreviewablePdf ? 'pdf' : 'document'));
+            $previewLabel = $isPreviewableImage
+            ? 'Visualizar imagen'
+            : ($isPreviewablePdf ? 'Visualizar documento' : 'Visualizar archivo');
+            $resourceFileName = $resourceDetectedName !== '' ? $resourceDetectedName : 'Documento';
+            $resourceExtensionLabel = strtoupper($resourceExtension !== '' ? $resourceExtension : 'FILE');
+            $previewOrientationClass = $isPreviewablePdf || in_array($resourceExtension, ['doc', 'docx', 'odt', 'rtf', 'txt', 'ppt', 'pptx'], true)
+            ? 'resource-preview-thumb--portrait'
+            : 'resource-preview-thumb--landscape';
             @endphp
             <div class="recurs-card">
                 <div class="recurs-header">
@@ -138,26 +156,71 @@
 
                 <div class="recurs-media">
                     <div class="recurs-video-thumbnail">
-                        @if ($isPreviewable)
+                        @if ($previewKind === 'document')
+                        <div class="resource-document-card">
+                            <div class="resource-document-main">
+                                <div class="resource-document-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" focusable="false">
+                                        <path d="M7 2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm6 1.5V8h4.5L13 3.5ZM8 11h8v1.5H8V11Zm0 3h8v1.5H8V14Zm0 3h5v1.5H8V17Z" />
+                                    </svg>
+                                </div>
+                                <div class="resource-document-info">
+                                    <p class="resource-document-name" title="{{ $resourceFileName }}">{{ $resourceFileName }}</p>
+                                    <p class="resource-document-subtitle">Archivo adjunto listo para descargar</p>
+                                </div>
+                            </div>
+                            <div class="resource-document-actions">
+                                <span class="resource-document-type">{{ $resourceExtensionLabel }}</span>
+                                <a href="{{ $resourceUrl }}" class="resource-document-download" download>
+                                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                        <path d="M12 3a1 1 0 0 1 1 1v8.17l2.59-2.58a1 1 0 1 1 1.41 1.42l-4.3 4.29a1 1 0 0 1-1.4 0l-4.3-4.29a1 1 0 0 1 1.41-1.42L11 12.17V4a1 1 0 0 1 1-1ZM5 17a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
+                                    </svg>
+                                    <span>Descargar</span>
+                                </a>
+                            </div>
+                        </div>
+                        @elseif ($isPreviewable)
                         <button
                             type="button"
-                            class="resource-preview-thumb resource-preview-trigger"
+                            class="resource-preview-thumb resource-preview-trigger {{ $previewOrientationClass }}"
                             data-preview-url="{{ $resourceUrl }}"
                             data-preview-kind="{{ $previewKind }}"
                             data-preview-title="{{ $resource->title }}"
-                            aria-label="Abrir vista previa de {{ $resource->title }}"
-                        >
+                            aria-label="Abrir vista previa de {{ $resource->title }}">
                             @if ($isPreviewableImage)
-                            <img src="{{ $resourceUrl }}" alt="Recurso {{ $resource->title }}">
+                            <img src="{{ $resourceUrl }}" alt="Recurso {{ $resource->title }}" class="resource-preview-media-image">
                             @else
+                            @if ($isPreviewableVideo)
                             <video preload="metadata" muted playsinline>
                                 <source src="{{ $resourceUrl }}" type="video/mp4">
                             </video>
                             <span class="resource-preview-play" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" focusable="false">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
+                                <span class="resource-preview-play-badge">
+                                    <svg viewBox="0 0 24 24" focusable="false">
+                                        <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                </span>
                             </span>
+                            @else
+                            @if ($isPreviewablePdf)
+                            <div class="resource-preview-media-pdf-wrap" aria-hidden="true">
+                                <iframe
+                                    src="{{ $resourceUrl }}#page=1&zoom=page-fit&toolbar=0&navpanes=0&scrollbar=0"
+                                    class="resource-preview-media-pdf-frame"
+                                    title="Vista previa PDF {{ $resource->title }}"
+                                    loading="lazy"
+                                    scrolling="no"
+                                ></iframe>
+                            </div>
+                            @else
+                            <div class="resource-preview-media-document-placeholder" aria-hidden="true">
+                                <span>Documento</span>
+                            </div>
+                            @endif
+                            @endif
+                            @endif
+                            @if (!$isPreviewableVideo)
+                            <span class="resource-preview-doc-hover" aria-hidden="true">{{ $previewLabel }}</span>
                             @endif
                         </button>
                         @elseif ($isImage)
@@ -178,10 +241,7 @@
                                 <span data-audio-icon>▶</span>
                             </button>
                             <div class="custom-audio-track-wrap">
-                                <div class="custom-audio-times">
-                                    <span data-audio-current>0:00</span>
-                                    <span data-audio-duration>0:00</span>
-                                </div>
+                                <span class="custom-audio-time" data-audio-current>0:00</span>
                                 <input
                                     type="range"
                                     min="0"
@@ -190,8 +250,8 @@
                                     step="0.1"
                                     class="custom-audio-seek"
                                     data-audio-seek
-                                    aria-label="Progreso del audio"
-                                >
+                                    aria-label="Progreso del audio">
+                                <span class="custom-audio-time" data-audio-duration>0:00</span>
                             </div>
                             <div class="custom-audio-volume-wrap">
                                 <button type="button" class="custom-audio-volume-btn" data-audio-mute aria-label="Silenciar audio">
@@ -205,8 +265,7 @@
                                     step="1"
                                     class="custom-audio-volume"
                                     data-audio-volume
-                                    aria-label="Volumen"
-                                >
+                                    aria-label="Volumen">
                             </div>
                         </div>
                         @else
@@ -217,12 +276,6 @@
                             </audio>
                         </div>
                         @endif
-                        @elseif ($isPdf)
-                        <iframe
-                            src="{{ $resourceUrl }}"
-                            title="PDF {{ $resource->title }}"
-                            style="width:100%;height:420px;border:0;background:#fff;"
-                        ></iframe>
                         @else
                         <div style="padding: 1rem; background: #fff; border-radius: 10px;">
                             <a href="{{ $resourceUrl }}" target="_blank" rel="noreferrer">Abrir recurso</a>
@@ -266,7 +319,7 @@
 
             @if ($resources->hasMorePages())
             <div class="feed-load-more">
-                <a href="{{ $resources->nextPageUrl() }}" class="feed-load-more-btn">Cargar 10 más</a>
+                <a href="{{ $resources->nextPageUrl() }}" class="feed-load-more-btn" data-feed-load-more>Carga mas recursos</a>
             </div>
             @endif
 
