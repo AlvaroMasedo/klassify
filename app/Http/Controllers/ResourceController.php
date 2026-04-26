@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreResourceRequest;
+use App\Http\Requests\UpdateResourceRequest;
 use App\Models\Resource;
 use App\Models\Course;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -85,7 +86,41 @@ class ResourceController extends Controller
         return view('resources.create', [
             'scope' => $scope,
             'scopeLabel' => $scope === 'admin' ? 'Administrador' : 'Profesor verificado',
-            'storeRoute' => route($scope . '.resources.store'),
+            'formAction' => route($scope . '.resources.store'),
+            'formMethod' => 'POST',
+            'pageTitle' => 'Subir recurso',
+            'pageIntro' => 'Comparte materiales y ayuda a otros profesores y alumnos.',
+            'submitLabel' => 'Subir',
+            'isEdit' => false,
+            'resource' => null,
+            'courses' => $courses,
+        ]);
+    }
+
+    public function edit(Request $request, Resource $resource): View
+    {
+        if ($request->user()?->id !== $resource->user_id) {
+            abort(403);
+        }
+
+        $scope = $this->resolveScope($request);
+        $courses = Course::query()
+            ->with(['subjects' => function ($query) {
+                $query->orderBy('name');
+            }])
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('resources.create', [
+            'scope' => $scope,
+            'scopeLabel' => $scope === 'admin' ? 'Administrador' : 'Profesor verificado',
+            'formAction' => route('resources.update', $resource),
+            'formMethod' => 'PUT',
+            'pageTitle' => 'Modificar recurso',
+            'pageIntro' => 'Actualiza los datos y, si quieres, reemplaza el archivo.',
+            'submitLabel' => 'Guardar cambios',
+            'isEdit' => true,
+            'resource' => $resource,
             'courses' => $courses,
         ]);
     }
@@ -160,6 +195,73 @@ class ResourceController extends Controller
             ->with('success', 'Recurso subido correctamente.');
     }
 
+    public function update(UpdateResourceRequest $request, Resource $resource): RedirectResponse
+    {
+        if ($request->user()?->id !== $resource->user_id) {
+            abort(403);
+        }
+
+        $validated = $request->validated();
+        $file = $request->file('resource_file');
+        $currentExtension = strtolower(pathinfo((string) ($resource->file_name ?? ''), PATHINFO_EXTENSION));
+        $nextExtension = $file ? strtolower((string) $file->getClientOriginalExtension()) : $currentExtension;
+        $resourceType = $this->resolveResourceType($nextExtension, $request->boolean('is_exam'));
+
+        if (!$resourceType) {
+            return redirect()->back()->withErrors([
+                'resource_file' => 'El tipo de archivo no está permitido.',
+            ])->withInput();
+        }
+
+        $data = [
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'type' => $resourceType,
+            'course_id' => $validated['course_id'],
+            'subject_id' => $validated['subject_id'],
+            'mime_type' => $file ? $file->getMimeType() : $resource->mime_type,
+        ];
+
+        if ($file) {
+            /** @var FilesystemAdapter $s3 */
+            $s3 = Storage::disk('s3');
+
+            $folder = 'resources/' . (string) $resource->user_id;
+            $fileName = Str::uuid() . '.' . $nextExtension;
+            $path = $s3->putFileAs($folder, $file, $fileName);
+
+            if ($path === false) {
+                return redirect()->back()->with('error', 'No se pudo subir el archivo. Inténtalo de nuevo.');
+            }
+
+            $data['file_url'] = $s3->url($path);
+            $data['file_name'] = $file->getClientOriginalName();
+            $data['file_size'] = $file->getSize();
+
+            $this->deleteResourceFile($resource);
+        }
+
+        $resource->update($data);
+
+        return redirect()
+            ->route('feed')
+            ->with('success', 'Recurso actualizado correctamente.');
+    }
+
+    public function destroy(Request $request, Resource $resource): RedirectResponse
+    {
+        if ($request->user()?->id !== $resource->user_id) {
+            abort(403);
+        }
+
+        $this->deleteResourceFile($resource);
+        $resource->delete();
+
+        return redirect()
+            ->route('feed')
+            ->with('success', 'Recurso eliminado correctamente.');
+    }
+
     private function resolveScope(Request $request): string
     {
         return $request->routeIs('admin.*') ? 'admin' : 'teacher';
@@ -178,5 +280,33 @@ class ResourceController extends Controller
             'jpeg', 'png' => 'image',
             default => null,
         };
+    }
+
+    private function deleteResourceFile(Resource $resource): void
+    {
+        $fileUrl = (string) ($resource->file_url ?? '');
+
+        if ($fileUrl === '') {
+            return;
+        }
+
+        $path = parse_url($fileUrl, PHP_URL_PATH);
+
+        if (!is_string($path) || $path === '') {
+            return;
+        }
+
+        $normalizedPath = ltrim($path, '/');
+        $bucket = (string) config('filesystems.disks.s3.bucket');
+
+        if ($bucket !== '' && str_starts_with($normalizedPath, $bucket . '/')) {
+            $normalizedPath = substr($normalizedPath, strlen($bucket) + 1);
+        }
+
+        try {
+            Storage::disk('s3')->delete($normalizedPath);
+        } catch (\Throwable) {
+            // Ignore storage errors to avoid blocking delete/update flows.
+        }
     }
 }

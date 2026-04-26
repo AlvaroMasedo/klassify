@@ -40,6 +40,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->get('/feed', [FeedController::class, 'index'])->name('feed');
 Route::middleware('auth')->get('/resources/create', [ResourceController::class, 'entry'])->name('resources.create');
 Route::middleware('auth')->get('/resources/{resource}/preview', [ResourceController::class, 'preview'])->name('resources.preview');
+Route::middleware('auth')->get('/resources/{resource}/edit', [ResourceController::class, 'edit'])->name('resources.edit');
+Route::middleware('auth')->put('/resources/{resource}', [ResourceController::class, 'update'])->name('resources.update');
+Route::middleware('auth')->delete('/resources/{resource}', [ResourceController::class, 'destroy'])->name('resources.destroy');
 
 // Ruta para la página de "pendiente de aprobación" de profesores
 Route::get('/teacher/pending', function () {

@@ -530,6 +530,12 @@ body::before {
     gap: 12px;
 }
 
+.recurs-more-container {
+    position: relative;
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
 .recurs-user-info{
     display: flex;
     flex-direction: row;
@@ -606,6 +612,50 @@ body::before {
     width: 24px;
     height: 24px;
     flex-shrink: 0;
+}
+
+.recurs-more-menu {
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    right: 0;
+    z-index: 20;
+    min-width: 10.5rem;
+    padding: 0.4rem;
+    border: 1px solid rgba(123, 78, 160, 0.16);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 14px 30px rgba(64, 37, 88, 0.15);
+    overflow: hidden;
+}
+
+.recurs-more-menu__item {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.65rem 0.75rem;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #5a3a7b;
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.recurs-more-menu__item:hover {
+    background: rgba(123, 78, 160, 0.08);
+}
+
+.recurs-more-menu__item--danger {
+    color: #a63f4f;
+}
+
+.recurs-more-menu__item--danger:hover {
+    background: rgba(166, 63, 79, 0.09);
 }
 
 .follow-btn {
