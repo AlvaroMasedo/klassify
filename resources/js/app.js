@@ -1,3 +1,15 @@
 import './bootstrap';
-import './pages/feed';
-import './pages/register';
+
+// Carga dinámica de JavaScript específico de página
+const pageName = document.body.getAttribute('data-page');
+
+if (pageName) {
+    switch (pageName) {
+        case 'feed':
+            import('./pages/feed.js');
+            break;
+        case 'register':
+            import('./pages/register.js');
+            break;
+    }
+}

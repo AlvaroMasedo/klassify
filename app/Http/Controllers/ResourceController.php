@@ -6,46 +6,22 @@ use App\Http\Requests\StoreResourceRequest;
 use App\Http\Requests\UpdateResourceRequest;
 use App\Models\Resource;
 use App\Models\Course;
-use Illuminate\Filesystem\FilesystemAdapter;
+use App\Services\Resources\ResourceStorageService;
+use App\Services\Resources\ResourceTypeResolver;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\Response;
 
 class ResourceController extends Controller
 {
-    public function preview(Request $request, Resource $resource): Response
-    {
-        $fileUrl = (string) ($resource->file_url ?? '');
-
-        if ($fileUrl === '') {
-            abort(404);
-        }
-
-        $path = parse_url($fileUrl, PHP_URL_PATH);
-
-        if (!is_string($path) || $path === '') {
-            abort(404);
-        }
-
-        $normalizedPath = ltrim($path, '/');
-        $bucket = (string) config('filesystems.disks.s3.bucket');
-
-        if ($bucket !== '' && str_starts_with($normalizedPath, $bucket . '/')) {
-            $normalizedPath = substr($normalizedPath, strlen($bucket) + 1);
-        }
-
-        /** @var FilesystemAdapter $s3 */
-        $s3 = Storage::disk('s3');
-
-        return $s3->response($normalizedPath, $resource->file_name ?: null, [
-            'Content-Disposition' => 'inline',
-        ]);
-    }
+    use AuthorizesRequests;
+    public function __construct(
+        private ResourceStorageService $storageService,
+        private ResourceTypeResolver $typeResolver
+    ) {}
 
     public function entry(Request $request): RedirectResponse
     {
@@ -75,6 +51,8 @@ class ResourceController extends Controller
 
     public function create(Request $request): View
     {
+        $this->authorize('create', Resource::class);
+
         $scope = $this->resolveScope($request);
         $courses = Course::query()
             ->with(['subjects' => function ($query) {
@@ -99,9 +77,7 @@ class ResourceController extends Controller
 
     public function edit(Request $request, Resource $resource): View
     {
-        if ($request->user()?->id !== $resource->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $resource);
 
         $scope = $this->resolveScope($request);
         $courses = Course::query()
@@ -127,6 +103,8 @@ class ResourceController extends Controller
 
     public function store(StoreResourceRequest $request): RedirectResponse
     {
+        $this->authorize('create', Resource::class);
+
         $validated = $request->validated();
         $userId = Auth::id();
 
@@ -148,10 +126,8 @@ class ResourceController extends Controller
             ]);
         }
 
-        $resourceType = $this->resolveResourceType(
-            strtolower((string) $file->getClientOriginalExtension()),
-            $request->boolean('is_exam')
-        );
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $resourceType = $request->boolean('is_exam') ? 'exam' : $this->typeResolver->resolve($extension);
 
         if (!$resourceType) {
             throw ValidationException::withMessages([
@@ -159,23 +135,11 @@ class ResourceController extends Controller
             ]);
         }
 
-        /** @var FilesystemAdapter $s3 */
-        $s3 = Storage::disk('s3');
-
-        $folder = 'resources/' . $userId;
-        $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
-
-        $path = $s3->putFileAs(
-            $folder,
-            $file,
-            $fileName
-        );
-
-        if ($path === false) {
+        try {
+            $fileData = $this->storageService->uploadFile($file, $userId);
+        } catch (\Exception $e) {
             return redirect()->back()->with('error', 'No se pudo subir el archivo. Inténtalo de nuevo.');
         }
-
-        $fileUrl = $s3->url($path);
 
         Resource::create([
             'user_id' => $userId,
@@ -184,10 +148,10 @@ class ResourceController extends Controller
             'type' => $resourceType,
             'course_id' => $validated['course_id'] ?? null,
             'subject_id' => $validated['subject_id'] ?? null,
-            'file_url' => $fileUrl,
-            'file_name' => $file->getClientOriginalName(),
-            'file_size' => $file->getSize(),
-            'mime_type' => $file->getMimeType(),
+            'file_url' => $fileData['url'],
+            'file_name' => $fileData['name'],
+            'file_size' => $fileData['size'],
+            'mime_type' => $fileData['mime'],
         ]);
 
         return redirect()
@@ -197,15 +161,13 @@ class ResourceController extends Controller
 
     public function update(UpdateResourceRequest $request, Resource $resource): RedirectResponse
     {
-        if ($request->user()?->id !== $resource->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $resource);
 
         $validated = $request->validated();
         $file = $request->file('resource_file');
         $currentExtension = strtolower(pathinfo((string) ($resource->file_name ?? ''), PATHINFO_EXTENSION));
         $nextExtension = $file ? strtolower((string) $file->getClientOriginalExtension()) : $currentExtension;
-        $resourceType = $this->resolveResourceType($nextExtension, $request->boolean('is_exam'));
+        $resourceType = $request->boolean('is_exam') ? 'exam' : $this->typeResolver->resolve($nextExtension);
 
         if (!$resourceType) {
             return redirect()->back()->withErrors([
@@ -223,22 +185,14 @@ class ResourceController extends Controller
         ];
 
         if ($file) {
-            /** @var FilesystemAdapter $s3 */
-            $s3 = Storage::disk('s3');
-
-            $folder = 'resources/' . (string) $resource->user_id;
-            $fileName = Str::uuid() . '.' . $nextExtension;
-            $path = $s3->putFileAs($folder, $file, $fileName);
-
-            if ($path === false) {
+            try {
+                $fileData = $this->storageService->replaceFile($file, $resource);
+                $data['file_url'] = $fileData['url'];
+                $data['file_name'] = $fileData['name'];
+                $data['file_size'] = $fileData['size'];
+            } catch (\Exception $e) {
                 return redirect()->back()->with('error', 'No se pudo subir el archivo. Inténtalo de nuevo.');
             }
-
-            $data['file_url'] = $s3->url($path);
-            $data['file_name'] = $file->getClientOriginalName();
-            $data['file_size'] = $file->getSize();
-
-            $this->deleteResourceFile($resource);
         }
 
         $resource->update($data);
@@ -250,11 +204,9 @@ class ResourceController extends Controller
 
     public function destroy(Request $request, Resource $resource): RedirectResponse
     {
-        if ($request->user()?->id !== $resource->user_id) {
-            abort(403);
-        }
+        $this->authorize('delete', $resource);
 
-        $this->deleteResourceFile($resource);
+        $this->storageService->deleteFile($resource);
         $resource->delete();
 
         return redirect()
@@ -265,48 +217,5 @@ class ResourceController extends Controller
     private function resolveScope(Request $request): string
     {
         return $request->routeIs('admin.*') ? 'admin' : 'teacher';
-    }
-
-    private function resolveResourceType(string $extension, bool $isExam): ?string
-    {
-        if ($isExam) {
-            return 'exam';
-        }
-
-        return match ($extension) {
-            'pdf', 'doc', 'docx', 'ppt', 'pptx' => 'document',
-            'mp4' => 'video',
-            'mp3' => 'audio',
-            'jpeg', 'png' => 'image',
-            default => null,
-        };
-    }
-
-    private function deleteResourceFile(Resource $resource): void
-    {
-        $fileUrl = (string) ($resource->file_url ?? '');
-
-        if ($fileUrl === '') {
-            return;
-        }
-
-        $path = parse_url($fileUrl, PHP_URL_PATH);
-
-        if (!is_string($path) || $path === '') {
-            return;
-        }
-
-        $normalizedPath = ltrim($path, '/');
-        $bucket = (string) config('filesystems.disks.s3.bucket');
-
-        if ($bucket !== '' && str_starts_with($normalizedPath, $bucket . '/')) {
-            $normalizedPath = substr($normalizedPath, strlen($bucket) + 1);
-        }
-
-        try {
-            Storage::disk('s3')->delete($normalizedPath);
-        } catch (\Throwable) {
-            // Ignore storage errors to avoid blocking delete/update flows.
-        }
     }
 }
