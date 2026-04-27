@@ -2,23 +2,26 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Models\Resource;
+use App\Policies\ResourcePolicy;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Registra les polítiques d'autorització.
+     *
+     * @var array<class-string, class-string>
      */
-    public function register(): void
-    {
-        //
-    }
+    protected $policies = [
+        Resource::class => ResourcePolicy::class,
+    ];
 
     /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
-        //
+        $this->registerPolicies();
     }
 }

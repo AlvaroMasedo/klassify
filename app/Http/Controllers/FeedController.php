@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Resource;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -78,6 +79,65 @@ class FeedController extends Controller{
             'courses' => $courses,
             'resources' => $resources,
             'featuredResources' => $featuredResources,
+        ]);
+    }
+
+    /**
+     * Devuelve recursos en formato JSON para carga dinámica
+     */
+    public function resources(): JsonResponse
+    {
+        $currentUser = request()->user();
+        $isStudent = strtoupper((string) ($currentUser?->role ?? '')) === 'STUDENT';
+
+        $resourceQuery = Resource::query()
+            ->select([
+                'id',
+                'user_id',
+                'course_id',
+                'subject_id',
+                'title',
+                'description',
+                'type',
+                'file_url',
+                'file_name',
+                'mime_type',
+                'created_at',
+            ])
+            ->with([
+                'user:id,name,surname,nickname,teacher_status,is_private',
+                'course:id,name',
+                'subject:id,name',
+            ])
+            ->whereHas('user', function ($query) {
+                $query->where('is_private', false);
+            });
+
+        if ($isStudent) {
+            $resourceQuery->where('type', '!=', 'exam');
+        }
+
+        $resources = $resourceQuery
+            ->latest()
+            ->simplePaginate(10)
+            ->withQueryString();
+
+        foreach ($resources->items() as $resource) {
+            if ($resource instanceof Resource) {
+                $resource->display_url = $this->resolveDisplayUrl($resource);
+            }
+        }
+
+        // Renderizar las tarjetas de recursos
+        $html = '';
+        foreach ($resources->items() as $resource) {
+            $html .= view('feed.partials.resource-card', ['resource' => $resource])->render();
+        }
+
+        return response()->json([
+            'html' => $html,
+            'next_page_url' => $resources->nextPageUrl(),
+            'has_more' => $resources->hasMorePages(),
         ]);
     }
 

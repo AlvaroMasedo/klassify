@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initRegisterPage() {
     const roleToggle = document.getElementById('role-toggle');
     const roleInput = document.getElementById('role-input');
     const teacherFields = document.getElementById('teacher-fields');
@@ -63,4 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeButton = roleToggle.querySelector('.k-role-option.is-active');
         updateIndicator(activeButton || roleButtons[0]);
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRegisterPage, { once: true });
+} else {
+    initRegisterPage();
+}

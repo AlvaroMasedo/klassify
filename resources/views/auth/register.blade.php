@@ -1,5 +1,7 @@
 @extends('layouts.auth')
 
+@section('page', 'register')
+
 @section('title', 'Registrarse')
 
 @section('page-css')
