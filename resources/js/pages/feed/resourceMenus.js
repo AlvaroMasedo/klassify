@@ -2,6 +2,12 @@
  * Inicializa los menús de opciones de recursos (editar, eliminar)
  */
 export function initResourceMenus() {
+    // Guard: Evitar inicialización múltiple
+    if (window.__feedResourceMenusInitialized) {
+        return;
+    }
+    window.__feedResourceMenusInitialized = true;
+
     const closeResourceMenus = () => {
         document.querySelectorAll('[data-resource-menu-panel]:not([hidden])').forEach((panel) => {
             panel.hidden = true;

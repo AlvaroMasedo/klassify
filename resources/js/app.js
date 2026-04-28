@@ -6,7 +6,7 @@ const pageName = document.body.getAttribute('data-page');
 if (pageName) {
     switch (pageName) {
         case 'feed':
-            import('./pages/feed.js');
+            import('./pages/feed/index.js');
             break;
         case 'register':
             import('./pages/register.js');

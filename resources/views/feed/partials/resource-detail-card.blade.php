@@ -50,7 +50,7 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
                     <span class="recurs-name">{{ $resourceUserName }}</span>
                     <span class="recurs-username">{{ '@' . $resourceNickname }}</span>
                 </div>
-                <p class="recurs-meta">Actualizado: {{ $updatedDate }}</p>
+                <p class="recurs-meta">Curso: {{ $courseName }} | Asignatura: {{ $subjectName }}</p>
             </div>
         </div>
         @if ($isResourceAuthor)
@@ -73,19 +73,18 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
         @endif
     </div>
 
-    <div class="recurs-detail-clickable" data-resource-show-url="{{ route('resources.show', $resource) }}" role="link" tabindex="0" aria-label="Abrir detalle del recurso" style="cursor:pointer;">
-        <div class="recurs-content">
-            <h3 class="recurs-title">
-                <span>{{ $resource->title }}</span>
-                @if (strtolower((string) ($resource->type ?? '')) === 'exam')
-                <span class="recurs-title-badge recurs-title-badge--exam">Examen</span>
-                @endif
-            </h3>
-            <p class="recurs-description">{{ $resourceDescription }}</p>
-        </div>
+    <div class="recurs-content">
+        <h3 class="recurs-title">
+            <span>{{ $resource->title }}</span>
+            @if (strtolower((string) ($resource->type ?? '')) === 'exam')
+            <span class="recurs-title-badge recurs-title-badge--exam">Examen</span>
+            @endif
+        </h3>
+        <p class="recurs-description">{{ $resourceDescription }}</p>
+    </div>
 
-        <div class="recurs-media">
-            <div class="recurs-video-thumbnail">
+    <div class="recurs-media">
+        <div class="recurs-video-thumbnail">
             @if ($previewKind === 'document')
             <div class="resource-document-card">
                 <div class="resource-document-main">
@@ -225,7 +224,6 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
                 @endif
             </div>
             @endif
-            </div>
         </div>
     </div>
 
@@ -235,12 +233,6 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
                 <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z" />
             </svg>
             <span class="recurs-count">0</span>
-        </div>
-        <div class="recurs-action" data-comment-show-url="{{ route('resources.show', $resource) }}?focus=comment" style="cursor: pointer;" data-resource-id="{{ $resource->id }}">
-            <svg class="icon-comment" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
-                <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
-            </svg>
-            <span class="recurs-count" data-comments-count>{{ $resource->comments_count ?? 0 }}</span>
         </div>
         <div class="recurs-action">
             <svg class="icon-bookmark" data-saved="false" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
@@ -253,6 +245,13 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
 </div>
 
 <style scoped>
+    .recurs-update-date {
+        font-family: "Open Sans", sans-serif;
+        font-size: 0.85rem;
+        color: #999;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
     .recurs-update-date-inline {
         font-family: "Open Sans", sans-serif;
         font-size: 0.85rem;

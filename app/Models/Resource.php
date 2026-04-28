@@ -34,4 +34,9 @@ class Resource extends Model
     {
         return $this->belongsTo(Subject::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

@@ -65,7 +65,7 @@
             </script>
 
             @forelse ($resources as $resource)
-            @include('feed.partials.resource-card')
+            @include('feed.partials.resource-card', ['resource' => $resource])
             @empty
             <div class="recurs-card">
                 <div class="recurs-content">

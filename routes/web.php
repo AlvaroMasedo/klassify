@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\ResourcePreviewController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\TeacherRequestController;
@@ -55,6 +56,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/{resource}/edit', [ResourceController::class, 'edit'])->name('edit');
         Route::put('/{resource}', [ResourceController::class, 'update'])->name('update');
         Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
+        Route::post('/{resource}/comments', [CommentController::class, 'store'])->name('comments.store');
+        Route::get('/{resource}', [ResourceController::class, 'show'])->name('show');
     });
 
     // Pendiente de profesor

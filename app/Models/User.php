@@ -76,4 +76,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Institution::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

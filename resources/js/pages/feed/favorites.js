@@ -5,6 +5,12 @@ export function initFavorites() {
     const outlinePath = "m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z";
     const filledPath = "m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Z";
 
+    // Guard: Evitar inicialización múltiple
+    if (window.__feedFavoritesInitialized) {
+        return;
+    }
+    window.__feedFavoritesInitialized = true;
+
     const setHeartState = (heart, isFavorite) => {
         const path = heart.querySelector('path');
 
@@ -16,12 +22,16 @@ export function initFavorites() {
         heart.setAttribute('data-favorite', isFavorite ? 'true' : 'false');
     };
 
-    // Inicializar estado de todos los corazones
-    document.querySelectorAll('.icon-heart').forEach((heart) => {
-        setHeartState(heart, heart.getAttribute('data-favorite') === 'true');
-    });
+    // Inicializar estado visual de todos los corazones
+    const reinitializeHearts = (scope = document) => {
+        scope.querySelectorAll('.icon-heart').forEach((heart) => {
+            setHeartState(heart, heart.getAttribute('data-favorite') === 'true');
+        });
+    };
 
-    // Event delegation para clicks
+    reinitializeHearts();
+
+    // Event delegation para corazones y bookmarks
     document.addEventListener('click', (event) => {
         const heart = event.target.closest('.icon-heart');
 
@@ -42,31 +52,38 @@ export function initFavorites() {
         bookmark.setAttribute('fill', isSaved ? '#2d1b3d' : '#583473');
     });
 
-    // Botones de seguir
-    const followButtons = document.querySelectorAll('.follow-btn, .teacher-follow-btn');
+    // Event delegation para botones de seguir
+    document.addEventListener('click', (event) => {
+        const followBtn = event.target.closest('.follow-btn, .teacher-follow-btn');
 
-    followButtons.forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            const span = this.querySelector('span');
-            const isFollowing = span.textContent === 'Siguiendo';
+        if (followBtn) {
+            event.preventDefault();
+            const span = followBtn.querySelector('span');
 
-            if (isFollowing) {
-                span.textContent = 'Seguir';
-                this.classList.remove('is-following');
-            } else {
-                span.textContent = 'Siguiendo';
-                this.classList.add('is-following');
+            if (span) {
+                const isFollowing = span.textContent === 'Siguiendo';
+
+                if (isFollowing) {
+                    span.textContent = 'Seguir';
+                    followBtn.classList.remove('is-following');
+                } else {
+                    span.textContent = 'Siguiendo';
+                    followBtn.classList.add('is-following');
+                }
             }
-        });
+        }
     });
 
-    // Tabs de Para ti / Siguiendo
-    const tabContainer = document.querySelector('.forYou-follow-section');
-    const forYouTab = document.querySelector('.k-forYou');
-    const followTab = document.querySelector('.k-follow');
+    // Event delegation para tabs de Para ti / Siguiendo
+    document.addEventListener('click', (event) => {
+        const tabContainer = document.querySelector('.forYou-follow-section');
+        const forYouTab = document.querySelector('.k-forYou');
+        const followTab = document.querySelector('.k-follow');
 
-    if (tabContainer && forYouTab && followTab) {
+        if (!tabContainer || !forYouTab || !followTab) {
+            return;
+        }
+
         const setActiveTab = (tab) => {
             forYouTab.classList.remove('tab-active');
             followTab.classList.remove('tab-active');
@@ -80,7 +97,15 @@ export function initFavorites() {
             }
         };
 
-        forYouTab.addEventListener('click', () => setActiveTab('for-you'));
-        followTab.addEventListener('click', () => setActiveTab('follow'));
-    }
+        if (event.target === forYouTab) {
+            setActiveTab('for-you');
+        } else if (event.target === followTab) {
+            setActiveTab('follow');
+        }
+    });
+
+    // Exportar para reinicialización después de cargar más
+    window.__feedFavoritesUtils = {
+        reinitializeHearts
+    };
 }

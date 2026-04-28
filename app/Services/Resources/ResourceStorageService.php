@@ -5,6 +5,7 @@ namespace App\Services\Resources;
 use App\Models\Resource;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,7 +57,10 @@ class ResourceStorageService
 
     /**
      * Reemplaçar un fitxer de recurs existent amb un de nou.
-     * Elimina el fitxer antic abans de pujar el nou.
+     * Puja el fitxer nou primer i, si té éxit, elimina el fitxer antic.
+     * Si la subida nova falla, el fitxer antic es conserva intacte.
+     * Si l'eliminació del fitxer antic falla però la subida ja va funcionar,
+     * es registra l'error però es retorna la nova URL correctament.
      *
      * @param UploadedFile $newFile
      * @param Resource $resource
@@ -64,29 +68,42 @@ class ResourceStorageService
      */
     public function replaceFile(UploadedFile $newFile, Resource $resource): array
     {
-        // Elimina el fitxer antic d'S3
-        $this->deleteFile($resource);
+        // Primer: Puja el fitxer nou
+        $newFileData = $this->uploadFile($newFile, $resource->user_id);
 
-        // Puja el fitxer nou
-        return $this->uploadFile($newFile, $resource->user_id);
+        // Si hem arribat aquí, la subida del fitxer nou va correctament.
+        // Ara intentem eliminar el fitxer antic.
+        $oldS3Path = $this->normalizeS3FileUrl((string) ($resource->file_url ?? ''));
+
+        if ($oldS3Path !== null) {
+            try {
+                $this->getS3Disk()->delete($oldS3Path);
+            } catch (\Throwable $e) {
+                // Si falla el borrado del fitxer antic, registra l'error però continua.
+                // El fitxer nou ja està salvat correctament.
+                Log::warning('Failed to delete old resource file from S3', [
+                    'resource_id' => $resource->id,
+                    's3_path' => $oldS3Path,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Retorna les dades del fitxer nou
+        return $newFileData;
     }
 
     /**
      * Eliminar un fitxer de recurs d'S3.
-     * Falla silenciosament si el fitxer no existeix o es produeixen errors d'eliminació.
+     * Falla silenciosament si el fitxer no existeix, l'URL està buida,
+     * o es produeixen errors d'eliminació.
      *
      * @param Resource $resource
      * @return void
      */
     public function deleteFile(Resource $resource): void
     {
-        $fileUrl = (string) ($resource->file_url ?? '');
-
-        if ($fileUrl === '') {
-            return;
-        }
-
-        $s3Path = $this->extractS3Path($fileUrl);
+        $s3Path = $this->normalizeS3FileUrl((string) ($resource->file_url ?? ''));
 
         if ($s3Path === null) {
             return;
@@ -101,6 +118,27 @@ class ResourceStorageService
 
     /**
      * Extreure el camí S3 d'una URL pública de S3.
+     * Retorna el camí relatiu al bucket (sense el nom del bucket).
+     * Retorna null si l'URL està buida o no és vàlida.
+     *
+     * Compatible amb URLs antigues i noves de S3.
+     *
+     * @param string $fileUrl
+     * @return string|null
+     */
+    private function normalizeS3FileUrl(string $fileUrl): ?string
+    {
+        $fileUrl = (string) ($fileUrl ?? '');
+
+        if ($fileUrl === '') {
+            return null;
+        }
+
+        return $this->extractS3Path($fileUrl);
+    }
+
+    /**
+     * Extreure el camé S3 d'una URL pública de S3.
      * Retorna el camí relatiu al bucket (sense el nom del bucket).
      *
      * @param string $fileUrl
@@ -129,18 +167,15 @@ class ResourceStorageService
      * Servir un fitxer de recurs inline des d'S3 (per a previsualització).
      * Retorna una Resposta de Symfony amb disposició inline.
      *
+     * Compatible amb PDF, imatges, àudio, vídeo i documents.
+     * El tipus MIME és estabelert automàticament per Storage/S3.
+     *
      * @param Resource $resource
      * @return Response
      */
     public function serveFileInline(Resource $resource): Response
     {
-        $fileUrl = (string) ($resource->file_url ?? '');
-
-        if ($fileUrl === '') {
-            abort(404);
-        }
-
-        $s3Path = $this->extractS3Path($fileUrl);
+        $s3Path = $this->normalizeS3FileUrl((string) ($resource->file_url ?? ''));
 
         if ($s3Path === null) {
             abort(404);
@@ -162,13 +197,7 @@ class ResourceStorageService
      */
     public function getTemporaryUrl(Resource $resource, int $minutesValid = 60): string
     {
-        $fileUrl = (string) ($resource->file_url ?? '');
-
-        if ($fileUrl === '') {
-            return '';
-        }
-
-        $s3Path = $this->extractS3Path($fileUrl);
+        $s3Path = $this->normalizeS3FileUrl((string) ($resource->file_url ?? ''));
 
         if ($s3Path === null) {
             return '';
@@ -181,22 +210,23 @@ class ResourceStorageService
             );
         } catch (\Throwable) {
             // Si les URL temporals no estan suportades, retorna la URL permanent
-            return $fileUrl;
+            return (string) ($resource->file_url ?? '');
         }
     }
 
     /**
      * Obtenir la URL de visualització d'un recurs al feed.
-     * Això retorna la ruta de previsualització local per evitar exposar les URL d'S3 directament.
+     * Retorna la ruta de previsualització local per evitar exposar les URL d'S3 directament.
+     * Retorna null si l'URL del fitxer és buida.
      *
      * @param Resource $resource
      * @return string|null
      */
     public function getDisplayUrl(Resource $resource): ?string
     {
-        $fileUrl = (string) ($resource->file_url ?? '');
+        $s3Path = $this->normalizeS3FileUrl((string) ($resource->file_url ?? ''));
 
-        if ($fileUrl === '') {
+        if ($s3Path === null) {
             return null;
         }
 
