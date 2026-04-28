@@ -2,6 +2,12 @@
  * Inicializa el toggle del menú móvil
  */
 export function initMobileMenu() {
+    // Guard: Evitar inicialización múltiple
+    if (window.__feedMobileMenuInitialized) {
+        return;
+    }
+    window.__feedMobileMenuInitialized = true;
+
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const mobileOverlay = document.querySelector('.mobile-overlay');
     const appLeft = document.querySelector('.app-left');

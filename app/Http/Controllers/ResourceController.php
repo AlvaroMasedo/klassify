@@ -25,28 +25,16 @@ class ResourceController extends Controller
 
     public function entry(Request $request): RedirectResponse
     {
+        $this->authorize('create', Resource::class);
+
         $user = $request->user();
-
-        if (!$user) {
-            return redirect()->route('login');
-        }
-
-        $role = strtoupper((string) ($user->role ?? ''));
-        $teacherStatus = strtoupper((string) ($user->teacher_status ?? ''));
+        $role = strtoupper((string) ($user?->role ?? ''));
 
         if ($role === 'ADMIN') {
             return redirect()->route('admin.resources.create');
         }
 
-        if ($role === 'TEACHER') {
-            if (in_array($teacherStatus, ['ACTIVE', 'VERIFIED'], true)) {
-                return redirect()->route('teacher.resources.create');
-            }
-
-            return redirect()->route('teacher.pending')->with('error', 'Tu cuenta de profesor está pendiente de aprobación.');
-        }
-
-        return redirect()->route('feed')->with('error', 'No tienes permiso para publicar recursos.');
+        return redirect()->route('teacher.resources.create');
     }
 
     public function create(Request $request): View
@@ -212,6 +200,47 @@ class ResourceController extends Controller
         return redirect()
             ->route('feed')
             ->with('success', 'Recurso eliminado correctamente.');
+    }
+
+    public function show(Resource $resource): View
+    {
+        // Cargar relaciones del recurso
+        $resource->load(['user', 'course', 'subject'])->loadCount('comments');
+        
+        // Asignar display_url al recurso
+        $fileUrl = (string) ($resource->file_url ?? '');
+        $resource->display_url = $fileUrl !== '' ? route('resources.preview', ['resource' => $resource->id]) : null;
+
+        // Cargar comentarios con usuario, ordenados por fecha descendente
+        $comments = $resource->comments()
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Cargar recursos destacados (mismo que en FeedController)
+        $currentUser = request()->user();
+        $isStudent = strtoupper((string) ($currentUser?->role ?? '')) === 'STUDENT';
+        
+        $featuredResources = Resource::query()
+            ->latest()
+            ->select(['id', 'user_id', 'title', 'type'])
+            ->with(['user:id,is_private'])
+            ->whereHas('user', function ($userQuery) {
+                $userQuery->where('is_private', false);
+            });
+
+        if ($isStudent) {
+            $featuredResources->where('type', '!=', 'exam');
+        }
+
+        $featuredResources = $featuredResources->take(5)->get();
+
+        return view('feed.show-resource', [
+            'resource' => $resource,
+            'comments' => $comments,
+            'commentsCount' => $comments->count(),
+            'featuredResources' => $featuredResources,
+        ]);
     }
 
     private function resolveScope(Request $request): string

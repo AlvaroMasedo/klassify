@@ -54,13 +54,18 @@ export function initLoadMore() {
             // Insertar cada tarjeta antes del contenedor de "Carga más"
             newCards.forEach((card) => {
                 appCenter.insertBefore(card, loadMoreContainer);
-
-                // Reinicializar componentes para nuevas tarjetas
-                if (window.__feedAudioPlayerUtils) {
-                    window.__feedAudioPlayerUtils.initPreviewThumbs(card);
-                    window.__feedAudioPlayerUtils.observeAudioPlayers(card);
-                }
             });
+
+            // Reinicializar componentes para todas las nuevas tarjetas
+            // Los listeners por event delegation ya funcionan, solo necesitamos reinicializar estado
+            if (window.__feedFavoritesUtils) {
+                window.__feedFavoritesUtils.reinitializeHearts(appCenter);
+            }
+
+            if (window.__feedAudioPlayerUtils) {
+                window.__feedAudioPlayerUtils.initPreviewThumbs(appCenter);
+                window.__feedAudioPlayerUtils.observeAudioPlayers(appCenter);
+            }
 
             // Actualizar la URL del botón para la siguiente página
             if (data.next_page_url) {
@@ -71,7 +76,7 @@ export function initLoadMore() {
             }
         } catch (error) {
             console.error('Error loading more resources:', error);
-                loadMoreBtn.textContent = 'Error al cargar. Inténtalo de nuevo';
+            loadMoreBtn.textContent = 'Error al cargar. Inténtalo de nuevo';
         } finally {
             if (document.body.contains(loadMoreBtn)) {
                 loadMoreBtn.classList.remove('is-loading');

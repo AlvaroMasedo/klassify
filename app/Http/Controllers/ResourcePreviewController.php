@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Resource;
 use App\Services\Resources\ResourceStorageService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResourcePreviewController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(private ResourceStorageService $storageService) {}
 
     /**
@@ -20,7 +23,8 @@ class ResourcePreviewController extends Controller
      */
     public function show(Request $request, Resource $resource): Response
     {
-        // Autorització implícita: el recurs és públic per a usuaris autenticats
+        $this->authorize('view', $resource);
+
         return $this->storageService->serveFileInline($resource);
     }
 }

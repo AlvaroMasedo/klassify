@@ -2,6 +2,12 @@
  * Inicializa el modal de preview de recursos
  */
 export function initPreviewModal() {
+    // Guard: Evitar inicialización múltiple
+    if (window.__feedPreviewModalInitialized) {
+        return;
+    }
+    window.__feedPreviewModalInitialized = true;
+
     const previewModal = document.getElementById('resource-preview-modal');
     const previewStage = document.getElementById('resource-preview-stage');
     const previewTitle = document.getElementById('resource-preview-title');
@@ -68,34 +74,30 @@ export function initPreviewModal() {
         document.body.classList.add('menu-open');
     };
 
-    // Click en trigger de preview
+    // Event delegation: Click en trigger de preview
     document.addEventListener('click', (event) => {
         const trigger = event.target.closest('.resource-preview-trigger');
 
-        if (!trigger) {
+        if (trigger) {
+            const url = trigger.getAttribute('data-preview-url') || '';
+            const kind = trigger.getAttribute('data-preview-kind') || 'image';
+            const title = trigger.getAttribute('data-preview-title') || 'Vista previa';
+
+            if (url) {
+                openPreview(url, kind, title);
+            }
             return;
         }
 
-        const url = trigger.getAttribute('data-preview-url') || '';
-        const kind = trigger.getAttribute('data-preview-kind') || 'image';
-        const title = trigger.getAttribute('data-preview-title') || 'Vista previa';
-
-        if (!url) {
-            return;
-        }
-
-        openPreview(url, kind, title);
-    });
-
-    // Cerrar preview
-    previewModal.querySelectorAll('[data-preview-close="true"]').forEach(closeEl => {
-        closeEl.addEventListener('click', (event) => {
+        // Event delegation: Botones de cerrar preview
+        const closeBtn = event.target.closest('[data-preview-close="true"]');
+        if (closeBtn) {
             event.preventDefault();
             closePreview();
-        });
+        }
     });
 
-    // Cerrar preview con ESC
+    // Cerrar preview con ESC (delegado en document)
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && !previewModal.hidden) {
             closePreview();

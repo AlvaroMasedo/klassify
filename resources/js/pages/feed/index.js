@@ -7,6 +7,9 @@ import { initResourceMenus } from './resourceMenus.js';
 import { initPreviewModal } from './previewModal.js';
 import { initAudioPlayers } from './audioPlayer.js';
 import { initLoadMore } from './loadMore.js';
+import { initResourceDetailNavigation } from './resourceDetailNavigation.js';
+import { initCommentNavigation } from './commentNavigation.js';
+import { initComments } from './comments.js';
 
 /**
  * Inicializa los filtros de curso y materia
@@ -72,6 +75,9 @@ function initFeedPage() {
     initPreviewModal();
     initAudioPlayers();
     initLoadMore();
+    initResourceDetailNavigation();
+    initCommentNavigation();
+    initComments();
     initFilters();
 }
 
