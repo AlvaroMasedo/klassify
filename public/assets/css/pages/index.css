@@ -2337,3 +2337,55 @@ body::before {
     fill: #1da1f2;
     vertical-align: -2px;
 }
+
+.user-profile-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.user-profile-link:hover {
+    color: #583473;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.recurs-user-name.user-profile-link,
+.comment-user-name.user-profile-link,
+.profile-suggested-teacher-name.user-profile-link {
+    font-weight: inherit;
+}
+
+.recurs-user-name,
+.recurs-user-name.user-profile-link {
+    color: #583473;
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.98rem;
+    font-weight: 800;
+    line-height: 1.1;
+    text-decoration: none;
+}
+
+.recurs-user-name.user-profile-link:hover {
+    color: #583473;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.recurs-user-username {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #8a759d;
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.1;
+    text-decoration: none;
+}
+
+.recurs-user-username .verified-badge-icon {
+    width: 13px;
+    height: 13px;
+    margin-left: 0;
+}

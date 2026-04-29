@@ -18,9 +18,23 @@ $profileSubtitle = $role === 'ADMIN'
 ? 'Administrador'
 : ($isVerifiedTeacher ? 'Profesor Verificado' : ucfirst(strtolower($role ?: 'Usuario')));
 
-$aboutText = $profileUser->specialization
-? $profileUser->specialization
-: 'Este usuario todavía no ha añadido información sobre su perfil.';
+$profileDescription = trim((string) ($profileUser->description ?? $profileUser->bio ?? ''));
+
+$specialization = trim((string) ($profileUser->specialization ?? ''));
+
+$institutionName = trim((string) data_get($profileUser, 'institution.name', ''));
+
+$institutionLocation = trim((string) (
+data_get($profileUser, 'institution.location')
+?? data_get($profileUser, 'institution.city')
+?? data_get($profileUser, 'location')
+?? data_get($profileUser, 'city')
+?? ''
+));
+
+$hasAboutInfo = $specialization !== ''
+|| $institutionName !== ''
+|| $institutionLocation !== '';
 @endphp
 
 <div class="profile-page">
@@ -66,7 +80,9 @@ $aboutText = $profileUser->specialization
                                 {{ $profileUser->institution->name ?? 'Centro no indicado' }}
                             </p>
 
-                            <p class="profile-bio-mobile">{{ $aboutText }}</p>
+                            @if ($profileDescription !== '')
+                            <p class="profile-bio-mobile">{{ $profileDescription }}</p>
+                            @endif
                         </div>
                     </header>
 
@@ -153,7 +169,31 @@ $aboutText = $profileUser->specialization
                 <aside class="profile-sidebar">
                     <section class="profile-about-card">
                         <h2>Sobre mí</h2>
-                        <p>{{ $aboutText }}</p>
+
+                        @if ($hasAboutInfo)
+                        <div class="profile-about-list">
+                            @if ($specialization !== '')
+                            <div class="profile-about-item">
+                                <span>Especialización</span>
+                                <p>{{ $specialization }}</p>
+                            </div>
+                            @endif
+
+                            @if ($institutionName !== '')
+                            <div class="profile-about-item">
+                                <span>Institución</span>
+                                <p>{{ $institutionName }}</p>
+                            </div>
+                            @endif
+
+                            @if ($institutionLocation !== '')
+                            <div class="profile-about-item">
+                                <span>Ubicación</span>
+                                <p>{{ $institutionLocation }}</p>
+                            </div>
+                            @endif
+                        </div>
+                        @endif
                     </section>
 
                     <section class="profile-suggested-card">

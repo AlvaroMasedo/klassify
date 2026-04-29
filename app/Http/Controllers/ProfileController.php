@@ -24,6 +24,8 @@ class ProfileController extends Controller
 
     public function show(Request $request, User $user): View
     {
+        $user->loadMissing('institution');
+        
         $viewer = $request->user();
         $viewerRole = strtoupper((string) ($viewer?->role ?? ''));
 

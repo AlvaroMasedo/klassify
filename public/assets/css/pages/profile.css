@@ -379,10 +379,26 @@ body::before {
     gap: 0.25rem;
 }
 
-.profile-resource-stat svg {
-    width: 19px;
-    height: 19px;
-    fill: #2d1b3d;
+.profile-resource-stat svg,
+.profile-resource-stat-icon {
+    width: 20px;
+    height: 20px;
+    color: #2d1b3d;
+    fill: none !important;
+    stroke: currentColor;
+    stroke-width: 55px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    overflow: visible;
+}
+
+.profile-resource-stat svg path,
+.profile-resource-stat-icon path {
+    fill: none !important;
+    stroke: currentColor;
+    stroke-width: 95px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
 }
 
 .profile-resource-date {
@@ -581,4 +597,54 @@ body::before {
     margin-left: 0.25rem;
     fill: #1da1f2;
     vertical-align: -2px;
+}
+
+.profile-bio-mobile {
+    margin-top: 1rem;
+    color: #8a759d;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+.profile-about-card h2 {
+    font-size: 1.25rem;
+}
+
+.profile-about-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.profile-about-item span {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: #8a759d;
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.profile-about-item p {
+    margin: 0;
+    color: #583473;
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.93rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.user-profile-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.user-profile-link:hover {
+    color: #583473;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }

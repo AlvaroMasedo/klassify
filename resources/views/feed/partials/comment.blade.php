@@ -19,7 +19,9 @@ $canDeleteComment = $isAdmin || $isOwner;
             </div>
 
             <div class="comment-user-details">
-                <span class="comment-user-name">{{ $userDisplayName }}</span>
+                <x-user-profile-link :user="$comment->user" class="comment-user-name">
+                    {{ $userDisplayName }}
+                </x-user-profile-link>
                 <span class="comment-user-username">
                     {{ '@' . $userNickname }}
                     <x-verified-badge :user="$comment->user" />
