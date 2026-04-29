@@ -61,8 +61,13 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
             </div>
             <div class="recurs-user-details">
                 <div class="recurs-name-container">
-                    <span class="recurs-name">{{ $resourceUserName }}</span>
-                    <span class="recurs-username">{{ '@' . $resourceNickname }}</span>
+                    <x-user-profile-link :user="$resource->user" class="recurs-user-name">
+                        {{ $resourceUserName }}
+                    </x-user-profile-link>
+                    <span class="recurs-user-username">
+                        {{ '@' . ($resource->user->nickname ?? 'usuario') }}
+                        <x-verified-badge :user="$resource->user" />
+                    </span>
                 </div>
                 <p class="recurs-meta">Curso: {{ $courseName }} | Asignatura: {{ $subjectName }}</p>
             </div>

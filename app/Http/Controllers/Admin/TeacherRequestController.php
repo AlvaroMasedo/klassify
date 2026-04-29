@@ -40,9 +40,9 @@ class TeacherRequestController extends Controller
                 ->with('error', 'Solo se pueden aprobar solicitudes enviadas.');
         }
 
-        $institution = Institution::where('email', $teacherRequest->institution_email)
-            ->orWhere('name', $teacherRequest->institution_name)
-            ->first();
+        // Buscar por nombre únicamente: si ya existe una institución con el mismo nombre,
+        // no crear una nueva aunque el email sea distinto.
+        $institution = Institution::where('name', $teacherRequest->institution_name)->first();
 
         if (!$institution) {
             $institution = Institution::create([
@@ -96,9 +96,8 @@ class TeacherRequestController extends Controller
                 ->with('error', 'La solicitud no existe o ya ha sido confirmada.');
         }
 
-        $institution = Institution::where('email', $teacherRequest->institution_email)
-            ->orWhere('name', $teacherRequest->institution_name)
-            ->first();
+        // Buscar por nombre únicamente al confirmar la institución desde el enlace.
+        $institution = Institution::where('name', $teacherRequest->institution_name)->first();
 
         if (!$institution) {
             return redirect()->route('login')

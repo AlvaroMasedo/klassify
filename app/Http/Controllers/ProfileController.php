@@ -1,0 +1,133 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Course;
+use App\Models\Resource;
+use App\Models\Subject;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+class ProfileController extends Controller
+{
+    public function me(): RedirectResponse
+    {
+        $user = Auth::user();
+
+        return redirect()->route('profile.show', [
+            'user' => $user->nickname,
+        ]);
+    }
+
+    public function show(Request $request, User $user): View
+    {
+        $user->loadMissing('institution');
+        
+        $viewer = $request->user();
+        $viewerRole = strtoupper((string) ($viewer?->role ?? ''));
+
+        $isOwner = (int) $viewer->id === (int) $user->id;
+        $isAdmin = $viewerRole === 'ADMIN';
+
+        if ($user->is_private && !$isOwner && !$isAdmin) {
+            abort(403);
+        }
+
+        $selectedCourseId = (int) $request->query('course_id', 0) ?: null;
+        $selectedSubjectId = (int) $request->query('subject_id', 0) ?: null;
+
+        $allowedTypes = ['document', 'video', 'audio', 'image', 'exam', 'link'];
+        $selectedTypes = array_values(array_intersect(
+            (array) $request->query('types', []),
+            $allowedTypes
+        ));
+
+        $isStudent = $viewerRole === 'STUDENT';
+
+        $resources = Resource::query()
+            ->select([
+                'id',
+                'user_id',
+                'course_id',
+                'subject_id',
+                'title',
+                'description',
+                'type',
+                'file_url',
+                'file_name',
+                'mime_type',
+                'created_at',
+                'updated_at',
+            ])
+            ->where('user_id', $user->id)
+            ->with([
+                'course:id,name',
+                'subject:id,name',
+            ])
+            ->withCount('comments')
+            ->when($isStudent, function ($query) {
+                $query->where('type', '!=', 'exam');
+            })
+            ->when($selectedCourseId, function ($query) use ($selectedCourseId) {
+                $query->where('course_id', $selectedCourseId);
+            })
+            ->when($selectedSubjectId, function ($query) use ($selectedSubjectId) {
+                $query->where('subject_id', $selectedSubjectId);
+            })
+            ->when(!empty($selectedTypes), function ($query) use ($selectedTypes) {
+                $query->whereIn('type', $selectedTypes);
+            })
+            ->latest('updated_at')
+            ->paginate(8)
+            ->withQueryString();
+
+        $courses = Course::query()
+            ->with(['subjects' => function ($query) {
+                $query->orderBy('name');
+            }])
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $subjects = Subject::query()
+            ->when($selectedCourseId, function ($query) use ($selectedCourseId) {
+                $query->where('course_id', $selectedCourseId);
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'course_id']);
+
+        $suggestedTeachers = User::query()
+            ->where('id', '!=', $user->id)
+            ->where(function ($query) {
+                $query
+                    ->whereIn('role', ['TEACHER', 'teacher'])
+                    ->orWhereIn('role', ['ADMIN', 'admin']);
+            })
+            ->latest()
+            ->take(5)
+            ->get([
+                'id',
+                'name',
+                'surname',
+                'nickname',
+                'role',
+                'teacher_status',
+                'specialization',
+            ]);
+
+        return view('profile.show', [
+            'profileUser' => $user,
+            'resources' => $resources,
+            'courses' => $courses,
+            'subjects' => $subjects,
+            'suggestedTeachers' => $suggestedTeachers,
+            'isOwner' => $isOwner,
+            'followersCount' => 0,
+            'selectedCourseId' => $selectedCourseId,
+            'selectedSubjectId' => $selectedSubjectId,
+            'selectedTypes' => $selectedTypes,
+        ]);
+    }
+}
