@@ -87,8 +87,20 @@ $hasAboutInfo = $specialization !== ''
                     </header>
 
                     <nav class="profile-tabs" aria-label="Secciones del perfil">
-                        <a href="#" class="profile-tab is-active">Recursos</a>
-                        <a href="#" class="profile-tab">Favoritos</a>
+                        <a
+                            href="{{ route('profile.show', $profileUser) }}"
+                            class="profile-tab {{ ($activeTab ?? 'resources') === 'resources' ? 'is-active' : '' }}">
+                            Recursos
+                        </a>
+
+                        @if ($isOwner)
+                        <a
+                            href="{{ route('profile.show', ['user' => $profileUser->nickname, 'tab' => 'favorites']) }}"
+                            class="profile-tab {{ ($activeTab ?? 'resources') === 'favorites' ? 'is-active' : '' }}">
+                            Favoritos
+                        </a>
+                        @endif
+
                         <a href="#" class="profile-tab">Calendario</a>
                     </nav>
 
@@ -154,7 +166,13 @@ $hasAboutInfo = $specialization !== ''
                         @empty
                         <div class="profile-empty">
                             <h3>No hay recursos todavía</h3>
-                            <p>Cuando este usuario publique recursos, aparecerán aquí.</p>
+                            <p>
+                                @if (($activeTab ?? 'resources') === 'favorites')
+                                Cuando guardes recursos en favoritos, aparecerán aquí.
+                                @else
+                                Cuando este usuario publique recursos, aparecerán aquí.
+                                @endif
+                            </p>
                         </div>
                         @endforelse
                     </section>

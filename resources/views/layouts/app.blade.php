@@ -4,6 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Klassify')</title>
     <title>@yield('title', 'Klassify')</title>
     <link rel="icon" href="{{ asset('Favicon.ico') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/partials/header.css') }}">
@@ -40,20 +44,20 @@
         @endif
     </div>
     @endif
-    
+
     <main class="k-main">
         @yield('content')
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.js-k-alert').forEach(function (alert) {
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.js-k-alert').forEach(function(alert) {
                 var timeoutMs = Number(alert.dataset.autohide || 5000);
 
-                window.setTimeout(function () {
+                window.setTimeout(function() {
                     alert.classList.add('k-alert--hide');
 
-                    window.setTimeout(function () {
+                    window.setTimeout(function() {
                         alert.remove();
                     }, 320);
                 }, timeoutMs);

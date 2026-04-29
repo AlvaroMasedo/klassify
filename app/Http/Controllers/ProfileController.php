@@ -25,11 +25,16 @@ class ProfileController extends Controller
     public function show(Request $request, User $user): View
     {
         $user->loadMissing('institution');
-        
+
         $viewer = $request->user();
         $viewerRole = strtoupper((string) ($viewer?->role ?? ''));
 
         $isOwner = (int) $viewer->id === (int) $user->id;
+        $activeTab = (string) $request->query('tab', 'resources');
+
+        if ($activeTab === 'favorites' && !$isOwner) {
+            $activeTab = 'resources';
+        }
         $isAdmin = $viewerRole === 'ADMIN';
 
         if ($user->is_private && !$isOwner && !$isAdmin) {
@@ -47,7 +52,7 @@ class ProfileController extends Controller
 
         $isStudent = $viewerRole === 'STUDENT';
 
-        $resources = Resource::query()
+        $resourcesQuery = Resource::query()
             ->select([
                 'id',
                 'user_id',
@@ -62,12 +67,29 @@ class ProfileController extends Controller
                 'created_at',
                 'updated_at',
             ])
-            ->where('user_id', $user->id)
             ->with([
                 'course:id,name',
                 'subject:id,name',
             ])
-            ->withCount('comments')
+            ->withCount([
+                'comments',
+                'favoritedBy as favorites_count',
+            ])
+            ->withExists([
+                'favoritedBy as is_favorited' => function ($query) use ($viewer) {
+                    $query->where('users.id', $viewer->id);
+                },
+            ]);
+
+        if ($activeTab === 'favorites') {
+            $resourcesQuery->whereHas('favoritedBy', function ($query) use ($user) {
+                $query->where('users.id', $user->id);
+            });
+        } else {
+            $resourcesQuery->where('user_id', $user->id);
+        }
+
+        $resources = $resourcesQuery
             ->when($isStudent, function ($query) {
                 $query->where('type', '!=', 'exam');
             })
@@ -128,6 +150,7 @@ class ProfileController extends Controller
             'selectedCourseId' => $selectedCourseId,
             'selectedSubjectId' => $selectedSubjectId,
             'selectedTypes' => $selectedTypes,
+            'activeTab' => $activeTab,
         ]);
     }
 }

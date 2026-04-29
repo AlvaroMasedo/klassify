@@ -39,4 +39,10 @@ class Resource extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites', 'resource_id', 'user_id')
+            ->withPivot('created_at');
+    }
 }

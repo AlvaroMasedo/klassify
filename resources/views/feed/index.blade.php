@@ -85,4 +85,5 @@
         </aside>
     </div>
 </main>
+@include('feed.partials.favorite-toast')
 @endsection
