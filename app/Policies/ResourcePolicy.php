@@ -16,7 +16,23 @@ class ResourcePolicy
      */
     public function view(?User $user, Resource $resource): bool
     {
-        // Els recursos es poden visualitzar públicament
+        // Si l'usuari no està autenticat, no pot veure
+        if (!$user) {
+            return false;
+        }
+
+        // Els recursos d'usuaris privats no es poden visualitzar
+        if ($resource->user && $resource->user->is_private) {
+            return false;
+        }
+
+        // Els estudiants no poden veure exàmens
+        if (strtoupper((string) ($user->role ?? '')) === 'STUDENT') {
+            if (strtolower((string) ($resource->type ?? '')) === 'exam') {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -57,11 +73,6 @@ class ResourcePolicy
 
         // El propietari sempre pot actualitzar
         if ($user->id === $resource->user_id) {
-            return true;
-        }
-
-        // Els ADMIN sempre poden actualitzar
-        if ($role === 'ADMIN') {
             return true;
         }
 

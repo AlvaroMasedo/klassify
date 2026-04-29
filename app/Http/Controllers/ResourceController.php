@@ -204,6 +204,9 @@ class ResourceController extends Controller
 
     public function show(Resource $resource): View
     {
+        // Validar permisos usando la policy
+        $this->authorize('view', $resource);
+
         // Cargar relaciones del recurso
         $resource->load(['user', 'course', 'subject'])->loadCount('comments');
         

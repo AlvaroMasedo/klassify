@@ -35,7 +35,15 @@ $resourceExtensionLabel = strtoupper($resourceExtension !== '' ? $resourceExtens
 $previewOrientationClass = $isPreviewablePdf || in_array($resourceExtension, ['doc', 'docx', 'odt', 'rtf', 'txt', 'ppt', 'pptx'], true)
 ? 'resource-preview-thumb--portrait'
 : 'resource-preview-thumb--landscape';
+$currentUser = auth()->user();
+$currentUserRole = strtoupper((string) ($currentUser?->role ?? ''));
+
 $isResourceAuthor = auth()->check() && (int) auth()->id() === (int) $resource->user_id;
+$isAdmin = $currentUserRole === 'ADMIN';
+
+$canEditResource = $isResourceAuthor;
+$canDeleteResource = $isResourceAuthor || $isAdmin;
+$canShowResourceMenu = $canEditResource || $canDeleteResource;
 $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?->format('d M Y') ?? 'Hace poco';
 @endphp
 
@@ -53,7 +61,7 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
                 <p class="recurs-meta">Actualizado: {{ $updatedDate }}</p>
             </div>
         </div>
-        @if ($isResourceAuthor)
+        @if ($canShowResourceMenu)
         <div class="recurs-more-container">
             <button class="recurs-more-btn" type="button" aria-label="Opciones del recurso" data-resource-menu-toggle aria-expanded="false">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#2d1b3d">
@@ -62,19 +70,28 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
             </button>
 
             <div class="recurs-more-menu" hidden data-resource-menu-panel>
-                <a href="{{ route('resources.edit', $resource) }}" class="recurs-more-menu__item">Modificar</a>
+                @if ($canEditResource)
+                <a href="{{ route('resources.edit', $resource) }}" class="recurs-more-menu__item">
+                    Editar
+                </a>
+                @endif
+
+                @if ($canDeleteResource)
                 <form method="POST" action="{{ route('resources.destroy', $resource) }}" data-resource-delete-form>
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="recurs-more-menu__item recurs-more-menu__item--danger">Eliminar</button>
+
+                    <button type="submit" class="recurs-more-menu__item recurs-more-menu__item--danger">
+                        Eliminar
+                    </button>
                 </form>
+                @endif
             </div>
         </div>
         @endif
     </div>
-
-    <div class="recurs-detail-clickable" data-resource-show-url="{{ route('resources.show', $resource) }}" role="link" tabindex="0" aria-label="Abrir detalle del recurso" style="cursor:pointer;">
-        <div class="recurs-content">
+    <div class="recurs-detail-clickable">
+        <div class="recurs-content" data-resource-show-url="{{ route('resources.show', $resource) }}" role="link" tabindex="0" aria-label="Abrir detalle del recurso">
             <h3 class="recurs-title">
                 <span>{{ $resource->title }}</span>
                 @if (strtolower((string) ($resource->type ?? '')) === 'exam')
@@ -86,145 +103,145 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
 
         <div class="recurs-media">
             <div class="recurs-video-thumbnail">
-            @if ($previewKind === 'document')
-            <div class="resource-document-card">
-                <div class="resource-document-main">
-                    <div class="resource-document-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" focusable="false">
-                            <path d="M7 2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm6 1.5V8h4.5L13 3.5ZM8 11h8v1.5H8V11Zm0 3h8v1.5H8V14Zm0 3h5v1.5H8V17Z" />
-                        </svg>
+                @if ($previewKind === 'document')
+                <div class="resource-document-card">
+                    <div class="resource-document-main">
+                        <div class="resource-document-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M7 2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm6 1.5V8h4.5L13 3.5ZM8 11h8v1.5H8V11Zm0 3h8v1.5H8V14Zm0 3h5v1.5H8V17Z" />
+                            </svg>
+                        </div>
+                        <div class="resource-document-info">
+                            <p class="resource-document-name" title="{{ $resourceFileName }}">{{ $resourceFileName }}</p>
+                            <p class="resource-document-subtitle">Archivo adjunto listo para descargar</p>
+                        </div>
                     </div>
-                    <div class="resource-document-info">
-                        <p class="resource-document-name" title="{{ $resourceFileName }}">{{ $resourceFileName }}</p>
-                        <p class="resource-document-subtitle">Archivo adjunto listo para descargar</p>
+                    <div class="resource-document-actions">
+                        <span class="resource-document-type">{{ $resourceExtensionLabel }}</span>
+                        <a href="{{ $resourceUrl }}" class="resource-document-download" download>
+                            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                <path d="M12 3a1 1 0 0 1 1 1v8.17l2.59-2.58a1 1 0 1 1 1.41 1.42l-4.3 4.29a1 1 0 0 1-1.4 0l-4.3-4.29a1 1 0 0 1 1.41-1.42L11 12.17V4a1 1 0 0 1 1-1ZM5 17a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
+                            </svg>
+                            <span>Descargar</span>
+                        </a>
                     </div>
                 </div>
-                <div class="resource-document-actions">
-                    <span class="resource-document-type">{{ $resourceExtensionLabel }}</span>
-                    <a href="{{ $resourceUrl }}" class="resource-document-download" download>
+                @elseif ($isPreviewable)
+                @if ($isPreviewablePdf)
+                <button
+                    type="button"
+                    class="resource-preview-pdf-link resource-preview-trigger"
+                    data-preview-url="{{ $resourceUrl }}"
+                    data-preview-kind="{{ $previewKind }}"
+                    data-preview-title="{{ $resource->title }}"
+                    aria-label="Abrir vista previa de {{ $resource->title }}">
+                    <span class="resource-preview-pdf-link-text" title="{{ $resourceFileName }}">{{ $resourceFileName }}</span>
+                </button>
+                @else
+                <button
+                    type="button"
+                    class="resource-preview-thumb resource-preview-trigger {{ $previewOrientationClass }}"
+                    data-preview-url="{{ $resourceUrl }}"
+                    data-preview-kind="{{ $previewKind }}"
+                    data-preview-title="{{ $resource->title }}"
+                    aria-label="Abrir vista previa de {{ $resource->title }}">
+                    @if ($isPreviewableImage)
+                    <img src="{{ $resourceUrl }}" alt="Recurso {{ $resource->title }}" class="resource-preview-media-image">
+                    @else
+                    @if ($isPreviewableVideo)
+                    <video preload="metadata" muted playsinline>
+                        <source src="{{ $resourceUrl }}" type="video/mp4">
+                    </video>
+                    <span class="resource-preview-play" aria-hidden="true">
+                        <span class="resource-preview-play-badge">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        </span>
+                    </span>
+                    @else
+                    <div class="resource-preview-media-document-placeholder" aria-hidden="true">
+                        <span>Documento</span>
+                    </div>
+                    @endif
+                    @endif
+                    @if (!$isPreviewableVideo)
+                    <span class="resource-preview-doc-hover" aria-hidden="true">{{ $previewLabel }}</span>
+                    @endif
+                </button>
+                @endif
+                @elseif ($isImage)
+                <img src="{{ $resourceUrl }}" alt="Recurso {{ $resource->title }}">
+                @elseif ($isVideo)
+                <video controls preload="metadata" style="width:100%;height:auto;display:block;">
+                    <source src="{{ $resourceUrl }}" type="{{ $resource->mime_type }}">
+                    Tu navegador no soporta vídeo HTML5.
+                </video>
+                @elseif ($isAudio)
+                @if ($resourceMime === 'audio/mpeg' || $resourceExtension === 'mp3')
+                <div class="custom-audio-player" data-audio-player>
+                    <audio preload="metadata" data-audio-el>
+                        <source src="{{ $resourceUrl }}" type="audio/mpeg">
+                        Tu navegador no soporta audio HTML5.
+                    </audio>
+                    <button type="button" class="custom-audio-toggle" data-audio-toggle aria-label="Reproducir audio">
+                        <span data-audio-icon>▶</span>
+                    </button>
+                    <div class="custom-audio-track-wrap">
+                        <span class="custom-audio-time" data-audio-current>0:00</span>
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value="0"
+                            step="0.1"
+                            class="custom-audio-seek"
+                            data-audio-seek
+                            aria-label="Progreso del audio">
+                        <span class="custom-audio-time" data-audio-duration>0:00</span>
+                    </div>
+                    <div class="custom-audio-volume-wrap">
+                        <button type="button" class="custom-audio-volume-btn" data-audio-mute aria-label="Silenciar audio">
+                            <span data-audio-volume-icon>🔊</span>
+                        </button>
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value="100"
+                            step="1"
+                            class="custom-audio-volume"
+                            data-audio-volume
+                            aria-label="Volumen">
+                    </div>
+
+                    <a
+                        href="{{ $resourceUrl }}"
+                        class="resource-document-download"
+                        download="{{ $resourceFileName }}"
+                        aria-label="Descargar {{ $resourceFileName }}">
                         <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                             <path d="M12 3a1 1 0 0 1 1 1v8.17l2.59-2.58a1 1 0 1 1 1.41 1.42l-4.3 4.29a1 1 0 0 1-1.4 0l-4.3-4.29a1 1 0 0 1 1.41-1.42L11 12.17V4a1 1 0 0 1 1-1ZM5 17a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
                         </svg>
                         <span>Descargar</span>
                     </a>
                 </div>
-            </div>
-            @elseif ($isPreviewable)
-            @if ($isPreviewablePdf)
-            <button
-                type="button"
-                class="resource-preview-pdf-link resource-preview-trigger"
-                data-preview-url="{{ $resourceUrl }}"
-                data-preview-kind="{{ $previewKind }}"
-                data-preview-title="{{ $resource->title }}"
-                aria-label="Abrir vista previa de {{ $resource->title }}">
-                <span class="resource-preview-pdf-link-text" title="{{ $resourceFileName }}">{{ $resourceFileName }}</span>
-            </button>
-            @else
-            <button
-                type="button"
-                class="resource-preview-thumb resource-preview-trigger {{ $previewOrientationClass }}"
-                data-preview-url="{{ $resourceUrl }}"
-                data-preview-kind="{{ $previewKind }}"
-                data-preview-title="{{ $resource->title }}"
-                aria-label="Abrir vista previa de {{ $resource->title }}">
-                @if ($isPreviewableImage)
-                <img src="{{ $resourceUrl }}" alt="Recurso {{ $resource->title }}" class="resource-preview-media-image">
                 @else
-                @if ($isPreviewableVideo)
-                <video preload="metadata" muted playsinline>
-                    <source src="{{ $resourceUrl }}" type="video/mp4">
-                </video>
-                <span class="resource-preview-play" aria-hidden="true">
-                    <span class="resource-preview-play-badge">
-                        <svg viewBox="0 0 24 24" focusable="false">
-                            <path d="M8 5v14l11-7z" />
-                        </svg>
-                    </span>
-                </span>
+                <div style="padding: 1rem; background: #fff; border-radius: 10px;">
+                    <audio controls preload="metadata" style="width:100%;">
+                        <source src="{{ $resourceUrl }}" type="{{ $resource->mime_type }}">
+                        Tu navegador no soporta audio HTML5.
+                    </audio>
+                </div>
+                @endif
                 @else
-                <div class="resource-preview-media-document-placeholder" aria-hidden="true">
-                    <span>Documento</span>
+                <div style="padding: 1rem; background: #fff; border-radius: 10px;">
+                    <a href="{{ $resourceUrl }}" target="_blank" rel="noreferrer">Abrir recurso</a>
+                    @if (!empty($resource->file_name))
+                    <p style="margin: 0.5rem 0 0;">{{ $resource->file_name }}</p>
+                    @endif
                 </div>
                 @endif
-                @endif
-                @if (!$isPreviewableVideo)
-                <span class="resource-preview-doc-hover" aria-hidden="true">{{ $previewLabel }}</span>
-                @endif
-            </button>
-            @endif
-            @elseif ($isImage)
-            <img src="{{ $resourceUrl }}" alt="Recurso {{ $resource->title }}">
-            @elseif ($isVideo)
-            <video controls preload="metadata" style="width:100%;height:auto;display:block;">
-                <source src="{{ $resourceUrl }}" type="{{ $resource->mime_type }}">
-                Tu navegador no soporta vídeo HTML5.
-            </video>
-            @elseif ($isAudio)
-            @if ($resourceMime === 'audio/mpeg' || $resourceExtension === 'mp3')
-            <div class="custom-audio-player" data-audio-player>
-                <audio preload="metadata" data-audio-el>
-                    <source src="{{ $resourceUrl }}" type="audio/mpeg">
-                    Tu navegador no soporta audio HTML5.
-                </audio>
-                <button type="button" class="custom-audio-toggle" data-audio-toggle aria-label="Reproducir audio">
-                    <span data-audio-icon>▶</span>
-                </button>
-                <div class="custom-audio-track-wrap">
-                    <span class="custom-audio-time" data-audio-current>0:00</span>
-                    <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="0"
-                        step="0.1"
-                        class="custom-audio-seek"
-                        data-audio-seek
-                        aria-label="Progreso del audio">
-                    <span class="custom-audio-time" data-audio-duration>0:00</span>
-                </div>
-                <div class="custom-audio-volume-wrap">
-                    <button type="button" class="custom-audio-volume-btn" data-audio-mute aria-label="Silenciar audio">
-                        <span data-audio-volume-icon>🔊</span>
-                    </button>
-                    <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value="100"
-                        step="1"
-                        class="custom-audio-volume"
-                        data-audio-volume
-                        aria-label="Volumen">
-                </div>
-
-                <a
-                    href="{{ $resourceUrl }}"
-                    class="resource-document-download"
-                    download="{{ $resourceFileName }}"
-                    aria-label="Descargar {{ $resourceFileName }}">
-                    <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                        <path d="M12 3a1 1 0 0 1 1 1v8.17l2.59-2.58a1 1 0 1 1 1.41 1.42l-4.3 4.29a1 1 0 0 1-1.4 0l-4.3-4.29a1 1 0 0 1 1.41-1.42L11 12.17V4a1 1 0 0 1 1-1ZM5 17a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
-                    </svg>
-                    <span>Descargar</span>
-                </a>
-            </div>
-            @else
-            <div style="padding: 1rem; background: #fff; border-radius: 10px;">
-                <audio controls preload="metadata" style="width:100%;">
-                    <source src="{{ $resourceUrl }}" type="{{ $resource->mime_type }}">
-                    Tu navegador no soporta audio HTML5.
-                </audio>
-            </div>
-            @endif
-            @else
-            <div style="padding: 1rem; background: #fff; border-radius: 10px;">
-                <a href="{{ $resourceUrl }}" target="_blank" rel="noreferrer">Abrir recurso</a>
-                @if (!empty($resource->file_name))
-                <p style="margin: 0.5rem 0 0;">{{ $resource->file_name }}</p>
-                @endif
-            </div>
-            @endif
             </div>
         </div>
     </div>
