@@ -10,7 +10,7 @@ use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\TeacherRequestController;
-
+use App\Http\Controllers\ProfileController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -48,6 +48,10 @@ Route::middleware('auth')->group(function () {
     // Feed
     Route::get('/feed', [FeedController::class, 'index'])->name('feed');
     Route::get('/feed/resources', [FeedController::class, 'resources'])->name('feed.resources');
+
+    // Perfil de usuario
+    Route::get('/perfil', [ProfileController::class, 'me'])->name('profile.me');
+    Route::get('/perfil/{user:nickname}', [ProfileController::class, 'show'])->name('profile.show');
 
     // Recursos
     Route::prefix('resources')->name('resources.')->group(function () {
@@ -100,4 +104,3 @@ Route::middleware(['auth', 'admin'])
 // Rutas públicas para confirmación de solicitudes de profesor por institución
 Route::get('/teacher-requests/confirm/{token}', [TeacherRequestController::class, 'confirmByInstitution'])
     ->name('teacher-requests.confirm');
-

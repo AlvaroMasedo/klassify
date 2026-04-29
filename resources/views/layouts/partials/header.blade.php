@@ -62,7 +62,7 @@
                 </button>
 
                 <div class="k-profile-menu" role="menu" aria-label="Perfil">
-                    <a class="k-profile-item" href="/perfil" role="menuitem">Perfil</a>
+                    <a class="k-profile-item" href="{{ route('profile.me') }}" role="menuitem">Perfil</a>
                         @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
                         <a class="k-profile-item" href="{{ route('admin.teacher-requests.index') }}" role="menuitem">Solicitudes</a>
                     @endif

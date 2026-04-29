@@ -1862,13 +1862,16 @@ body::before {
     line-height: 1.2;
 }
 
+.recurs-user-username,
 .comment-user-username {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #8a759d;
     font-family: "Open Sans", sans-serif;
-    color: #8b7a9e;
-    font-size: 0.85rem;
-    font-weight: 600;
-    line-height: 1.2;
-    word-break: break-word;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.1;
 }
 
 .comment-form {
@@ -2307,4 +2310,30 @@ body::before {
 .comment-delete-confirm:disabled {
     opacity: 0.65;
     cursor: not-allowed;
+}
+
+.verified-badge-icon {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    flex: 0 0 auto;
+    margin-left: 0.25rem;
+    fill: #1da1f2;
+    vertical-align: -2px;
+}
+
+.recurs-user-username .verified-badge-icon,
+.comment-user-username .verified-badge-icon {
+    width: 13px;
+    height: 13px;
+    margin-left: 0;
+    flex: 0 0 13px;
+}
+
+.verified-badge-icon {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    fill: #1da1f2;
+    vertical-align: -2px;
 }
