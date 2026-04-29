@@ -1,6 +1,54 @@
 body{
     margin: 0;
 }
+
+.recurs-favorite-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #2d1b3d;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.recurs-favorite-btn svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 45px;
+    stroke-linejoin: round;
+    transition: fill 0.2s ease, stroke 0.2s ease, transform 0.2s ease;
+}
+
+.recurs-favorite-btn:hover {
+    background: rgba(88, 52, 115, 0.08);
+    transform: translateY(-1px);
+}
+
+.recurs-favorite-btn:focus-visible {
+    outline: 2px solid #583473;
+    outline-offset: 3px;
+}
+
+.recurs-favorite-btn.is-favorited {
+    color: #f4c542;
+}
+
+.recurs-favorite-btn.is-favorited svg {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+.recurs-favorite-btn.is-favorited:hover {
+    background: rgba(244, 197, 66, 0.12);
+}
 .k-button {
     text-decoration: none;
     background: linear-gradient(90deg, #583473 0%, #A485BC 100%);

@@ -267,12 +267,28 @@ $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?
             </svg>
             <span class="recurs-count" data-comments-count>{{ $resource->comments_count ?? 0 }}</span>
         </div>
-        <div class="recurs-action">
-            <svg class="icon-bookmark" data-saved="false" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#2d1b3d">
-                <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z" />
+        @php
+        $favoritesCount = (int) ($resource->favorites_count ?? 0);
+        $isFavorited = (bool) ($resource->is_favorited ?? false);
+        @endphp
+
+        <button
+            type="button"
+            class="recurs-action recurs-action-btn recurs-favorite-btn {{ $isFavorited ? 'is-favorited' : '' }}"
+            data-favorite-toggle
+            data-resource-id="{{ $resource->id }}"
+            data-favorite-url="{{ route('resources.favorite.toggle', $resource) }}"
+            aria-pressed="{{ $isFavorited ? 'true' : 'false' }}"
+            aria-label="{{ $isFavorited ? 'Quitar de favoritos' : 'Guardar en favoritos' }}">
+            <svg class="icon-bookmark" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" aria-hidden="true" focusable="false">
+                <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Z" />
             </svg>
-            <span class="recurs-count">0</span>
-        </div>
+            <span
+                class="recurs-count"
+                data-favorites-count-for="{{ $resource->id }}">
+                {{ $favoritesCount }}
+            </span>
+        </button>
         <div class="recurs-update-date-inline">Actualizado: {{ $updatedDate }}</div>
     </div>
 </div>

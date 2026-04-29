@@ -202,14 +202,23 @@ class ResourceController extends Controller
             ->with('success', 'Recurso eliminado correctamente.');
     }
 
-    public function show(Resource $resource): View
+    public function show(Request $request, Resource $resource): View
     {
         // Validar permisos usando la policy
         $this->authorize('view', $resource);
 
         // Cargar relaciones del recurso
-        $resource->load(['user', 'course', 'subject'])->loadCount('comments');
-        
+        $resource->loadCount([
+            'comments',
+            'favoritedBy as favorites_count',
+        ]);
+
+        $resource->loadExists([
+            'favoritedBy as is_favorited' => function ($query) use ($request) {
+                $query->where('users.id', $request->user()->id);
+            },
+        ]);
+
         // Asignar display_url al recurso
         $fileUrl = (string) ($resource->file_url ?? '');
         $resource->display_url = $fileUrl !== '' ? route('resources.preview', ['resource' => $resource->id]) : null;
@@ -223,7 +232,7 @@ class ResourceController extends Controller
         // Cargar recursos destacados (mismo que en FeedController)
         $currentUser = request()->user();
         $isStudent = strtoupper((string) ($currentUser?->role ?? '')) === 'STUDENT';
-        
+
         $featuredResources = Resource::query()
             ->latest()
             ->select(['id', 'user_id', 'title', 'type'])

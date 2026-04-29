@@ -137,5 +137,5 @@
         }
     });
 </script>
-
+@include('feed.partials.favorite-toast')
 @endsection

@@ -131,10 +131,19 @@ class FeedController extends Controller
                 'course:id,name',
                 'subject:id,name',
             ])
-            ->withCount('comments')
+            ->withCount([
+                'comments',
+                'favoritedBy as favorites_count',
+            ])
+            ->withExists([
+                'favoritedBy as is_favorited' => function ($query) {
+                    $query->where('users.id', request()->user()->id);
+                },
+            ])
             ->whereHas('user', function ($q) {
                 $q->where('is_private', false);
             });
+
 
         if ($isStudent) {
             $query->where('type', '!=', 'exam');

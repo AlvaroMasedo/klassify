@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\TeacherRequestController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FavoriteController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -62,6 +63,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
         Route::post('/{resource}/comments', [CommentController::class, 'store'])->name('comments.store');
         Route::delete('/{resource}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+        Route::post('/{resource}/favorite', [FavoriteController::class, 'toggle'])->name('favorite.toggle');
         Route::get('/{resource}', [ResourceController::class, 'show'])->name('show');
     });
 
