@@ -12,6 +12,11 @@ export function initComments() {
     const commentInput = commentForm?.querySelector('[data-comment-input]');
     const charCount = document.getElementById('char-count');
     const commentsList = document.getElementById('comments-list');
+    const deleteModal = document.getElementById('comment-delete-modal');
+    const deleteConfirmBtn = deleteModal?.querySelector('[data-comment-delete-confirm]');
+    const deleteCancelBtns = deleteModal?.querySelectorAll('[data-comment-delete-cancel]');
+    const deleteError = deleteModal?.querySelector('[data-comment-delete-error]');
+    let pendingDelete = null;
 
     if (!commentForm || !commentInput || !commentsList) {
         return;
@@ -228,6 +233,175 @@ export function initComments() {
         }
     };
 
+    const closeCommentMenus = () => {
+        document.querySelectorAll('[data-comment-options-menu].is-open').forEach(menu => {
+            menu.classList.remove('is-open');
+        });
+
+        document.querySelectorAll('[data-comment-menu-toggle][aria-expanded="true"]').forEach(button => {
+            button.setAttribute('aria-expanded', 'false');
+        });
+    };
+
+    const openDeleteModal = (commentItem, deleteUrl) => {
+        if (!deleteModal || !commentItem || !deleteUrl) {
+            return;
+        }
+
+        pendingDelete = {
+            item: commentItem,
+            url: deleteUrl,
+        };
+
+        if (deleteError) {
+            deleteError.hidden = true;
+            deleteError.textContent = '';
+        }
+
+        deleteModal.hidden = false;
+        deleteConfirmBtn?.focus();
+    };
+
+    const closeDeleteModal = () => {
+        if (!deleteModal) {
+            return;
+        }
+
+        deleteModal.hidden = true;
+        pendingDelete = null;
+
+        if (deleteError) {
+            deleteError.hidden = true;
+            deleteError.textContent = '';
+        }
+    };
+
+    const showDeleteError = (message) => {
+        if (!deleteError) {
+            return;
+        }
+
+        deleteError.textContent = message;
+        deleteError.hidden = false;
+    };
+
+    const ensureEmptyCommentsMessage = () => {
+        const hasComments = commentsList.querySelector('[data-comment-item]');
+
+        if (hasComments) {
+            return;
+        }
+
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'comments-empty';
+        emptyDiv.innerHTML = '<p>Todavía no hay comentarios. Sé el primero en comentar.</p>';
+        commentsList.appendChild(emptyDiv);
+    };
+
+    const deleteComment = async () => {
+        if (!pendingDelete?.url || !pendingDelete?.item) {
+            return;
+        }
+
+        const csrfToken = getCsrfToken();
+
+        if (!csrfToken) {
+            showDeleteError('No se pudo eliminar el comentario. Recarga la página e inténtalo de nuevo.');
+            return;
+        }
+
+        deleteConfirmBtn.disabled = true;
+
+        try {
+            const response = await fetch(pendingDelete.url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok || !data.success) {
+                showDeleteError(data.message || 'No se pudo eliminar el comentario.');
+                return;
+            }
+
+            pendingDelete.item.remove();
+
+            if (data.comments_count !== undefined) {
+                updateCommentCount(data.comments_count);
+            }
+
+            ensureEmptyCommentsMessage();
+            closeDeleteModal();
+        } catch (error) {
+            console.error('Error al eliminar comentario:', error);
+            showDeleteError('No se pudo eliminar el comentario. Inténtalo de nuevo.');
+        } finally {
+            deleteConfirmBtn.disabled = false;
+        }
+    };
+
+    commentsList.addEventListener('click', (event) => {
+        const menuButton = event.target.closest('[data-comment-menu-toggle]');
+
+        if (menuButton) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const commentItem = menuButton.closest('[data-comment-item]');
+            const menu = commentItem?.querySelector('[data-comment-options-menu]');
+
+            if (!menu) {
+                return;
+            }
+
+            const isOpen = menu.classList.contains('is-open');
+
+            closeCommentMenus();
+
+            if (!isOpen) {
+                menu.classList.add('is-open');
+                menuButton.setAttribute('aria-expanded', 'true');
+            }
+
+            return;
+        }
+
+        const deleteButton = event.target.closest('[data-comment-delete]');
+
+        if (deleteButton) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const commentItem = deleteButton.closest('[data-comment-item]');
+            const deleteUrl = deleteButton.getAttribute('data-delete-url');
+
+            closeCommentMenus();
+            openDeleteModal(commentItem, deleteUrl);
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.comment-options')) {
+            closeCommentMenus();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeCommentMenus();
+            closeDeleteModal();
+        }
+    });
+
+    deleteCancelBtns?.forEach(button => {
+        button.addEventListener('click', closeDeleteModal);
+    });
+
+    deleteConfirmBtn?.addEventListener('click', deleteComment);
     // Event listeners
     commentForm.addEventListener('submit', submitComment);
     commentInput.addEventListener('input', handleInput);

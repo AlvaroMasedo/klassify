@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Resource;
 use App\Models\Comment;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Almacena un nuevo comentario en un recurso.
      *
@@ -19,6 +21,9 @@ class CommentController extends Controller
      */
     public function store(Request $request, Resource $resource): JsonResponse
     {
+        // Validar permisos usando la policy
+        $this->authorize('view', $resource);
+
         // Validar el comentario
         $validated = $request->validate([
             'comment' => 'required|string|max:750',
@@ -50,5 +55,33 @@ class CommentController extends Controller
             'comments_count' => $commentsCount,
             'message' => 'Comentario publicado correctamente.',
         ], 201);
+    }
+    public function destroy(Request $request, Resource $resource, Comment $comment): JsonResponse
+    {
+        if ((int) $comment->resource_id !== (int) $resource->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comentario no encontrado.',
+            ], 404);
+        }
+
+        $user = $request->user();
+        $isAdmin = strtoupper((string) ($user?->role ?? '')) === 'ADMIN';
+        $isOwner = (int) $comment->user_id === (int) $user?->id;
+
+        if (!$isAdmin && !$isOwner) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes eliminar este comentario.',
+            ], 403);
+        }
+
+        $comment->delete();
+
+        return response()->json([
+            'success' => true,
+            'comments_count' => $resource->comments()->count(),
+            'message' => 'Comentario eliminado correctamente.',
+        ]);
     }
 }

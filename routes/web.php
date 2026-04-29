@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/{resource}', [ResourceController::class, 'update'])->name('update');
         Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
         Route::post('/{resource}/comments', [CommentController::class, 'store'])->name('comments.store');
+        Route::delete('/{resource}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
         Route::get('/{resource}', [ResourceController::class, 'show'])->name('show');
     });
 

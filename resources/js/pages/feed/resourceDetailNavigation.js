@@ -14,7 +14,7 @@ export function initResourceDetailNavigation() {
     };
 
     document.addEventListener('click', (event) => {
-        const card = event.target.closest('.recurs-detail-clickable[data-resource-show-url]');
+        const card = event.target.closest('.recurs-content[data-resource-show-url]');
 
         if (!card) {
             return;
@@ -32,7 +32,7 @@ export function initResourceDetailNavigation() {
     });
 
     document.addEventListener('keydown', (event) => {
-        const card = event.target.closest('.recurs-detail-clickable[data-resource-show-url]');
+        const card = event.target.closest('.recurs-content[data-resource-show-url]');
 
         if (!card) {
             return;
