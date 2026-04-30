@@ -2669,3 +2669,51 @@ body::before {
 .teacher-follow-btn.is-following {
     min-width: 96px;
 }
+
+.rd-card-title-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.rd-card-title-link:hover {
+    text-decoration: underline;
+}
+
+.rd-action-btn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.rd-action-btn:hover {
+    background: transparent;
+}
+
+.rd-comment-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.rd-comment-link:hover .icon-comment {
+    fill: #3498db;
+    filter: drop-shadow(0 0 8px rgba(52, 152, 219, 0.6));
+}
+
+.rd-card .recurs-like-btn .icon-heart {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 52px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.rd-card .recurs-like-btn.is-liked .icon-heart {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+.rd-card .recurs-like-btn:hover .icon-heart {
+    color: #e74c6f;
+    filter: drop-shadow(0 0 8px rgba(231, 76, 111, 0.45));
+}

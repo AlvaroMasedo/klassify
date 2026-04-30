@@ -239,9 +239,17 @@ class ResourceController extends Controller
         $isStudent = strtoupper((string) ($currentUser?->role ?? '')) === 'STUDENT';
 
         $featuredResources = Resource::query()
-            ->latest()
             ->select(['id', 'user_id', 'title', 'type'])
             ->with(['user:id,is_private'])
+            ->withCount([
+                'comments',
+                'likedBy as likes_count',
+            ])
+            ->withExists([
+                'likedBy as is_liked' => function ($query) use ($request) {
+                    $query->where('users.id', $request->user()->id);
+                },
+            ])
             ->whereHas('user', function ($userQuery) {
                 $userQuery->where('is_private', false);
             });
@@ -250,12 +258,15 @@ class ResourceController extends Controller
             $featuredResources->where('type', '!=', 'exam');
         }
 
-        $featuredResources = $featuredResources->take(5)->get();
-
+        $featuredResources = $featuredResources
+            ->orderByDesc('likes_count')
+            ->latest()
+            ->take(5)
+            ->get();
 
         $suggestedTeachers = app(SuggestedTeachersService::class)
             ->forUser($request->user());
-            
+
         return view('feed.show-resource', [
             'resource' => $resource,
             'comments' => $comments,

@@ -37,22 +37,31 @@ class FeedController extends Controller
 
         $this->assignDisplayUrlsToResources($resources->items());
 
-        $featuredResources = $feedCache->remember('feed:v2:featured-resources:' . ($isStudent ? 'student' : 'staff'), now()->addMinutes(10), function () use ($isStudent) {
-            $query = Resource::query()
-                ->latest()
-                ->select(['id', 'user_id', 'title', 'type'])
-                ->with(['user:id,is_private']);
-
-            $query->whereHas('user', function ($userQuery) {
+        $featuredResources = Resource::query()
+            ->select(['id', 'user_id', 'title', 'type'])
+            ->with(['user:id,is_private'])
+            ->withCount([
+                'comments',
+                'likedBy as likes_count',
+            ])
+            ->withExists([
+                'likedBy as is_liked' => function ($query) use ($request) {
+                    $query->where('users.id', $request->user()->id);
+                },
+            ])
+            ->whereHas('user', function ($userQuery) {
                 $userQuery->where('is_private', false);
             });
 
-            if ($isStudent) {
-                $query->where('type', '!=', 'exam');
-            }
+        if ($isStudent) {
+            $featuredResources->where('type', '!=', 'exam');
+        }
 
-            return $query->take(5)->get();
-        });
+        $featuredResources = $featuredResources
+            ->orderByDesc('likes_count')
+            ->latest()
+            ->take(5)
+            ->get();
 
         $suggestedTeachers = app(SuggestedTeachersService::class)
             ->forUser($request->user());
