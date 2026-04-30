@@ -68,6 +68,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/perfil', [ProfileController::class, 'me'])->name('profile.me');
     Route::get('/perfil/{user:nickname}', [ProfileController::class, 'show'])->name('profile.show');
 
+    // Rutas para cargar más recursos destacados en el feed
+    Route::get('/feed/featured-resources/more', [FeedController::class, 'moreFeaturedResources'])
+        ->name('feed.featured-resources.more');
+
+    // Rutas para cargar más profesores sugeridos en el feed
+    Route::get('/feed/suggested-teachers/more', [FeedController::class, 'moreSuggestedTeachers'])
+        ->name('feed.suggested-teachers.more');
+
     // Seguir/dejar de seguir a un usuario
     Route::post('/perfil/{user:nickname}/follow', [FollowController::class, 'toggle'])
         ->name('profile.follow.toggle');

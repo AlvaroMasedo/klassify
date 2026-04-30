@@ -2926,3 +2926,37 @@ body.report-modal-open {
         width: 100%;
     }
 }
+
+.sidebar-load-more-btn {
+    display: inline-flex;
+    justify-content: flex-start;
+    width: auto;
+    margin-top: 0.65rem;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #583473;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: left;
+    box-shadow: none;
+    transition: color 0.18s ease, transform 0.18s ease;
+    font-family: "Open Sans", sans-serif;
+}
+
+.sidebar-load-more-btn:hover {
+    background: transparent;
+    color: #3f2454;
+    text-decoration: underline;
+    transform: translateX(2px);
+    box-shadow: none;
+}
+
+.sidebar-load-more-btn:disabled {
+    opacity: 0.65;
+    cursor: wait;
+    transform: none;
+    text-decoration: none;
+}

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use App\Services\SuggestedTeachersService;
+use App\Services\FeaturedResourcesService;
 
 class ResourceController extends Controller
 {
@@ -238,25 +239,17 @@ class ResourceController extends Controller
         $currentUser = request()->user();
         $isStudent = strtoupper((string) ($currentUser?->role ?? '')) === 'STUDENT';
 
-        $featuredResources = Resource::query()
-            ->select(['id', 'user_id', 'title', 'type'])
-            ->with(['user:id,is_private'])
-            ->withCount([
-                'comments',
-                'likedBy as likes_count',
-            ])
-            ->withExists([
-                'likedBy as is_liked' => function ($query) use ($request) {
-                    $query->where('users.id', $request->user()->id);
-                },
-            ])
-            ->whereHas('user', function ($userQuery) {
-                $userQuery->where('is_private', false);
-            });
+        $featuredProbe = app(FeaturedResourcesService::class)
+            ->forUser($request->user(), 6);
 
-        if ($isStudent) {
-            $featuredResources->where('type', '!=', 'exam');
-        }
+        $featuredResources = $featuredProbe->take(5)->values();
+        $featuredResourcesHasMore = $featuredProbe->count() > 5;
+
+        $suggestedProbe = app(SuggestedTeachersService::class)
+            ->forUser($request->user(), 6);
+
+        $suggestedTeachers = $suggestedProbe->take(5)->values();
+        $suggestedTeachersHasMore = $suggestedProbe->count() > 5;
 
         $featuredResources = $featuredResources
             ->orderByDesc('likes_count')
@@ -273,6 +266,8 @@ class ResourceController extends Controller
             'commentsCount' => $comments->count(),
             'featuredResources' => $featuredResources,
             'suggestedTeachers' => $suggestedTeachers,
+            'featuredResourcesHasMore' => $featuredResourcesHasMore,
+            'suggestedTeachersHasMore' => $suggestedTeachersHasMore,
         ]);
     }
 

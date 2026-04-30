@@ -1,54 +1,25 @@
 <div class="k-recursosDestacados-card">
     <h2>Profesores Sugeridos</h2>
 
-    @forelse (($suggestedTeachers ?? collect()) as $teacher)
-    @php
-    $teacherDisplayName = trim(((string) $teacher->name) . ' ' . ((string) $teacher->surname)) ?: 'Usuario';
-    $teacherUsername = '@' . ($teacher->nickname ?? 'usuario');
-    $isFollowing = (bool) ($teacher->is_following ?? false);
-
-    $teacherMeta = $teacher->institution?->name
-    ? 'Centro: ' . $teacher->institution->name
-    : ($teacher->specialization ? 'Curso: ' . $teacher->specialization : 'Profesor en Klassify');
-    @endphp
-
-    <div class="teacher-card">
-        <div class="teacher-header">
-            <a
-                class="teacher-user-info teacher-profile-link"
-                href="{{ route('profile.show', ['user' => $teacher->nickname]) }}">
-                <div class="teacher-avatar">
-                    <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $teacherDisplayName }}">
-                </div>
-
-                <div class="teacher-user-details">
-                    <div class="teacher-name-container">
-                        <span class="teacher-name">{{ $teacherDisplayName }}</span>
-
-                        <span class="teacher-username">
-                            {{ $teacherUsername }}
-                            <x-verified-badge :user="$teacher" />
-                        </span>
-                    </div>
-
-                    <p class="teacher-meta">{{ $teacherMeta }}</p>
-                </div>
-            </a>
-
-            <button
-                type="button"
-                class="teacher-follow-btn {{ $isFollowing ? 'is-following' : '' }}"
-                data-follow-toggle
-                data-user-id="{{ $teacher->id }}"
-                data-follow-url="{{ route('profile.follow.toggle', ['user' => $teacher->nickname]) }}"
-                aria-pressed="{{ $isFollowing ? 'true' : 'false' }}">
-                <span>{{ $isFollowing ? 'Siguiendo' : 'Seguir' }}</span>
-            </button>
-        </div>
+    <div data-suggested-teachers-list>
+        @forelse (($suggestedTeachers ?? collect()) as $teacher)
+            @include('feed.partials.suggested-teacher-item', ['teacher' => $teacher])
+        @empty
+            <p class="teacher-empty">No hay profesores sugeridos todavía.</p>
+        @endforelse
     </div>
-    @empty
-    <p class="teacher-empty">No hay profesores sugeridos todavía.</p>
-    @endforelse
+
+    @if ($suggestedTeachersHasMore ?? false)
+        <button
+            type="button"
+            class="view-more sidebar-load-more-btn"
+            data-sidebar-load-more
+            data-load-more-target="[data-suggested-teachers-list]"
+            data-load-more-url="{{ route('feed.suggested-teachers.more') }}">
+            Mostrar más
+        </button>
+    @endif
+</div>
 </div>
 
 <div class="sidebar-footer">
