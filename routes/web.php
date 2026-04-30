@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\Admin\IncidentController as AdminIncidentController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -134,6 +135,10 @@ Route::middleware(['auth', 'admin'])
         // Gestión de incidencias
         Route::get('/incidencias', [AdminIncidentController::class, 'index'])->name('incidents.index');
         Route::post('/incidencias/{incident}/resolve', [AdminIncidentController::class, 'resolve'])->name('incidents.resolve');
+
+        // Gestión de usuarios
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     });
 
 // Rutas públicas para confirmación de solicitudes de profesor por institución
