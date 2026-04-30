@@ -2520,3 +2520,46 @@ body::before {
 .k-follow {
     text-decoration: none;
 }
+
+.recurs-like-btn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: #2d1b3d;
+    font: inherit;
+    cursor: pointer;
+}
+
+.recurs-like-btn:hover {
+    background: transparent;
+}
+
+.recurs-like-btn .icon-heart {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 52px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    transition: fill 0.2s ease, stroke 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+}
+
+.recurs-like-btn:hover .icon-heart,
+.recurs-like-btn:focus-visible .icon-heart {
+    color: #e74c6f;
+    filter: drop-shadow(0 0 8px rgba(231, 76, 111, 0.45));
+}
+
+.recurs-like-btn.is-liked {
+    color: #e74c6f;
+}
+
+.recurs-like-btn.is-liked .icon-heart {
+    fill: currentColor;
+    stroke: currentColor;
+    filter: drop-shadow(0 0 8px rgba(231, 76, 111, 0.35));
+}
+
+.recurs-like-btn:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}

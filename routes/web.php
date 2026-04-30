@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\TeacherRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\LikeController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -69,6 +70,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/{resource}/comments', [CommentController::class, 'store'])->name('comments.store');
         Route::delete('/{resource}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
         Route::post('/{resource}/favorite', [FavoriteController::class, 'toggle'])->name('favorite.toggle');
+        Route::post('/{resource}/like', [LikeController::class, 'toggle'])->name('like.toggle');
         Route::get('/{resource}', [ResourceController::class, 'show'])->name('show');
     });
 

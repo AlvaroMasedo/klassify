@@ -10,6 +10,7 @@ import { initLoadMore } from './loadMore.js';
 import { initResourceDetailNavigation } from './resourceDetailNavigation.js';
 import { initCommentNavigation } from './commentNavigation.js';
 import { initComments } from './comments.js';
+import { initLikes } from './likes.js';
 
 /**
  * Inicializa los filtros de curso y materia
@@ -70,6 +71,7 @@ function initFilters() {
  */
 function initFeedPage() {
     initFavorites();
+    initLikes();
     initMobileMenu();
     initResourceMenus();
     initPreviewModal();
