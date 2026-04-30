@@ -42,7 +42,11 @@
             <a href="#">Sobre Klassify · </a>
             <a href="#">Normas de la comunidad · </a>
             <a href="#">Privacidad · </a>
-            <a href="#">Ayuda · </a>
+            @auth
+            <a href="{{ route('incidents.create') }}">Ayuda · </a>
+            @else
+            <a href="{{ route('login') }}">Ayuda · </a>
+            @endauth
             <a href="#">Contacto</a>
         </div>
         <span>© {{ date('Y') }} Klassify</span>

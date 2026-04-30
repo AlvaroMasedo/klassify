@@ -1,0 +1,207 @@
+.incident-help-page {
+    min-height: calc(100vh - 90px);
+    padding: 2rem 1rem;
+    background: #faf7fc;
+    color: #241432;
+}
+
+.incident-help-card {
+    width: min(100%, 860px);
+    margin: 0 auto;
+    padding: 1.6rem;
+    border: 1px solid rgba(88, 52, 115, 0.14);
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 18px 45px rgba(45, 27, 61, 0.1);
+}
+
+.incident-help-header {
+    padding-bottom: 1.15rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(88, 52, 115, 0.14);
+}
+
+.incident-help-header span {
+    display: inline-flex;
+    margin-bottom: 0.4rem;
+    color: #8b6ca5;
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+.incident-help-header h1 {
+    margin: 0;
+    color: #583473;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1;
+    font-weight: 900;
+}
+
+.incident-help-header p {
+    max-width: 680px;
+    margin: 0.6rem 0 0;
+    color: #806c93;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.incident-help-success,
+.incident-help-errors {
+    margin-bottom: 1rem;
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    font-weight: 800;
+}
+
+.incident-help-success {
+    background: #f5fbf7;
+    border: 1px solid rgba(57, 169, 107, 0.25);
+    color: #24784a;
+}
+
+.incident-help-errors {
+    background: #fff7f7;
+    border: 1px solid rgba(192, 57, 43, 0.2);
+    color: #a93226;
+}
+
+.incident-help-errors ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.2rem;
+}
+
+.incident-help-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.incident-form-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 1rem;
+}
+
+.incident-form-field {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.incident-form-field label {
+    color: #7d6591;
+    font-size: 0.76rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.045em;
+}
+
+.incident-form-field input,
+.incident-form-field select,
+.incident-form-field textarea {
+    width: 96%;
+    border: 1px solid rgba(88, 52, 115, 0.24);
+    border-radius: 13px;
+    padding: 0.8rem 0.9rem;
+    background: #ffffff;
+    color: #2d1b3d;
+    font: inherit;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    box-shadow: 0 6px 16px rgba(45, 27, 61, 0.035);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.incident-form-field input::placeholder,
+.incident-form-field textarea::placeholder {
+    color: #9a89a8;
+}
+
+.incident-form-field select {
+    cursor: pointer;
+}
+
+.incident-form-field textarea {
+    resize: vertical;
+    min-height: 150px;
+    max-height: 260px;
+}
+
+.incident-form-field input:focus,
+.incident-form-field select:focus,
+.incident-form-field textarea:focus {
+    outline: none;
+    border-color: #583473;
+    box-shadow: 0 0 0 4px rgba(88, 52, 115, 0.11);
+}
+
+.incident-help-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.4rem;
+}
+
+.incident-help-cancel,
+.incident-help-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 13px;
+    padding: 0.7rem 1rem;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 900;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.incident-help-cancel {
+    background: #f0e8f5;
+    color: #583473;
+}
+
+.incident-help-cancel:hover {
+    background: #e7dcef;
+    transform: translateY(-1px);
+}
+
+.incident-help-submit {
+    background: #583473;
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(88, 52, 115, 0.22);
+}
+
+.incident-help-submit:hover {
+    background: #4a2b61;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(88, 52, 115, 0.26);
+}
+
+@media (max-width: 720px) {
+    .incident-help-page {
+        padding: 1rem;
+    }
+
+    .incident-help-card {
+        padding: 1.25rem;
+        border-radius: 18px;
+    }
+
+    .incident-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .incident-help-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .incident-help-cancel,
+    .incident-help-submit {
+        width: 100%;
+    }
+}
