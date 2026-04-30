@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use App\Services\SuggestedTeachersService;
 
 class FeedController extends Controller
 {
@@ -36,28 +37,41 @@ class FeedController extends Controller
 
         $this->assignDisplayUrlsToResources($resources->items());
 
-        $featuredResources = $feedCache->remember('feed:v2:featured-resources:' . ($isStudent ? 'student' : 'staff'), now()->addMinutes(10), function () use ($isStudent) {
-            $query = Resource::query()
-                ->latest()
-                ->select(['id', 'user_id', 'title', 'type'])
-                ->with(['user:id,is_private']);
-
-            $query->whereHas('user', function ($userQuery) {
+        $featuredResources = Resource::query()
+            ->select(['id', 'user_id', 'title', 'type'])
+            ->with(['user:id,is_private'])
+            ->withCount([
+                'comments',
+                'likedBy as likes_count',
+            ])
+            ->withExists([
+                'likedBy as is_liked' => function ($query) use ($request) {
+                    $query->where('users.id', $request->user()->id);
+                },
+            ])
+            ->whereHas('user', function ($userQuery) {
                 $userQuery->where('is_private', false);
             });
 
-            if ($isStudent) {
-                $query->where('type', '!=', 'exam');
-            }
+        if ($isStudent) {
+            $featuredResources->where('type', '!=', 'exam');
+        }
 
-            return $query->take(5)->get();
-        });
+        $featuredResources = $featuredResources
+            ->orderByDesc('likes_count')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $suggestedTeachers = app(SuggestedTeachersService::class)
+            ->forUser($request->user());
 
         return view('feed.index', [
             'courses' => $courses,
             'resources' => $resources,
             'featuredResources' => $featuredResources,
             'activeTab' => $activeTab,
+            'suggestedTeachers' => $suggestedTeachers,
         ]);
     }
 
@@ -132,7 +146,7 @@ class FeedController extends Controller
             $followedIds = DB::table('follows')
                 ->where('follower_id', $viewerId)
                 ->pluck('followed_id')
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->all();
 
             if (empty($followedIds)) {
