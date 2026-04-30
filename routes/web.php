@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\Admin\IncidentController as AdminIncidentController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -66,6 +67,14 @@ Route::middleware('auth')->group(function () {
     // Perfil de usuario
     Route::get('/perfil', [ProfileController::class, 'me'])->name('profile.me');
     Route::get('/perfil/{user:nickname}', [ProfileController::class, 'show'])->name('profile.show');
+
+    // Rutas para cargar más recursos destacados en el feed
+    Route::get('/feed/featured-resources/more', [FeedController::class, 'moreFeaturedResources'])
+        ->name('feed.featured-resources.more');
+
+    // Rutas para cargar más profesores sugeridos en el feed
+    Route::get('/feed/suggested-teachers/more', [FeedController::class, 'moreSuggestedTeachers'])
+        ->name('feed.suggested-teachers.more');
 
     // Seguir/dejar de seguir a un usuario
     Route::post('/perfil/{user:nickname}/follow', [FollowController::class, 'toggle'])
@@ -134,6 +143,10 @@ Route::middleware(['auth', 'admin'])
         // Gestión de incidencias
         Route::get('/incidencias', [AdminIncidentController::class, 'index'])->name('incidents.index');
         Route::post('/incidencias/{incident}/resolve', [AdminIncidentController::class, 'resolve'])->name('incidents.resolve');
+
+        // Gestión de usuarios
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     });
 
 // Rutas públicas para confirmación de solicitudes de profesor por institución

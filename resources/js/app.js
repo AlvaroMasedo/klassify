@@ -1,6 +1,7 @@
 import './bootstrap';
 import './reports';
 import './contact';
+import './pages/feed/sidebarLoadMore';
 
 // Carga dinámica de JavaScript específico de página
 const pageName = document.body.getAttribute('data-page');

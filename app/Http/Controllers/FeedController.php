@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use App\Services\SuggestedTeachersService;
+use App\Services\FeaturedResourcesService;
 
 class FeedController extends Controller
 {
@@ -37,41 +38,26 @@ class FeedController extends Controller
 
         $this->assignDisplayUrlsToResources($resources->items());
 
-        $featuredResources = Resource::query()
-            ->select(['id', 'user_id', 'title', 'type'])
-            ->with(['user:id,is_private'])
-            ->withCount([
-                'comments',
-                'likedBy as likes_count',
-            ])
-            ->withExists([
-                'likedBy as is_liked' => function ($query) use ($request) {
-                    $query->where('users.id', $request->user()->id);
-                },
-            ])
-            ->whereHas('user', function ($userQuery) {
-                $userQuery->where('is_private', false);
-            });
+        $featuredProbe = app(FeaturedResourcesService::class)
+            ->forUser($request->user(), 6);
 
-        if ($isStudent) {
-            $featuredResources->where('type', '!=', 'exam');
-        }
+        $featuredResources = $featuredProbe->take(5)->values();
+        $featuredResourcesHasMore = $featuredProbe->count() > 5;
 
-        $featuredResources = $featuredResources
-            ->orderByDesc('likes_count')
-            ->latest()
-            ->take(5)
-            ->get();
+        $suggestedProbe = app(SuggestedTeachersService::class)
+            ->forUser($request->user(), 6);
 
-        $suggestedTeachers = app(SuggestedTeachersService::class)
-            ->forUser($request->user());
+        $suggestedTeachers = $suggestedProbe->take(5)->values();
+        $suggestedTeachersHasMore = $suggestedProbe->count() > 5;
 
         return view('feed.index', [
             'courses' => $courses,
             'resources' => $resources,
             'featuredResources' => $featuredResources,
-            'activeTab' => $activeTab,
+            'featuredResourcesHasMore' => $featuredResourcesHasMore,
             'suggestedTeachers' => $suggestedTeachers,
+            'suggestedTeachersHasMore' => $suggestedTeachersHasMore,
+            'activeTab' => $activeTab,
         ]);
     }
 
@@ -265,5 +251,43 @@ class FeedController extends Controller
                 $resource->display_url = $this->resolveDisplayUrl($resource);
             }
         }
+    }
+
+    public function moreFeaturedResources(Request $request): JsonResponse
+    {
+        $resources = app(FeaturedResourcesService::class)
+            ->forUser($request->user(), 5, 5);
+
+        $html = '';
+
+        foreach ($resources as $resource) {
+            $html .= view('feed.partials.featured-resource-item', [
+                'resource' => $resource,
+            ])->render();
+        }
+
+        return response()->json([
+            'success' => true,
+            'html' => $html,
+        ]);
+    }
+
+    public function moreSuggestedTeachers(Request $request): JsonResponse
+    {
+        $teachers = app(SuggestedTeachersService::class)
+            ->forUser($request->user(), 5, 5);
+
+        $html = '';
+
+        foreach ($teachers as $teacher) {
+            $html .= view('feed.partials.suggested-teacher-item', [
+                'teacher' => $teacher,
+            ])->render();
+        }
+
+        return response()->json([
+            'success' => true,
+            'html' => $html,
+        ]);
     }
 }
