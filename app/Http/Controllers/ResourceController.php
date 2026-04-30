@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use App\Services\SuggestedTeachersService;
 
 class ResourceController extends Controller
 {
@@ -251,11 +252,16 @@ class ResourceController extends Controller
 
         $featuredResources = $featuredResources->take(5)->get();
 
+
+        $suggestedTeachers = app(SuggestedTeachersService::class)
+            ->forUser($request->user());
+            
         return view('feed.show-resource', [
             'resource' => $resource,
             'comments' => $comments,
             'commentsCount' => $comments->count(),
             'featuredResources' => $featuredResources,
+            'suggestedTeachers' => $suggestedTeachers,
         ]);
     }
 

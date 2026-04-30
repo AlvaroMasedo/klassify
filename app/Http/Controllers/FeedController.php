@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use App\Services\SuggestedTeachersService;
 
 class FeedController extends Controller
 {
@@ -53,11 +54,15 @@ class FeedController extends Controller
             return $query->take(5)->get();
         });
 
+        $suggestedTeachers = app(SuggestedTeachersService::class)
+            ->forUser($request->user());
+
         return view('feed.index', [
             'courses' => $courses,
             'resources' => $resources,
             'featuredResources' => $featuredResources,
             'activeTab' => $activeTab,
+            'suggestedTeachers' => $suggestedTeachers,
         ]);
     }
 
@@ -132,7 +137,7 @@ class FeedController extends Controller
             $followedIds = DB::table('follows')
                 ->where('follower_id', $viewerId)
                 ->pluck('followed_id')
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->all();
 
             if (empty($followedIds)) {
