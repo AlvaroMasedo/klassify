@@ -12,6 +12,7 @@
     <link rel="icon" href="{{ asset('Favicon.ico') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/partials/header.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/partials/footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/components/contact-modal.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('page-css')
     <!-- Google Fonts -->
@@ -65,6 +66,7 @@
         });
     </script>
     <x-report-modal />
+    <x-contact-modal />
 </body>
 
 </html>

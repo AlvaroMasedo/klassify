@@ -1,5 +1,6 @@
 import './bootstrap';
 import './reports';
+import './contact';
 
 // Carga dinámica de JavaScript específico de página
 const pageName = document.body.getAttribute('data-page');

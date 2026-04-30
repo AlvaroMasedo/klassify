@@ -16,6 +16,9 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\Admin\IncidentController as AdminIncidentController;
+use App\Http\Controllers\PageController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -26,15 +29,19 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+Route::get('/sobre-klassify', [PageController::class, 'about'])->name('pages.about');
+Route::get('/normas-comunidad', [PageController::class, 'community'])->name('pages.community');
+Route::get('/privacidad', [PageController::class, 'privacy'])->name('pages.privacy');
+
 // Rutas para usuarios invitados
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::get('/register/review', fn () => redirect()->route('register'));
+    Route::get('/register/review', fn() => redirect()->route('register'));
     Route::post('/register/review', [RegisteredUserController::class, 'review'])->name('register.review');
-    Route::get('/register/confirm', fn () => redirect()->route('register'));
+    Route::get('/register/confirm', fn() => redirect()->route('register'));
     Route::post('/register/confirm', [RegisteredUserController::class, 'store'])->name('register.confirm');
 
     Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('forgot.password');
@@ -51,6 +58,10 @@ Route::middleware('auth')->group(function () {
     // Feed
     Route::get('/feed', [FeedController::class, 'index'])->name('feed');
     Route::get('/feed/resources', [FeedController::class, 'resources'])->name('feed.resources');
+
+    // Ayuda / Incidencias
+    Route::get('/ayuda', [IncidentController::class, 'create'])->name('incidents.create');
+    Route::post('/ayuda/incidencias', [IncidentController::class, 'store'])->name('incidents.store');
 
     // Perfil de usuario
     Route::get('/perfil', [ProfileController::class, 'me'])->name('profile.me');
@@ -119,6 +130,10 @@ Route::middleware(['auth', 'admin'])
         // Gestión de denuncias
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
         Route::post('/reports/{report}/resolve', [AdminReportController::class, 'resolve'])->name('reports.resolve');
+
+        // Gestión de incidencias
+        Route::get('/incidencias', [AdminIncidentController::class, 'index'])->name('incidents.index');
+        Route::post('/incidencias/{incident}/resolve', [AdminIncidentController::class, 'resolve'])->name('incidents.resolve');
     });
 
 // Rutas públicas para confirmación de solicitudes de profesor por institución

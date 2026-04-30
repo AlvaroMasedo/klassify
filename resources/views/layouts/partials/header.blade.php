@@ -71,6 +71,11 @@
                         Denuncias
                     </a>
                     @endif
+                    @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
+                    <a href="{{ route('admin.incidents.index') }}" class="k-profile-item">
+                        Incidencias
+                    </a>
+                    @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="k-profile-item" type="submit" role="menuitem">Cerrar sesión</button>
