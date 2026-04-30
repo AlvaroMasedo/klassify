@@ -49,7 +49,9 @@ $isAdmin = $currentUserRole === 'ADMIN';
 
 $canEditResource = $isResourceAuthor;
 $canDeleteResource = $isResourceAuthor || $isAdmin;
-$canShowResourceMenu = $canEditResource || $canDeleteResource;
+$isResourceOwner = (int) auth()->id() === (int) $resource->user_id;
+$canReportResource = auth()->check() && !$isResourceOwner;
+$canShowResourceMenu = $canReportResource || $canEditResource || $canDeleteResource;
 $updatedDate = $resource->updated_at?->format('d M Y') ?? $resource->created_at?->format('d M Y') ?? 'Hace poco';
 $favoritesCount = (int) ($resource->favorites_count ?? 0);
 $isFavorited = (bool) ($resource->is_favorited ?? false);
@@ -83,6 +85,17 @@ $isFavorited = (bool) ($resource->is_favorited ?? false);
             </button>
 
             <div class="recurs-more-menu" hidden data-resource-menu-panel>
+                @if ($canReportResource)
+                <button
+                    type="button"
+                    class="recurs-more-menu__item"
+                    data-report-open
+                    data-report-type="resource"
+                    data-report-title="{{ $resource->title }}"
+                    data-report-url="{{ route('resources.report.store', $resource) }}">
+                    Denunciar
+                </button>
+                @endif
                 @if ($canEditResource)
                 <a href="{{ route('resources.edit', $resource) }}" class="recurs-more-menu__item">
                     Editar

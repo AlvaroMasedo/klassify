@@ -64,6 +64,7 @@
             });
         });
     </script>
+    <x-report-modal />
 </body>
 
 </html>
