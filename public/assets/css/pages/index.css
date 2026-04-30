@@ -2515,3 +2515,8 @@ body::before {
     stroke-linecap: round;
     transition: fill 0.2s ease, stroke 0.2s ease, filter 0.2s ease, transform 0.2s ease;
 }
+
+.k-forYou,
+.k-follow {
+    text-decoration: none;
+}

@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Resource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class FeedController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $feedCache = Cache::store('file');
         $isStudent = $this->isStudentUser();
+        $activeTab = $this->resolveActiveTab($request);
 
         $courses = $feedCache->remember('feed:v2:courses:with-subjects', now()->addMinutes(30), function () {
             return Course::with('subjects')
@@ -21,10 +24,13 @@ class FeedController extends Controller
                 ->get();
         });
 
-        $resources = $this->buildResourceQuery($isStudent)
-            ->latest()
-            ->simplePaginate(10)
-            ->withQueryString();
+        $resources = $this->paginateResources(
+            $this->applyFeedOrdering(
+                $this->buildResourceQuery($isStudent),
+                $activeTab,
+                (int) $request->user()->id
+            )
+        );
 
         $this->assignDisplayUrlsToResources($resources->items());
 
@@ -49,27 +55,34 @@ class FeedController extends Controller
             'courses' => $courses,
             'resources' => $resources,
             'featuredResources' => $featuredResources,
+            'activeTab' => $activeTab,
         ]);
     }
 
     /**
-     * Devuelve recursos en formato JSON para carga dinámica
+     * Devuelve recursos en formato JSON para carga dinámica.
      */
-    public function resources(): JsonResponse
+    public function resources(Request $request): JsonResponse
     {
         $isStudent = $this->isStudentUser();
+        $activeTab = $this->resolveActiveTab($request);
 
-        $resources = $this->buildResourceQuery($isStudent)
-            ->latest()
-            ->simplePaginate(10)
-            ->withQueryString();
+        $resources = $this->paginateResources(
+            $this->applyFeedOrdering(
+                $this->buildResourceQuery($isStudent),
+                $activeTab,
+                (int) $request->user()->id
+            )
+        );
 
         $this->assignDisplayUrlsToResources($resources->items());
 
-        // Renderizar las tarjetas de recursos
         $html = '';
+
         foreach ($resources->items() as $resource) {
-            $html .= view('feed.partials.resource-card', ['resource' => $resource])->render();
+            $html .= view('feed.partials.resource-card', [
+                'resource' => $resource,
+            ])->render();
         }
 
         return response()->json([
@@ -77,6 +90,45 @@ class FeedController extends Controller
             'next_page_url' => $resources->nextPageUrl(),
             'has_more' => $resources->hasMorePages(),
         ]);
+    }
+
+    private function resolveActiveTab(Request $request): string
+    {
+        return $request->query('tab') === 'following' ? 'following' : 'for-you';
+    }
+
+    private function applyFeedOrdering($query, string $activeTab, int $viewerId)
+    {
+        if ($activeTab !== 'following') {
+            return $query->latest();
+        }
+
+        $followedIds = DB::table('follows')
+            ->where('follower_id', $viewerId)
+            ->pluck('followed_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        if (empty($followedIds)) {
+            return $query->latest();
+        }
+
+        $placeholders = implode(',', array_fill(0, count($followedIds), '?'));
+
+        return $query
+            ->orderByRaw(
+                "CASE WHEN resources.user_id IN ($placeholders) THEN 0 ELSE 1 END",
+                $followedIds
+            )
+            ->latest();
+    }
+
+    private function paginateResources($query)
+    {
+        return $query
+            ->simplePaginate(10)
+            ->withQueryString()
+            ->withPath(route('feed.resources'));
     }
 
     private function resolveDisplayUrl(Resource $resource): ?string
@@ -92,12 +144,11 @@ class FeedController extends Controller
 
     /**
      * Determinar si el usuario autenticado es estudiante.
-     *
-     * @return bool
      */
     private function isStudentUser(): bool
     {
         $currentUser = request()->user();
+
         return strtoupper((string) ($currentUser?->role ?? '')) === 'STUDENT';
     }
 
@@ -105,9 +156,6 @@ class FeedController extends Controller
      * Construir query base de recursos con filtros aplicables.
      * Excluye usuarios privados y, para estudiantes, excluye exámenes.
      * Incluye relaciones necesarias para evitar N+1.
-     *
-     * @param bool $isStudent
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     private function buildResourceQuery(bool $isStudent)
     {
@@ -144,7 +192,6 @@ class FeedController extends Controller
                 $q->where('is_private', false);
             });
 
-
         if ($isStudent) {
             $query->where('type', '!=', 'exam');
         }
@@ -155,9 +202,6 @@ class FeedController extends Controller
     /**
      * Asignar URLs de visualización a una colección de recursos.
      * Evita duplicación de lógica entre index() y resources().
-     *
-     * @param iterable $resources
-     * @return void
      */
     private function assignDisplayUrlsToResources(iterable $resources): void
     {

@@ -58,15 +58,25 @@ $hasAboutInfo = $specialization !== ''
                                 </div>
 
                                 <div class="profile-actions">
-                                    <span class="profile-followers">{{ $followersCount }} Seguidores</span>
+                                    <span
+                                        class="profile-followers"
+                                        data-followers-count-for="{{ $profileUser->id }}">
+                                        {{ $followersCount }} {{ $followersCount === 1 ? 'Seguidor' : 'Seguidores' }}
+                                    </span>
 
                                     @if ($isOwner)
                                     <button type="button" class="profile-edit-btn">
                                         Editar perfil
                                     </button>
                                     @else
-                                    <button type="button" class="profile-follow-btn">
-                                        Seguir
+                                    <button
+                                        type="button"
+                                        class="profile-follow-btn {{ $isFollowing ? 'is-following' : '' }}"
+                                        data-follow-toggle
+                                        data-user-id="{{ $profileUser->id }}"
+                                        data-follow-url="{{ route('profile.follow.toggle', ['user' => $profileUser->nickname]) }}"
+                                        aria-pressed="{{ $isFollowing ? 'true' : 'false' }}">
+                                        {{ $isFollowing ? 'Siguiendo' : 'Seguir' }}
                                     </button>
                                     @endif
                                 </div>
@@ -223,20 +233,30 @@ $hasAboutInfo = $specialization !== ''
                         $teacherDisplayName = $teacherName !== '' ? $teacherName : 'Usuario';
                         @endphp
 
-                        <a class="profile-suggested-teacher" href="{{ route('profile.show', $teacher) }}">
-                            <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $teacherDisplayName }}">
+                        <div class="profile-suggested-teacher">
+                            <a class="profile-suggested-link" href="{{ route('profile.show', $teacher) }}">
+                                <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $teacherDisplayName }}">
 
-                            <div>
-                                <strong>{{ $teacherDisplayName }}</strong>
-                                <span>
-                                    {{ '@' . ($teacher->nickname ?? 'usuario') }}
-                                    <x-verified-badge :user="$teacher" />
-                                </span>
-                                <small>{{ $teacher->specialization ?: 'Profesor en Klassify' }}</small>
-                            </div>
+                                <div>
+                                    <strong>{{ $teacherDisplayName }}</strong>
+                                    <span>
+                                        {{ '@' . ($teacher->nickname ?? 'usuario') }}
+                                        <x-verified-badge :user="$teacher" />
+                                    </span>
+                                    <small>{{ $teacher->specialization ?: 'Profesor en Klassify' }}</small>
+                                </div>
+                            </a>
 
-                            <span class="profile-suggested-plus">+</span>
-                        </a>
+                            <button
+                                type="button"
+                                class="profile-follow-btn profile-suggested-follow-btn {{ $teacher->is_following ? 'is-following' : '' }}"
+                                data-follow-toggle
+                                data-user-id="{{ $teacher->id }}"
+                                data-follow-url="{{ route('profile.follow.toggle', ['user' => $teacher->nickname]) }}"
+                                aria-pressed="{{ $teacher->is_following ? 'true' : 'false' }}">
+                                {{ $teacher->is_following ? 'Siguiendo' : 'Seguir' }}
+                            </button>
+                        </div>
                         @empty
                         <p class="profile-no-suggestions">No hay profesores sugeridos.</p>
                         @endforelse
