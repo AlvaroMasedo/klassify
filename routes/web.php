@@ -14,36 +14,36 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 
 // Ruta de inicio
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('feed');
     }
+
     return view('welcome');
 })->name('home');
 
-// Rutas para usuarios invitados (no autenticados)
+// Rutas para usuarios invitados
 Route::middleware('guest')->group(function () {
-    // Login
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 
-    // Register
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::get('/register/review', fn() => redirect()->route('register'));
+    Route::get('/register/review', fn () => redirect()->route('register'));
     Route::post('/register/review', [RegisteredUserController::class, 'review'])->name('register.review');
-    Route::get('/register/confirm', fn() => redirect()->route('register'));
+    Route::get('/register/confirm', fn () => redirect()->route('register'));
     Route::post('/register/confirm', [RegisteredUserController::class, 'store'])->name('register.confirm');
 
-    // Password reset
     Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('forgot.password');
     Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('forgot.password.email');
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
     Route::post('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
 });
 
-// Logout (disponible para autenticados)
+// Logout
 Route::middleware('auth')->post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Rutas para usuarios autenticados
@@ -58,7 +58,7 @@ Route::middleware('auth')->group(function () {
 
     // Seguir/dejar de seguir a un usuario
     Route::post('/perfil/{user:nickname}/follow', [FollowController::class, 'toggle'])
-    ->name('profile.follow.toggle');
+        ->name('profile.follow.toggle');
 
     // Recursos
     Route::prefix('resources')->name('resources.')->group(function () {
@@ -67,10 +67,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/{resource}/edit', [ResourceController::class, 'edit'])->name('edit');
         Route::put('/{resource}', [ResourceController::class, 'update'])->name('update');
         Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
+
         Route::post('/{resource}/comments', [CommentController::class, 'store'])->name('comments.store');
         Route::delete('/{resource}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
         Route::post('/{resource}/favorite', [FavoriteController::class, 'toggle'])->name('favorite.toggle');
         Route::post('/{resource}/like', [LikeController::class, 'toggle'])->name('like.toggle');
+
+        // Denuncias de recursos y comentarios
+        Route::post('/{resource}/report', [ReportController::class, 'storeResource'])->name('report.store');
+        Route::post('/comments/{comment}/report', [ReportController::class, 'storeComment'])->name('comments.report.store');
+
         Route::get('/{resource}', [ResourceController::class, 'show'])->name('show');
     });
 
@@ -108,6 +115,10 @@ Route::middleware(['auth', 'admin'])
             Route::post('{teacherRequest}/approve', [TeacherRequestController::class, 'approve'])->name('approve');
             Route::post('{teacherRequest}/reject', [TeacherRequestController::class, 'reject'])->name('reject');
         });
+
+        // Gestión de denuncias
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+        Route::post('/reports/{report}/resolve', [AdminReportController::class, 'resolve'])->name('reports.resolve');
     });
 
 // Rutas públicas para confirmación de solicitudes de profesor por institución

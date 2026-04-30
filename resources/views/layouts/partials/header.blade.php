@@ -5,7 +5,7 @@
             <span></span>
             <span></span>
         </button>
-        
+
         <a class="k-brand" href="{{ route('home') }}">
             <img class="k-logo" src="/assets/img/k-logo.png" alt="Logo de klassify">
             <span class="k-name">KLASSIFY</span>
@@ -63,8 +63,13 @@
 
                 <div class="k-profile-menu" role="menu" aria-label="Perfil">
                     <a class="k-profile-item" href="{{ route('profile.me') }}" role="menuitem">Perfil</a>
-                        @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
-                        <a class="k-profile-item" href="{{ route('admin.teacher-requests.index') }}" role="menuitem">Solicitudes</a>
+                    @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
+                    <a class="k-profile-item" href="{{ route('admin.teacher-requests.index') }}" role="menuitem">Solicitudes</a>
+                    @endif
+                    @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
+                    <a href="{{ route('admin.reports.index') }}" class="k-profile-item">
+                        Denuncias
+                    </a>
                     @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
