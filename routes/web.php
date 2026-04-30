@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\TeacherRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\FollowController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -53,6 +54,10 @@ Route::middleware('auth')->group(function () {
     // Perfil de usuario
     Route::get('/perfil', [ProfileController::class, 'me'])->name('profile.me');
     Route::get('/perfil/{user:nickname}', [ProfileController::class, 'show'])->name('profile.show');
+
+    // Seguir/dejar de seguir a un usuario
+    Route::post('/perfil/{user:nickname}/follow', [FollowController::class, 'toggle'])
+    ->name('profile.follow.toggle');
 
     // Recursos
     Route::prefix('resources')->name('resources.')->group(function () {

@@ -21,14 +21,26 @@
         </aside>
 
         <section class="app-center">
-            <div class="forYou-follow-section">
+            @php
+            $activeFeedTab = $activeTab ?? 'for-you';
+            @endphp
+
+            <div class="forYou-follow-section {{ $activeFeedTab === 'following' ? 'is-follow' : '' }}">
                 <span class="tab-indicator" aria-hidden="true"></span>
-                <div class="k-forYou tab-active" data-tab="for-you">
+
+                <a
+                    href="{{ route('feed') }}"
+                    class="k-forYou {{ $activeFeedTab === 'for-you' ? 'tab-active' : '' }}"
+                    data-tab="for-you">
                     <h2>Para ti</h2>
-                </div>
-                <div class="k-follow" data-tab="follow">
+                </a>
+
+                <a
+                    href="{{ route('feed', ['tab' => 'following']) }}"
+                    class="k-follow {{ $activeFeedTab === 'following' ? 'tab-active' : '' }}"
+                    data-tab="following">
                     <h2>Siguiendo</h2>
-                </div>
+                </a>
             </div>
             <div class="filter-card">
                 <div class="filter-container">

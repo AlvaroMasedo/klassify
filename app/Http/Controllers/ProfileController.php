@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -31,6 +32,15 @@ class ProfileController extends Controller
 
         $isOwner = (int) $viewer->id === (int) $user->id;
         $activeTab = (string) $request->query('tab', 'resources');
+
+        $followersCount = DB::table('follows')
+            ->where('followed_id', $user->id)
+            ->count();
+
+        $isFollowing = !$isOwner && DB::table('follows')
+            ->where('follower_id', $viewer->id)
+            ->where('followed_id', $user->id)
+            ->exists();
 
         if ($activeTab === 'favorites' && !$isOwner) {
             $activeTab = 'resources';
@@ -120,8 +130,16 @@ class ProfileController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'course_id']);
 
+        $followedIds = DB::table('follows')
+            ->where('follower_id', $viewer->id)
+            ->pluck('followed_id')
+            ->map(fn($id) => (int) $id);
+
         $suggestedTeachers = User::query()
-            ->where('id', '!=', $user->id)
+            ->whereNotIn('id', array_unique([
+                (int) $user->id,
+                (int) $viewer->id,
+            ]))
             ->where(function ($query) {
                 $query
                     ->whereIn('role', ['TEACHER', 'teacher'])
@@ -139,6 +157,10 @@ class ProfileController extends Controller
                 'specialization',
             ]);
 
+        $suggestedTeachers->each(function ($teacher) use ($followedIds) {
+            $teacher->is_following = $followedIds->contains((int) $teacher->id);
+        });
+
         return view('profile.show', [
             'profileUser' => $user,
             'resources' => $resources,
@@ -146,7 +168,8 @@ class ProfileController extends Controller
             'subjects' => $subjects,
             'suggestedTeachers' => $suggestedTeachers,
             'isOwner' => $isOwner,
-            'followersCount' => 0,
+            'followersCount' => $followersCount,
+            'isFollowing' => $isFollowing,
             'selectedCourseId' => $selectedCourseId,
             'selectedSubjectId' => $selectedSubjectId,
             'selectedTypes' => $selectedTypes,
