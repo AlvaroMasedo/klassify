@@ -211,10 +211,14 @@ class ResourceController extends Controller
         $resource->loadCount([
             'comments',
             'favoritedBy as favorites_count',
+            'likedBy as likes_count',
         ]);
 
         $resource->loadExists([
             'favoritedBy as is_favorited' => function ($query) use ($request) {
+                $query->where('users.id', $request->user()->id);
+            },
+            'likedBy as is_liked' => function ($query) use ($request) {
                 $query->where('users.id', $request->user()->id);
             },
         ]);

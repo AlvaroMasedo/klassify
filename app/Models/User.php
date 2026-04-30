@@ -92,4 +92,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Resource::class, 'favorites', 'user_id', 'resource_id')
             ->withPivot('created_at');
     }
+    public function likedBy()
+    {
+        return $this->belongsToMany(User::class, 'likes', 'resource_id', 'user_id')
+            ->withPivot('created_at');
+    }
 }

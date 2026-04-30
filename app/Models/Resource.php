@@ -45,4 +45,10 @@ class Resource extends Model
         return $this->belongsToMany(User::class, 'favorites', 'resource_id', 'user_id')
             ->withPivot('created_at');
     }
+
+    public function likedBy()
+    {
+        return $this->belongsToMany(User::class, 'likes', 'resource_id', 'user_id')
+            ->withPivot('created_at');
+    }
 }

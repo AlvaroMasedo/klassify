@@ -17,6 +17,7 @@ class FeedController extends Controller
         $feedCache = Cache::store('file');
         $isStudent = $this->isStudentUser();
         $activeTab = $this->resolveActiveTab($request);
+        $viewerCourseId = $this->resolveViewerCourseId($request);
 
         $courses = $feedCache->remember('feed:v2:courses:with-subjects', now()->addMinutes(30), function () {
             return Course::with('subjects')
@@ -28,7 +29,8 @@ class FeedController extends Controller
             $this->applyFeedOrdering(
                 $this->buildResourceQuery($isStudent),
                 $activeTab,
-                (int) $request->user()->id
+                (int) $request->user()->id,
+                $viewerCourseId
             )
         );
 
@@ -66,12 +68,14 @@ class FeedController extends Controller
     {
         $isStudent = $this->isStudentUser();
         $activeTab = $this->resolveActiveTab($request);
+        $viewerCourseId = $this->resolveViewerCourseId($request);
 
         $resources = $this->paginateResources(
             $this->applyFeedOrdering(
                 $this->buildResourceQuery($isStudent),
                 $activeTab,
-                (int) $request->user()->id
+                (int) $request->user()->id,
+                $viewerCourseId
             )
         );
 
@@ -97,29 +101,65 @@ class FeedController extends Controller
         return $request->query('tab') === 'following' ? 'following' : 'for-you';
     }
 
-    private function applyFeedOrdering($query, string $activeTab, int $viewerId)
+    private function resolveViewerCourseId(Request $request): ?int
     {
-        if ($activeTab !== 'following') {
-            return $query->latest();
+        $viewer = $request->user();
+
+        if (!$viewer) {
+            return null;
         }
 
-        $followedIds = DB::table('follows')
-            ->where('follower_id', $viewerId)
-            ->pluck('followed_id')
-            ->map(fn ($id) => (int) $id)
-            ->all();
-
-        if (empty($followedIds)) {
-            return $query->latest();
+        if (!empty($viewer->course_id)) {
+            return (int) $viewer->course_id;
         }
 
-        $placeholders = implode(',', array_fill(0, count($followedIds), '?'));
+        $specialization = trim((string) ($viewer->specialization ?? ''));
+
+        if ($specialization !== '') {
+            $courseId = Course::query()
+                ->where('name', $specialization)
+                ->value('id');
+
+            return $courseId ? (int) $courseId : null;
+        }
+
+        return null;
+    }
+
+    private function applyFeedOrdering($query, string $activeTab, int $viewerId, ?int $viewerCourseId)
+    {
+        if ($activeTab === 'following') {
+            $followedIds = DB::table('follows')
+                ->where('follower_id', $viewerId)
+                ->pluck('followed_id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+
+            if (empty($followedIds)) {
+                return $query
+                    ->orderByDesc('likes_count')
+                    ->latest();
+            }
+
+            $placeholders = implode(',', array_fill(0, count($followedIds), '?'));
+
+            return $query
+                ->orderByRaw(
+                    "CASE WHEN resources.user_id IN ($placeholders) THEN 0 ELSE 1 END",
+                    $followedIds
+                )
+                ->latest();
+        }
+
+        if ($viewerCourseId) {
+            $query->orderByRaw(
+                'CASE WHEN resources.course_id = ? THEN 0 ELSE 1 END',
+                [$viewerCourseId]
+            );
+        }
 
         return $query
-            ->orderByRaw(
-                "CASE WHEN resources.user_id IN ($placeholders) THEN 0 ELSE 1 END",
-                $followedIds
-            )
+            ->orderByDesc('likes_count')
             ->latest();
     }
 
@@ -154,8 +194,6 @@ class FeedController extends Controller
 
     /**
      * Construir query base de recursos con filtros aplicables.
-     * Excluye usuarios privados y, para estudiantes, excluye exámenes.
-     * Incluye relaciones necesarias para evitar N+1.
      */
     private function buildResourceQuery(bool $isStudent)
     {
@@ -182,9 +220,13 @@ class FeedController extends Controller
             ->withCount([
                 'comments',
                 'favoritedBy as favorites_count',
+                'likedBy as likes_count',
             ])
             ->withExists([
                 'favoritedBy as is_favorited' => function ($query) {
+                    $query->where('users.id', request()->user()->id);
+                },
+                'likedBy as is_liked' => function ($query) {
                     $query->where('users.id', request()->user()->id);
                 },
             ])
@@ -201,7 +243,6 @@ class FeedController extends Controller
 
     /**
      * Asignar URLs de visualización a una colección de recursos.
-     * Evita duplicación de lógica entre index() y resources().
      */
     private function assignDisplayUrlsToResources(iterable $resources): void
     {

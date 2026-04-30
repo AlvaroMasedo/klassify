@@ -84,13 +84,16 @@ class ProfileController extends Controller
             ->withCount([
                 'comments',
                 'favoritedBy as favorites_count',
+                'likedBy as likes_count',
             ])
             ->withExists([
                 'favoritedBy as is_favorited' => function ($query) use ($viewer) {
                     $query->where('users.id', $viewer->id);
                 },
+                'likedBy as is_liked' => function ($query) use ($viewer) {
+                    $query->where('users.id', $viewer->id);
+                },
             ]);
-
         if ($activeTab === 'favorites') {
             $resourcesQuery->whereHas('favoritedBy', function ($query) use ($user) {
                 $query->where('users.id', $user->id);
