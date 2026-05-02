@@ -10,6 +10,7 @@
 
 @section('content')
 <div class="mobile-overlay"></div>
+
 <main class="k-layout">
     <div class="app">
         <aside class="app-left">
@@ -22,7 +23,7 @@
 
         <section class="app-center">
             @php
-            $activeFeedTab = $activeTab ?? 'for-you';
+                $activeFeedTab = $activeTab ?? 'for-you';
             @endphp
 
             <div class="forYou-follow-section {{ $activeFeedTab === 'following' ? 'is-follow' : '' }}">
@@ -42,14 +43,17 @@
                     <h2>Siguiendo</h2>
                 </a>
             </div>
+
             <div class="filter-card">
                 <div class="filter-container">
                     <select class="k-select" id="course-filter" name="course">
                         <option value="" selected disabled>Curso</option>
+
                         @foreach ($courses as $course)
-                        <option value="{{ $course->id }}">{{ $course->name }}</option>
+                            <option value="{{ $course->id }}">{{ $course->name }}</option>
                         @endforeach
                     </select>
+
                     <select class="k-select" id="subject-filter" name="subject" disabled>
                         <option value="" selected disabled>Materia</option>
                     </select>
@@ -57,10 +61,13 @@
                     <div class="fileTypes-content">
                         <label for="imagen">Imagen</label>
                         <input type="checkbox" name="fileType" id="imagen">
+
                         <label for="documento">Documento</label>
                         <input type="checkbox" name="fileType" id="documento">
+
                         <label for="video">Video</label>
                         <input type="checkbox" name="fileType" id="video">
+
                         <label for="audio">Audio</label>
                         <input type="checkbox" name="fileType" id="audio">
                     </div>
@@ -70,24 +77,31 @@
             <script type="application/json" id="courses-with-subjects-data">
                 @json($courses)
             </script>
+
             <script>
                 window.coursesWithSubjects = JSON.parse(
                     document.getElementById('courses-with-subjects-data')?.textContent ?? '[]'
                 );
             </script>
 
-            @forelse ($resources as $resource)
-            @include('feed.partials.resource-card', ['resource' => $resource])
-            @empty
-            <div class="recurs-card">
-                <div class="recurs-content">
-                    <h3 class="recurs-title">Todavía no hay recursos publicados</h3>
-                    <p class="recurs-description">Cuando subas recursos reales, aparecerán aquí en esta misma estructura.</p>
-                </div>
+            <div data-feed-results>
+                @forelse ($resources as $resource)
+                    @include('feed.partials.resource-card', ['resource' => $resource])
+                @empty
+                    <div class="recurs-card">
+                        <div class="recurs-content">
+                            <h3 class="recurs-title">Todavía no hay recursos publicados</h3>
+                            <p class="recurs-description">
+                                Cuando subas recursos reales, aparecerán aquí.
+                            </p>
+                        </div>
+                    </div>
+                @endforelse
             </div>
-            @endforelse
 
-            @include('feed.partials.load-more')
+            <div data-feed-load-more-area>
+                @include('feed.partials.load-more')
+            </div>
 
             @include('feed.partials.resource-preview-modal')
         </section>
@@ -97,5 +111,6 @@
         </aside>
     </div>
 </main>
+
 @include('feed.partials.favorite-toast')
 @endsection

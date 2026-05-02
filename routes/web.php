@@ -20,6 +20,7 @@ use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\Admin\IncidentController as AdminIncidentController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\SearchController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -59,6 +60,7 @@ Route::middleware('auth')->group(function () {
     // Feed
     Route::get('/feed', [FeedController::class, 'index'])->name('feed');
     Route::get('/feed/resources', [FeedController::class, 'resources'])->name('feed.resources');
+    Route::get('/feed/search', [SearchController::class, 'feed'])->name('feed.search');
 
     // Ayuda / Incidencias
     Route::get('/ayuda', [IncidentController::class, 'create'])->name('incidents.create');
