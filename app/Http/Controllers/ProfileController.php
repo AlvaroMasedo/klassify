@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
 
 class ProfileController extends Controller
 {
@@ -177,6 +178,122 @@ class ProfileController extends Controller
             'selectedSubjectId' => $selectedSubjectId,
             'selectedTypes' => $selectedTypes,
             'activeTab' => $activeTab,
+        ]);
+    }
+
+    public function resources(Request $request, User $user): JsonResponse
+    {
+        $user->loadMissing('institution');
+
+        $viewer = $request->user();
+        $viewerRole = strtoupper((string) ($viewer?->role ?? ''));
+
+        $isOwner = (int) $viewer->id === (int) $user->id;
+        $isAdmin = $viewerRole === 'ADMIN';
+        $activeTab = (string) $request->query('tab', 'resources');
+
+        if ($activeTab === 'favorites' && !$isOwner) {
+            $activeTab = 'resources';
+        }
+
+        if ($user->is_private && !$isOwner && !$isAdmin) {
+            abort(403);
+        }
+
+        $selectedCourseId = (int) $request->query('course_id', 0) ?: null;
+        $selectedSubjectId = (int) $request->query('subject_id', 0) ?: null;
+
+        $allowedTypes = ['document', 'video', 'audio', 'image', 'exam', 'link'];
+
+        $selectedTypes = $request->query('types', []);
+
+        if (is_string($selectedTypes)) {
+            $selectedTypes = explode(',', $selectedTypes);
+        }
+
+        $selectedTypes = array_values(array_intersect((array) $selectedTypes, $allowedTypes));
+
+        $isStudent = $viewerRole === 'STUDENT';
+
+        $resourcesQuery = Resource::query()
+            ->select([
+                'id',
+                'user_id',
+                'course_id',
+                'subject_id',
+                'title',
+                'description',
+                'type',
+                'file_url',
+                'file_name',
+                'mime_type',
+                'created_at',
+                'updated_at',
+            ])
+            ->with([
+                'course:id,name',
+                'subject:id,name',
+            ])
+            ->withCount([
+                'comments',
+                'favoritedBy as favorites_count',
+                'likedBy as likes_count',
+            ])
+            ->withExists([
+                'favoritedBy as is_favorited' => function ($query) use ($viewer) {
+                    $query->where('users.id', $viewer->id);
+                },
+                'likedBy as is_liked' => function ($query) use ($viewer) {
+                    $query->where('users.id', $viewer->id);
+                },
+            ]);
+
+        if ($activeTab === 'favorites') {
+            $resourcesQuery->whereHas('favoritedBy', function ($query) use ($user) {
+                $query->where('users.id', $user->id);
+            });
+        } else {
+            $resourcesQuery->where('user_id', $user->id);
+        }
+
+        $resources = $resourcesQuery
+            ->when($isStudent, function ($query) {
+                $query->where('type', '!=', 'exam');
+            })
+            ->when($selectedCourseId, function ($query) use ($selectedCourseId) {
+                $query->where('course_id', $selectedCourseId);
+            })
+            ->when($selectedSubjectId, function ($query) use ($selectedSubjectId) {
+                $query->where('subject_id', $selectedSubjectId);
+            })
+            ->when(!empty($selectedTypes), function ($query) use ($selectedTypes) {
+                $query->whereIn('type', $selectedTypes);
+            })
+            ->latest('updated_at')
+            ->paginate(8)
+            ->withQueryString()
+            ->withPath(route('profile.resources', ['user' => $user->nickname]));
+
+        $html = '';
+
+        foreach ($resources->items() as $resource) {
+            $html .= view('profile.partials.resource-card', [
+                'resource' => $resource,
+            ])->render();
+        }
+
+        if ($html === '') {
+            $html = view('profile.partials.resources-empty', [
+                'activeTab' => $activeTab,
+            ])->render();
+        }
+
+        return response()->json([
+            'success' => true,
+            'html' => $html,
+            'pagination_html' => $resources->hasPages()
+                ? view('profile.partials.pagination', ['resources' => $resources])->render()
+                : '',
         ]);
     }
 }

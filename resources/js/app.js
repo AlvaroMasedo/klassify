@@ -17,5 +17,8 @@ if (pageName) {
         case 'register':
             import('./pages/register.js');
             break;
+        case 'profile':
+            import('./pages/profile/index.js');
+            break;
     }
 }

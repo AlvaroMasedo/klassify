@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
 
     // Perfil de usuario
     Route::get('/perfil', [ProfileController::class, 'me'])->name('profile.me');
+    Route::get('/perfil/{user:nickname}/resources', [ProfileController::class, 'resources'])->name('profile.resources');
     Route::get('/perfil/{user:nickname}', [ProfileController::class, 'show'])->name('profile.show');
 
     // Rutas para cargar más recursos destacados en el feed

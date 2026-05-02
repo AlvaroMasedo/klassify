@@ -114,10 +114,15 @@ $hasAboutInfo = $specialization !== ''
                         <a href="#" class="profile-tab">Calendario</a>
                     </nav>
 
-                    <form class="profile-filters" method="GET" action="{{ route('profile.show', $profileUser) }}">
+                    <div
+                        class="profile-filters"
+                        data-profile-filters
+                        data-filter-url="{{ route('profile.resources', ['user' => $profileUser->nickname]) }}"
+                        data-active-tab="{{ $activeTab ?? 'resources' }}">
                         <div class="profile-filter-group">
-                            <select name="course_id" class="profile-select">
+                            <select name="course_id" class="profile-select" data-profile-course>
                                 <option value="">Curso</option>
+
                                 @foreach ($courses as $course)
                                 <option value="{{ $course->id }}" @selected((int) $selectedCourseId===(int) $course->id)>
                                     {{ $course->name }}
@@ -125,8 +130,9 @@ $hasAboutInfo = $specialization !== ''
                                 @endforeach
                             </select>
 
-                            <select name="subject_id" class="profile-select">
+                            <select name="subject_id" class="profile-select" data-profile-subject {{ empty($selectedCourseId) ? 'disabled' : '' }}>
                                 <option value="">Asignatura</option>
+
                                 @foreach ($subjects as $subject)
                                 <option value="{{ $subject->id }}" @selected((int) $selectedSubjectId===(int) $subject->id)>
                                     {{ $subject->name }}
@@ -143,7 +149,6 @@ $hasAboutInfo = $specialization !== ''
                             'video' => 'Vídeo',
                             'audio' => 'Audio',
                             'exam' => 'Examen',
-                            'link' => 'Enlace',
                             ];
                             @endphp
 
@@ -154,23 +159,24 @@ $hasAboutInfo = $specialization !== ''
                                     type="checkbox"
                                     name="types[]"
                                     value="{{ $typeValue }}"
+                                    data-profile-type
                                     @checked(in_array($typeValue, $selectedTypes, true))>
                             </label>
                             @endforeach
                         </div>
+                    </div>
 
-                        <div class="profile-filter-actions">
-                            <button type="submit" class="profile-apply-filters">
-                                Aplicar filtros
-                            </button>
+                    <script type="application/json" id="profile-courses-with-subjects-data">
+                        @json($courses)
+                    </script>
 
-                            <a href="{{ route('profile.show', $profileUser) }}" class="profile-clear-filters">
-                                Eliminar filtros
-                            </a>
-                        </div>
-                    </form>
+                    <script>
+                        window.profileCoursesWithSubjects = JSON.parse(
+                            document.getElementById('profile-courses-with-subjects-data')?.textContent ?? '[]'
+                        );
+                    </script>
 
-                    <section class="profile-resources">
+                    <section class="profile-resources" data-profile-results>
                         @forelse ($resources as $resource)
                         @include('profile.partials.resource-card', ['resource' => $resource])
                         @empty
@@ -186,6 +192,10 @@ $hasAboutInfo = $specialization !== ''
                         </div>
                         @endforelse
                     </section>
+
+                    <div class="profile-pagination" data-profile-pagination>
+                        @include('profile.partials.pagination', ['resources' => $resources])
+                    </div>
 
                     @if ($resources->hasPages())
                     <div class="profile-pagination">

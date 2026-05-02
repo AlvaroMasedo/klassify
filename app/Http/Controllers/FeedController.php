@@ -28,11 +28,14 @@ class FeedController extends Controller
         });
 
         $resources = $this->paginateResources(
-            $this->applyFeedOrdering(
-                $this->buildResourceQuery($isStudent),
-                $activeTab,
-                (int) $request->user()->id,
-                $viewerCourseId
+            $this->applyResourceFilters(
+                $this->applyFeedOrdering(
+                    $this->buildResourceQuery($isStudent),
+                    $activeTab,
+                    (int) $request->user()->id,
+                    $viewerCourseId
+                ),
+                $request
             )
         );
 
@@ -71,11 +74,14 @@ class FeedController extends Controller
         $viewerCourseId = $this->resolveViewerCourseId($request);
 
         $resources = $this->paginateResources(
-            $this->applyFeedOrdering(
-                $this->buildResourceQuery($isStudent),
-                $activeTab,
-                (int) $request->user()->id,
-                $viewerCourseId
+            $this->applyResourceFilters(
+                $this->applyFeedOrdering(
+                    $this->buildResourceQuery($isStudent),
+                    $activeTab,
+                    (int) $request->user()->id,
+                    $viewerCourseId
+                ),
+                $request
             )
         );
 
@@ -89,8 +95,22 @@ class FeedController extends Controller
             ])->render();
         }
 
+        if ($html === '') {
+            $html = '
+        <div class="recurs-card">
+            <div class="recurs-content">
+                <h3 class="recurs-title">No se han encontrado recursos</h3>
+                <p class="recurs-description">Prueba a cambiar o limpiar los filtros.</p>
+            </div>
+        </div>
+    ';
+        }
+
         return response()->json([
             'html' => $html,
+            'load_more_html' => view('feed.partials.load-more', [
+                'resources' => $resources,
+            ])->render(),
             'next_page_url' => $resources->nextPageUrl(),
             'has_more' => $resources->hasMorePages(),
         ]);
@@ -289,5 +309,37 @@ class FeedController extends Controller
             'success' => true,
             'html' => $html,
         ]);
+    }
+
+    private function applyResourceFilters($query, Request $request)
+    {
+        $courseId = (int) $request->query('course', 0);
+        $subjectId = (int) $request->query('subject', 0);
+        $types = $request->query('types', []);
+
+        if (is_string($types)) {
+            $types = explode(',', $types);
+        }
+
+        $types = collect($types)
+            ->map(fn($type) => strtolower(trim((string) $type)))
+            ->filter()
+            ->intersect(['image', 'document', 'video', 'audio'])
+            ->values()
+            ->all();
+
+        if ($courseId > 0) {
+            $query->where('resources.course_id', $courseId);
+        }
+
+        if ($subjectId > 0) {
+            $query->where('resources.subject_id', $subjectId);
+        }
+
+        if (!empty($types)) {
+            $query->whereIn('resources.type', $types);
+        }
+
+        return $query;
     }
 }
