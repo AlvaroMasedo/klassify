@@ -12,6 +12,7 @@ import { initCommentNavigation } from './commentNavigation.js';
 import { initComments } from './comments.js';
 import { initLikes } from './likes.js';
 import { initSuggestedTeacherFollows } from './suggestedTeachers.js';
+import { initFeedSearch } from './search.js';
 
 /**
  * Inicializa los filtros de curso y materia
@@ -83,6 +84,7 @@ function initFeedPage() {
     initComments();
     initFilters();
     initSuggestedTeacherFollows();
+    initFeedSearch();
 }
 
 if (document.readyState === 'loading') {
