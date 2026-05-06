@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="@yield('meta-description', 'Accede a Klassify para compartir recursos educativos y consultar materiales de aprendizaje.')">
+    <meta name="robots" content="noindex, nofollow">
     <title>@yield('title', 'Klassify')</title>
 
     <link rel="icon" href="{{ asset('Favicon.ico') }}">

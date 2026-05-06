@@ -1,6 +1,47 @@
 @extends('layouts.app')
 
 @section('title', 'Normas de la comunidad')
+@section('meta-description', 'Consulta las normas de la comunidad de Klassify para mantener un entorno educativo útil y seguro.')
+@section('meta-keywords', 'normas de la comunidad, Klassify, recursos educativos, convivencia digital, profesores, alumnos, comunidad escolar')
+@section('meta-robots', 'index, follow')
+@section('canonical-url', route('pages.community'))
+@section('og-title', 'Normas de la comunidad | Klassify')
+@section('og-description', 'Normas básicas para mantener Klassify como una comunidad educativa útil y segura.')
+@section('og-image', asset('assets/img/k-logo.png'))
+@section('twitter-title', 'Normas de la comunidad | Klassify')
+@section('twitter-description', 'Normas básicas para mantener Klassify como una comunidad educativa útil y segura.')
+@section('structured-data')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => 'Normas de la comunidad',
+    'url' => route('pages.community'),
+    'description' => 'Normas básicas para mantener Klassify como una comunidad educativa útil y segura.',
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    '@id' => route('pages.community') . '#breadcrumb',
+    'itemListElement' => [
+        [
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Inicio',
+            'item' => route('home'),
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => 'Normas de la comunidad',
+            'item' => route('pages.community'),
+        ],
+    ],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endsection
 
 @section('page-css')
 <link rel="stylesheet" href="{{ asset('assets/css/pages/static-pages.css') }}">

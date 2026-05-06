@@ -1,6 +1,47 @@
 @extends('layouts.app')
 
 @section('title', 'Privacidad')
+@section('meta-description', 'Resumen de cómo Klassify trata la información de los usuarios y el contenido publicado.')
+@section('meta-keywords', 'privacidad Klassify, protección de datos, recursos educativos, comunidad escolar, perfiles privados, seguridad digital')
+@section('meta-robots', 'index, follow')
+@section('canonical-url', route('pages.privacy'))
+@section('og-title', 'Privacidad | Klassify')
+@section('og-description', 'Resumen de cómo Klassify trata la información de los usuarios y el contenido publicado.')
+@section('og-image', asset('assets/img/k-logo.png'))
+@section('twitter-title', 'Privacidad | Klassify')
+@section('twitter-description', 'Resumen de cómo Klassify trata la información de los usuarios y el contenido publicado.')
+@section('structured-data')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => 'Privacidad',
+    'url' => route('pages.privacy'),
+    'description' => 'Resumen de cómo Klassify trata la información de los usuarios y el contenido publicado.',
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    '@id' => route('pages.privacy') . '#breadcrumb',
+    'itemListElement' => [
+        [
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Inicio',
+            'item' => route('home'),
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => 'Privacidad',
+            'item' => route('pages.privacy'),
+        ],
+    ],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endsection
 
 @section('page-css')
 <link rel="stylesheet" href="{{ asset('assets/css/pages/static-pages.css') }}">
