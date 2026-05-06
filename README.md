@@ -26,7 +26,7 @@ Klassify és una plataforma educativa per compartir recursos, descobrir material
 
 He fet servir **MySQL** perquè em permet treballar amb una estructura relacional clara i amb dades ben vinculades entre usuaris, recursos, comentaris, favorits, likes, seguiments i notificacions.
 
-La base de dades s’ha construït amb **migracions** per tenir l’esquema controlat i poder aplicar canvis de manera ordenada. 
+La base de dades s’ha construït amb **migracions** per tenir l’esquema controlat i poder aplicar canvis de manera ordenada i precisa. 
 
 He intentat que les relacions entre models estiguin ben definides des del backend, perquè això facilita consultar la informació, filtrar continguts i mantenir el projecte més net a nivell de codi.
 
