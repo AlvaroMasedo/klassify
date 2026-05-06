@@ -11,7 +11,7 @@
 <div class="search-user-card">
     <a class="search-user-link" href="{{ route('profile.show', ['user' => $user->nickname]) }}">
         <div class="search-user-avatar">
-            <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $displayName }}">
+            <x-user-avatar :user="$resource->user" alt="Avatar de {{ $resourceUserName }}" />
         </div>
 
         <div class="search-user-info">

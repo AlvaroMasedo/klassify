@@ -66,7 +66,7 @@
                 <article class="admin-user-item">
                     <div class="admin-user-main">
                         <div class="admin-user-avatar">
-                            <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $displayName }}">
+                            <x-user-avatar :user="$profileUser" alt="Avatar de {{ $displayName }}" />
                         </div>
 
                         <div class="admin-user-info">

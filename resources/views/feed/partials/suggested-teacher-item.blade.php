@@ -14,7 +14,7 @@
             class="teacher-user-info teacher-profile-link"
             href="{{ route('profile.show', ['user' => $teacher->nickname]) }}">
             <div class="teacher-avatar">
-                <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $teacherDisplayName }}">
+                <x-user-avatar :user="$teacher" alt="Avatar de {{ $teacherDisplayName }}" />
             </div>
 
             <div class="teacher-user-details">

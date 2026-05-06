@@ -39,7 +39,9 @@
 
                     <div class="comment-form-author">
                         <div class="comment-avatar">
-                            <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ auth()->user()?->name ?? 'Usuario' }}">
+                            <x-user-avatar
+                                :user="auth()->user()"
+                                alt="Avatar de {{ trim(((string) (auth()->user()?->name ?? '')) . ' ' . ((string) (auth()->user()?->surname ?? ''))) ?: 'Usuario' }}" />
                         </div>
                         <div class="comment-form-author-info">
                             <span class="comment-user-name">{{ trim(((string) (auth()->user()?->name ?? '')) . ' ' . ((string) (auth()->user()?->surname ?? ''))) ?: 'Usuario' }}</span>

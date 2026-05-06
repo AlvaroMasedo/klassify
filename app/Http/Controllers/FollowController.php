@@ -25,6 +25,13 @@ class FollowController extends Controller
             ->where('followed_id', $user->id)
             ->exists();
 
+        if (!$exists && (bool) $user->is_private) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes seguir un perfil privado.',
+            ], 403);
+        }
+        
         if ($exists) {
             DB::table('follows')
                 ->where('follower_id', $viewer->id)

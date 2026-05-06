@@ -233,7 +233,7 @@ class FeedController extends Controller
                 'updated_at',
             ])
             ->with([
-                'user:id,name,surname,nickname,role,teacher_status',
+                'user:id,name,surname,nickname,role,teacher_status,foto_perfil_url',
                 'course:id,name',
                 'subject:id,name',
             ])

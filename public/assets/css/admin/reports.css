@@ -293,6 +293,10 @@
     margin-top: 1.25rem;
 }
 
+.admin-reports-pagination svg {
+    display: none;
+}
+
 @media (max-width: 850px) {
     .admin-reports-page {
         padding: 1rem;

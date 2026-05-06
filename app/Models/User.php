@@ -31,6 +31,8 @@ class User extends Authenticatable
         'specialization',
         'institution_id',
         'is_private',
+        'description',
+        'foto_perfil_url',
     ];
 
     /**
@@ -53,6 +55,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_private' => 'boolean',
         ];
     }
 

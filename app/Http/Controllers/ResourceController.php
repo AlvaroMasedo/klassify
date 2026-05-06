@@ -252,10 +252,8 @@ class ResourceController extends Controller
         $suggestedTeachersHasMore = $suggestedProbe->count() > 5;
 
         $featuredResources = $featuredResources
-            ->orderByDesc('likes_count')
-            ->latest()
-            ->take(5)
-            ->get();
+            ->sortByDesc('likes_count')
+            ->values();
 
         $suggestedTeachers = app(SuggestedTeachersService::class)
             ->forUser($request->user());

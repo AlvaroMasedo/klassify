@@ -1,4 +1,10 @@
 <header class="k-header">
+    @php
+    $profileUser = auth()->user();
+    $displayName = trim(((string) ($profileUser?->name ?? '')) . ' ' . ((string) ($profileUser?->surname ?? '')));
+    $displayName = $displayName !== '' ? $displayName : 'Usuario';
+    @endphp
+
     <div class="k-header-inner">
         <button class="mobile-menu-btn" aria-label="Abrir menú">
             <span></span>
@@ -51,35 +57,39 @@
                 </svg>
             </button>
             <!--Notificaciones-->
-            <button class="notifications-button">
+            <a href="{{ route('notifications.index') }}" class="notifications-button">
                 <svg viewBox="0 0 448 512" class="bell">
                     <path d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"></path>
                 </svg>
-            </button>
+                @if ($hasUnreadNotifications ?? false)
+                <span class="notification-red-dot"></span>
+                @endif
+            </a>
             <!--Perfil-->
+            @auth
             <div class="k-profile" tabindex="0">
                 <button class="k-profile-btn" type="button" aria-haspopup="true" aria-expanded="false">
-                    <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Foto de perfil" class="k-profile-icon">
-                    <span class="k-profile-name">{{ auth()->user()->name ?? 'Usuario' }}</span>
+                    <x-user-avatar :user="$profileUser" alt="Avatar de {{ $displayName }}" />
+                    <span class="k-profile-name">{{ $profileUser?->name ?? 'Usuario' }}</span>
                     <span class="k-profile-chev">▾</span>
                 </button>
 
                 <div class="k-profile-menu" role="menu" aria-label="Perfil">
                     <a class="k-profile-item" href="{{ route('profile.me') }}" role="menuitem">Perfil</a>
-                    @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
+                    @if (strtoupper((string) $profileUser->role) === 'ADMIN')
                     <a class="k-profile-item" href="{{ route('admin.teacher-requests.index') }}" role="menuitem">Solicitudes</a>
                     @endif
-                    @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
+                    @if (strtoupper((string) $profileUser->role) === 'ADMIN')
                     <a href="{{ route('admin.reports.index') }}" class="k-profile-item">
                         Denuncias
                     </a>
                     @endif
-                    @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
+                    @if (strtoupper((string) $profileUser->role) === 'ADMIN')
                     <a href="{{ route('admin.incidents.index') }}" class="k-profile-item">
                         Incidencias
                     </a>
                     @endif
-                    @if (auth()->check() && strtoupper((string) auth()->user()->role) === 'ADMIN')
+                    @if (strtoupper((string) $profileUser->role) === 'ADMIN')
                     <a href="{{ route('admin.users.index') }}" class="k-profile-item">
                         Usuarios
                     </a>
@@ -90,6 +100,9 @@
                     </form>
                 </div>
             </div>
+            @else
+            <a class="k-profile-btn" href="{{ route('login') }}">Iniciar sesión</a>
+            @endauth
         </div>
 
 
