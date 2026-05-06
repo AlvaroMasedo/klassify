@@ -68,10 +68,6 @@ class SearchController extends Controller
                     ->orWhere('surname', 'like', $like)
                     ->orWhere('nickname', 'like', $like);
             })
-            ->where(function ($q) {
-                $q->where('is_private', false)
-                    ->orWhereNull('is_private');
-            })
             ->limit(5);
 
         $this->excludeAdmins($usersQuery);

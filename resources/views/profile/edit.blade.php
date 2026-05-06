@@ -57,7 +57,7 @@
                     <div class="profile-edit-field">
                         <label for="foto_perfil">Foto de perfil</label>
                         <input id="foto_perfil" type="file" name="foto_perfil" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
-                        <small>Solo JPG, JPEG o PNG. Máximo 2 MB.</small>
+                        <small>Solo JPG, JPEG o PNG. Máximo 10 MB.</small>
 
                         @error('foto_perfil')
                             <p class="profile-edit-error">{{ $message }}</p>

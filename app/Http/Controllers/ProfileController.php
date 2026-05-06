@@ -45,8 +45,8 @@ class ProfileController extends Controller
             $activeTab = 'resources';
         }
 
-        $isPrivateBlocked = (bool) $user->is_private && !$isOwner && !$isAdmin;
-        $showSocialInfo = $isOwner || !(bool) $user->is_private;
+        $isPrivateBlocked = (bool) $user->is_private && !$isOwner;
+        $showSocialInfo = true;
         $canShowFollowButton = !$isOwner && !(bool) $user->is_private;
 
         $followersCount = $showSocialInfo
@@ -62,16 +62,18 @@ class ProfileController extends Controller
         $selectedSubjectId = (int) $request->query('subject_id', 0) ?: null;
         $selectedTypes = $this->parseSelectedTypes($request);
 
-        $courses = $isPrivateBlocked
-            ? collect()
-            : $this->getCoursesWithSubjects();
+        $courses = $this->getCoursesWithSubjects();
 
-        $subjects = $isPrivateBlocked
-            ? collect()
-            : $this->getSubjects($selectedCourseId);
+        $subjects = $this->getSubjects($selectedCourseId);
 
         $resources = $isPrivateBlocked
-            ? new LengthAwarePaginator([], 0, 8)
+            ? new LengthAwarePaginator(
+                [],
+                0,
+                8,
+                null,
+                ['path' => route('profile.show', ['user' => $user->nickname])]
+            )
             : $this->getProfileResources(
                 request: $request,
                 profileUser: $user,
@@ -81,9 +83,7 @@ class ProfileController extends Controller
                 selectedTypes: $selectedTypes
             );
 
-        $suggestedTeachers = $isPrivateBlocked
-            ? collect()
-            : $this->getSuggestedTeachers($user, $viewer);
+        $suggestedTeachers = $this->getSuggestedTeachers($user, $viewer);
 
         return view('profile.show', [
             'profileUser' => $user,
@@ -120,8 +120,12 @@ class ProfileController extends Controller
             $activeTab = 'resources';
         }
 
-        if ((bool) $user->is_private && !$isOwner && !$isAdmin) {
-            abort(403);
+        if ((bool) $user->is_private && !$isOwner) {
+            return response()->json([
+                'success' => true,
+                'html' => view('profile.partials.private-resources')->render(),
+                'pagination_html' => '',
+            ]);
         }
 
         $selectedCourseId = (int) $request->query('course_id', 0) ?: null;
@@ -325,18 +329,14 @@ class ProfileController extends Controller
         $followedIds = DB::table('follows')
             ->where('follower_id', $viewer->id)
             ->pluck('followed_id')
-            ->map(fn ($id) => (int) $id);
+            ->map(fn($id) => (int) $id);
 
         $suggestedTeachers = User::query()
             ->whereNotIn('id', array_unique([
                 (int) $profileUser->id,
                 (int) $viewer->id,
             ]))
-            ->where(function ($query) {
-                $query
-                    ->where('is_private', false)
-                    ->orWhereNull('is_private');
-            })
+
             ->whereRaw('UPPER(COALESCE(role, "")) = ?', ['TEACHER'])
             ->latest()
             ->take(5)
@@ -364,17 +364,45 @@ class ProfileController extends Controller
         $fileName = Str::uuid() . '.' . $extension;
         $folder = 'profiles/' . $user->id;
 
-        $path = Storage::disk('s3')->putFileAs($folder, $file, $fileName);
+        $path = Storage::disk('s3')->putFileAs(
+            $folder,
+            $file,
+            $fileName,
+            [
+                'visibility' => 'public',
+                'ContentType' => $file->getMimeType(),
+            ]
+        );
 
         if ($path === false) {
             throw new \RuntimeException('No se pudo subir la foto de perfil.');
         }
 
-        $baseUrl = rtrim((string) config('filesystems.disks.s3.url'), '/');
+        return $this->buildS3PublicUrl($path);
+    }
 
-        return $baseUrl !== ''
-            ? $baseUrl . '/' . ltrim($path, '/')
-            : $path;
+    private function buildS3PublicUrl(string $path): string
+    {
+        $normalizedPath = ltrim($path, '/');
+        $baseUrl = trim((string) config('filesystems.disks.s3.url'));
+
+        if ($baseUrl !== '') {
+            return rtrim($baseUrl, '/') . '/' . $normalizedPath;
+        }
+
+        $endpoint = trim((string) config('filesystems.disks.s3.endpoint'));
+        $bucket = trim((string) config('filesystems.disks.s3.bucket'));
+        $region = trim((string) config('filesystems.disks.s3.region'));
+
+        if ($endpoint !== '') {
+            return rtrim($endpoint, '/') . '/' . $bucket . '/' . $normalizedPath;
+        }
+
+        if ($bucket !== '' && $region !== '') {
+            return 'https://' . $bucket . '.s3.' . $region . '.amazonaws.com/' . $normalizedPath;
+        }
+
+        throw new \RuntimeException('No se puede construir la URL pública de S3. Falta configurar AWS_URL, AWS_ENDPOINT o los datos del bucket.');
     }
 
     private function deleteOldProfilePhoto(?string $url): void
