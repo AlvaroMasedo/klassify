@@ -16,6 +16,13 @@ export function initFeedSearch() {
     let debounceTimer = null;
     let abortController = null;
 
+    const reinitDynamicContent = (scope = resultsContainer) => {
+        if (window.__feedAudioPlayerUtils) {
+            window.__feedAudioPlayerUtils.initPreviewThumbs(scope);
+            window.__feedAudioPlayerUtils.observeAudioPlayers(scope);
+        }
+    };
+
     const setSearchingState = () => {
         resultsContainer.innerHTML = `
             <div class="feed-search-loading">
@@ -30,6 +37,7 @@ export function initFeedSearch() {
 
     const restoreFeed = () => {
         resultsContainer.innerHTML = originalResultsHtml;
+        reinitDynamicContent(resultsContainer);
 
         if (loadMoreArea) {
             loadMoreArea.innerHTML = originalLoadMoreHtml;
@@ -45,11 +53,7 @@ export function initFeedSearch() {
             return;
         }
 
-        if (cleanQuery.length < 2) {
-            return;
-        }
-
-        if (!searchUrl) {
+        if (cleanQuery.length < 2 || !searchUrl) {
             return;
         }
 
@@ -69,6 +73,7 @@ export function initFeedSearch() {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
                 signal: abortController.signal,
             });
@@ -80,6 +85,7 @@ export function initFeedSearch() {
             }
 
             resultsContainer.innerHTML = data.html || '';
+            reinitDynamicContent(resultsContainer);
 
             if (loadMoreArea) {
                 loadMoreArea.hidden = true;

@@ -23,7 +23,7 @@
 
         <section class="app-center">
             @php
-                $activeFeedTab = $activeTab ?? 'for-you';
+            $activeFeedTab = $activeTab ?? 'for-you';
             @endphp
 
             <div class="forYou-follow-section {{ $activeFeedTab === 'following' ? 'is-follow' : '' }}">
@@ -44,32 +44,36 @@
                 </a>
             </div>
 
-            <div class="filter-card">
+            <div
+                class="filter-card"
+                data-feed-filters
+                data-filter-url="{{ route('feed.resources') }}"
+                data-active-tab="{{ $activeFeedTab }}">
                 <div class="filter-container">
-                    <select class="k-select" id="course-filter" name="course">
-                        <option value="" selected disabled>Curso</option>
+                    <select class="k-select" id="course-filter" name="course" data-filter-course>
+                        <option value="" selected>Curso</option>
 
                         @foreach ($courses as $course)
-                            <option value="{{ $course->id }}">{{ $course->name }}</option>
+                        <option value="{{ $course->id }}">{{ $course->name }}</option>
                         @endforeach
                     </select>
 
-                    <select class="k-select" id="subject-filter" name="subject" disabled>
-                        <option value="" selected disabled>Materia</option>
+                    <select class="k-select" id="subject-filter" name="subject" data-filter-subject disabled>
+                        <option value="" selected>Materia</option>
                     </select>
 
                     <div class="fileTypes-content">
                         <label for="imagen">Imagen</label>
-                        <input type="checkbox" name="fileType" id="imagen">
+                        <input type="checkbox" name="fileType" id="imagen" value="image" data-filter-type>
 
                         <label for="documento">Documento</label>
-                        <input type="checkbox" name="fileType" id="documento">
+                        <input type="checkbox" name="fileType" id="documento" value="document" data-filter-type>
 
                         <label for="video">Video</label>
-                        <input type="checkbox" name="fileType" id="video">
+                        <input type="checkbox" name="fileType" id="video" value="video" data-filter-type>
 
                         <label for="audio">Audio</label>
-                        <input type="checkbox" name="fileType" id="audio">
+                        <input type="checkbox" name="fileType" id="audio" value="audio" data-filter-type>
                     </div>
                 </div>
             </div>
@@ -86,16 +90,16 @@
 
             <div data-feed-results>
                 @forelse ($resources as $resource)
-                    @include('feed.partials.resource-card', ['resource' => $resource])
+                @include('feed.partials.resource-card', ['resource' => $resource])
                 @empty
-                    <div class="recurs-card">
-                        <div class="recurs-content">
-                            <h3 class="recurs-title">Todavía no hay recursos publicados</h3>
-                            <p class="recurs-description">
-                                Cuando subas recursos reales, aparecerán aquí.
-                            </p>
-                        </div>
+                <div class="recurs-card">
+                    <div class="recurs-content">
+                        <h3 class="recurs-title">Todavía no hay recursos publicados</h3>
+                        <p class="recurs-description">
+                            Cuando subas recursos reales, aparecerán aquí.
+                        </p>
                     </div>
+                </div>
                 @endforelse
             </div>
 

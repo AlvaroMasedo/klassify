@@ -1,3 +1,5 @@
+import { initProfileFilters } from './filters.js';
+
 function initProfileFollows() {
     if (window.__profileFollowsInitialized) {
         return;
@@ -82,4 +84,5 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initProfileFollows, { once: true });
 } else {
     initProfileFollows();
+    initProfileFilters();
 }

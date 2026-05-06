@@ -17,7 +17,7 @@ $canShowCommentMenu = $canReportComment || $canDeleteComment;
     <div class="comment-header">
         <div class="comment-user-info">
             <div class="comment-avatar">
-                <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $userDisplayName }}">
+                <x-user-avatar :user="$comment->user" alt="Avatar de {{ $userDisplayName }}" />
             </div>
 
             <div class="comment-user-details">

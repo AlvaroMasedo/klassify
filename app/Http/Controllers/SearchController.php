@@ -59,6 +59,7 @@ class SearchController extends Controller
                 'role',
                 'teacher_status',
                 'specialization',
+                'foto_perfil_url',
             ])
             ->where('id', '!=', $viewerId)
             ->whereRaw('UPPER(COALESCE(role, "")) = ?', ['TEACHER'])

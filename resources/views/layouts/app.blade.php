@@ -50,6 +50,8 @@
         @yield('content')
     </main>
 
+    @include('layouts.partials.footer')
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.js-k-alert').forEach(function(alert) {

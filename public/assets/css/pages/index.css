@@ -3095,3 +3095,19 @@ body.report-modal-open {
         width: 100%;
     }
 }
+
+.notification-btn {
+    position: relative;
+}
+
+.notification-red-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 9px;
+    height: 9px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background: #e74c3c;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.18);
+}

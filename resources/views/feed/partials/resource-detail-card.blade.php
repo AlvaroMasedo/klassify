@@ -61,7 +61,7 @@ $isFavorited = (bool) ($resource->is_favorited ?? false);
     <div class="recurs-header">
         <div class="recurs-user-info">
             <div class="recurs-avatar">
-                <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar">
+                <x-user-avatar :user="$resource->user" alt="Avatar de {{ $resourceUserName }}" />
             </div>
             <div class="recurs-user-details">
                 <div class="recurs-name-container">

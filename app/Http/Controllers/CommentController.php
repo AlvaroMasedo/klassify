@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserNotification;
 
 class CommentController extends Controller
 {
@@ -39,6 +40,18 @@ class CommentController extends Controller
             'user_id' => Auth::id(),
             'comment' => $validated['comment'],
         ]);
+
+        // Crear notificación para el propietario del recurso, si el comentario no es del mismo usuario
+        if ((int) $resource->user_id !== (int) $request->user()->id) {
+            UserNotification::create([
+                'recipient_id' => $resource->user_id,
+                'actor_id' => $request->user()->id,
+                'resource_id' => $resource->id,
+                'comment_id' => $comment->id,
+                'type' => 'comment',
+                'created_at' => now(),
+            ]);
+        }
 
         // Cargar la relación user del comentario
         $comment->load('user');

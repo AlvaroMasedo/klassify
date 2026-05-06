@@ -1,31 +1,38 @@
-/**
- * Inicializa la funcionalidad de cargar más recursos (paginación)
- */
 export function initLoadMore() {
-    const appCenter = document.querySelector('.app-center');
-    const loadMoreContainer = document.querySelector('.feed-load-more');
-    const loadMoreBtn = document.querySelector('[data-feed-load-more]');
-
-    if (!appCenter || !loadMoreContainer || !loadMoreBtn) {
+    if (window.__feedLoadMoreInitialized) {
         return;
     }
 
-    let isLoadingMore = false;
+    window.__feedLoadMoreInitialized = true;
 
-    loadMoreBtn.addEventListener('click', async (event) => {
+    const reinitDynamicContent = (scope) => {
+        if (window.__feedAudioPlayerUtils) {
+            window.__feedAudioPlayerUtils.initPreviewThumbs(scope);
+            window.__feedAudioPlayerUtils.observeAudioPlayers(scope);
+        }
+    };
+
+    document.addEventListener('click', async (event) => {
+        const loadMoreBtn = event.target.closest('[data-feed-load-more]');
+
+        if (!loadMoreBtn) {
+            return;
+        }
+
         event.preventDefault();
 
-        if (isLoadingMore) {
+        if (loadMoreBtn.classList.contains('is-loading')) {
             return;
         }
 
+        const resultsContainer = document.querySelector('[data-feed-results]');
+        const loadMoreArea = document.querySelector('[data-feed-load-more-area]');
         const nextUrl = loadMoreBtn.getAttribute('href');
 
-        if (!nextUrl) {
+        if (!resultsContainer || !nextUrl) {
             return;
         }
 
-        isLoadingMore = true;
         loadMoreBtn.classList.add('is-loading');
         loadMoreBtn.textContent = 'Cargando recursos...';
 
@@ -34,8 +41,8 @@ export function initLoadMore() {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
+                    'Accept': 'application/json',
+                },
             });
 
             if (!response.ok) {
@@ -43,51 +50,30 @@ export function initLoadMore() {
             }
 
             const data = await response.json();
-            
-            // Crear un contenedor temporal para parsear el HTML
+
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = data.html;
-            
-            // Obtener todas las tarjetas de recurso del HTML
+            tempDiv.innerHTML = data.html || '';
+
             const newCards = tempDiv.querySelectorAll('.recurs-card');
 
-            // Insertar cada tarjeta antes del contenedor de "Carga más"
             newCards.forEach((card) => {
-                appCenter.insertBefore(card, loadMoreContainer);
+                resultsContainer.appendChild(card);
             });
 
-            // Reinicializar componentes para todas las nuevas tarjetas
-            // Los listeners por event delegation ya funcionan, solo necesitamos reinicializar estado
-            if (window.__feedFavoritesUtils) {
-                window.__feedFavoritesUtils.reinitializeHearts(appCenter);
-            }
+            reinitDynamicContent(resultsContainer);
 
-            if (window.__feedAudioPlayerUtils) {
-                window.__feedAudioPlayerUtils.initPreviewThumbs(appCenter);
-                window.__feedAudioPlayerUtils.observeAudioPlayers(appCenter);
-            }
+            if (loadMoreArea) {
+                loadMoreArea.innerHTML = data.load_more_html || '';
 
-            // Actualizar la URL del botón para la siguiente página
-            if (data.next_page_url) {
-                loadMoreBtn.setAttribute('href', data.next_page_url);
-            } else {
-                // Si no hay más páginas, ocultar el contenedor del botón
-                loadMoreContainer.remove();
+                if (!data.has_more) {
+                    loadMoreArea.innerHTML = '';
+                }
             }
         } catch (error) {
             console.error('Error loading more resources:', error);
+
+            loadMoreBtn.classList.remove('is-loading');
             loadMoreBtn.textContent = 'Error al cargar. Inténtalo de nuevo';
-        } finally {
-            if (document.body.contains(loadMoreBtn)) {
-                loadMoreBtn.classList.remove('is-loading');
-
-                if (loadMoreBtn.textContent !== 'Error al cargar. Inténtalo de nuevo') {
-                    loadMoreBtn.textContent = 'Carga más recursos';
-                }
-            }
-
-            isLoadingMore = false;
         }
     });
 }
-

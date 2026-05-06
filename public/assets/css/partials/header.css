@@ -386,6 +386,14 @@ input:not(:placeholder-shown)~.reset {
 
 }
 
+.k-profile-btn .user-avatar {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    border-radius: 999px;
+    object-fit: cover;
+}
+
 .k-profile-name {
     max-width: 140px;
     overflow: hidden;
@@ -517,6 +525,12 @@ input:not(:placeholder-shown)~.reset {
     .k-profile-icon {
         width: 32px;
         height: 32px;
+    }
+
+    .k-profile-btn .user-avatar {
+        width: 35px;
+        height: 35px;
+        flex-basis: 35px;
     }
 
     .k-profile-chev {

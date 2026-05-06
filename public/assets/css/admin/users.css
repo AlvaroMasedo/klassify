@@ -278,6 +278,10 @@
     margin-top: 1.25rem;
 }
 
+.admin-users-pagination svg {
+    display: none;
+}
+
 @media (max-width: 850px) {
     .admin-users-page {
         padding: 1rem;

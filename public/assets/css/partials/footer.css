@@ -1,4 +1,6 @@
 .k-footer{
+    width: 100%;
+    margin-top: 2rem;
     background-color: #F3F3F3;
     color: white;
     font-family: "Open Sans", sans-serif;
@@ -15,11 +17,12 @@
     font-family: "Open Sans", sans-serif;
     font-size: 17px;
 }
+
 .k-footer a:hover {
     font-weight: 700;
 }
 
-span{
+.k-footer span{
     color: #000000;
     font-weight: 600;
     font-family: "Open Sans", sans-serif;

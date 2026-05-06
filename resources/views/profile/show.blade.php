@@ -12,16 +12,16 @@
 $fullName = trim(((string) ($profileUser->name ?? '')) . ' ' . ((string) ($profileUser->surname ?? '')));
 $displayName = $fullName !== '' ? $fullName : 'Usuario';
 $nickname = (string) ($profileUser->nickname ?? 'usuario');
+
 $role = strtoupper((string) ($profileUser->role ?? ''));
 $isVerifiedTeacher = $role === 'TEACHER' && in_array(strtoupper((string) ($profileUser->teacher_status ?? '')), ['VERIFIED', 'ACTIVE'], true);
+
 $profileSubtitle = $role === 'ADMIN'
 ? 'Administrador'
 : ($isVerifiedTeacher ? 'Profesor Verificado' : ucfirst(strtolower($role ?: 'Usuario')));
 
-$profileDescription = trim((string) ($profileUser->description ?? $profileUser->bio ?? ''));
-
+$profileDescription = trim((string) ($profileUser->description ?? ''));
 $specialization = trim((string) ($profileUser->specialization ?? ''));
-
 $institutionName = trim((string) data_get($profileUser, 'institution.name', ''));
 
 $institutionLocation = trim((string) (
@@ -32,25 +32,31 @@ data_get($profileUser, 'institution.location')
 ?? ''
 ));
 
-$hasAboutInfo = $specialization !== ''
+$hasAboutInfo = $profileDescription !== ''
+|| $specialization !== ''
 || $institutionName !== ''
 || $institutionLocation !== '';
+
+$isPrivateBlocked = (bool) ($isPrivateBlocked ?? false);
+$showSocialInfo = (bool) ($showSocialInfo ?? false);
+$canShowFollowButton = (bool) ($canShowFollowButton ?? false);
 @endphp
 
 <div class="profile-page">
     <div class="profile-shell">
         <section class="profile-card">
-            <div class="profile-layout">
+            <div class="profile-layout {{ $isPrivateBlocked ? 'profile-layout--private' : '' }}">
                 <div class="profile-main">
                     <header class="profile-hero">
                         <div class="profile-avatar">
-                            <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $displayName }}">
+                            <x-user-avatar :user="$profileUser" alt="Avatar de {{ $displayName }}" />
                         </div>
 
                         <div class="profile-info">
                             <div class="profile-name-row">
                                 <div>
                                     <h1>{{ $displayName }}</h1>
+
                                     <p class="profile-nickname">
                                         {{ '@' . $nickname }}
                                         <x-verified-badge :user="$profileUser" />
@@ -58,6 +64,7 @@ $hasAboutInfo = $specialization !== ''
                                 </div>
 
                                 <div class="profile-actions">
+                                    @if ($showSocialInfo)
                                     <span
                                         class="profile-followers"
                                         data-followers-count-for="{{ $profileUser->id }}">
@@ -65,10 +72,12 @@ $hasAboutInfo = $specialization !== ''
                                     </span>
 
                                     @if ($isOwner)
-                                    <button type="button" class="profile-edit-btn">
+                                    <a
+                                        href="{{ route('profile.edit', ['user' => $profileUser->nickname]) }}"
+                                        class="profile-edit-btn">
                                         Editar perfil
-                                    </button>
-                                    @else
+                                    </a>
+                                    @elseif ($canShowFollowButton)
                                     <button
                                         type="button"
                                         class="profile-follow-btn {{ $isFollowing ? 'is-following' : '' }}"
@@ -79,6 +88,7 @@ $hasAboutInfo = $specialization !== ''
                                         {{ $isFollowing ? 'Siguiendo' : 'Seguir' }}
                                     </button>
                                     @endif
+                                    @endif
                                 </div>
                             </div>
 
@@ -87,18 +97,30 @@ $hasAboutInfo = $specialization !== ''
                             </div>
 
                             <p class="profile-location">
-                                {{ $profileUser->institution->name ?? 'Centro no indicado' }}
+                                {{ $institutionName !== '' ? $institutionName : 'Centro no indicado' }}
                             </p>
 
-                            @if ($profileDescription !== '')
+                            @if ($profileDescription !== '' && !$isPrivateBlocked)
                             <p class="profile-bio-mobile">{{ $profileDescription }}</p>
                             @endif
                         </div>
                     </header>
 
+                    @if ($isPrivateBlocked)
+                    <section class="profile-private-card">
+                        <div class="profile-private-lock" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4V7Zm3 9.73V18h-2v-1.27a2 2 0 1 1 2 0Z" />
+                            </svg>
+                        </div>
+
+                        <h2>Este perfil es privado</h2>
+                        <p>No puedes ver sus recursos, seguidores ni seguir este perfil.</p>
+                    </section>
+                    @else
                     <nav class="profile-tabs" aria-label="Secciones del perfil">
                         <a
-                            href="{{ route('profile.show', $profileUser) }}"
+                            href="{{ route('profile.show', ['user' => $profileUser->nickname]) }}"
                             class="profile-tab {{ ($activeTab ?? 'resources') === 'resources' ? 'is-active' : '' }}">
                             Recursos
                         </a>
@@ -114,21 +136,35 @@ $hasAboutInfo = $specialization !== ''
                         <a href="#" class="profile-tab">Calendario</a>
                     </nav>
 
-                    <form class="profile-filters" method="GET" action="{{ route('profile.show', $profileUser) }}">
+                    <div
+                        class="profile-filters"
+                        data-profile-filters
+                        data-filter-url="{{ route('profile.resources', ['user' => $profileUser->nickname]) }}"
+                        data-active-tab="{{ $activeTab ?? 'resources' }}">
                         <div class="profile-filter-group">
-                            <select name="course_id" class="profile-select">
+                            <select name="course_id" class="profile-select" data-profile-course>
                                 <option value="">Curso</option>
+
                                 @foreach ($courses as $course)
-                                <option value="{{ $course->id }}" @selected((int) $selectedCourseId===(int) $course->id)>
+                                <option
+                                    value="{{ $course->id }}"
+                                    @selected((int) $selectedCourseId===(int) $course->id)>
                                     {{ $course->name }}
                                 </option>
                                 @endforeach
                             </select>
 
-                            <select name="subject_id" class="profile-select">
+                            <select
+                                name="subject_id"
+                                class="profile-select"
+                                data-profile-subject
+                                {{ empty($selectedCourseId) ? 'disabled' : '' }}>
                                 <option value="">Asignatura</option>
+
                                 @foreach ($subjects as $subject)
-                                <option value="{{ $subject->id }}" @selected((int) $selectedSubjectId===(int) $subject->id)>
+                                <option
+                                    value="{{ $subject->id }}"
+                                    @selected((int) $selectedSubjectId===(int) $subject->id)>
                                     {{ $subject->name }}
                                 </option>
                                 @endforeach
@@ -150,32 +186,35 @@ $hasAboutInfo = $specialization !== ''
                             @foreach ($types as $typeValue => $typeLabel)
                             <label class="profile-type-filter">
                                 <span>{{ $typeLabel }}</span>
+
                                 <input
                                     type="checkbox"
                                     name="types[]"
                                     value="{{ $typeValue }}"
+                                    data-profile-type
                                     @checked(in_array($typeValue, $selectedTypes, true))>
                             </label>
                             @endforeach
                         </div>
+                    </div>
 
-                        <div class="profile-filter-actions">
-                            <button type="submit" class="profile-apply-filters">
-                                Aplicar filtros
-                            </button>
+                    <script type="application/json" id="profile-courses-with-subjects-data">
+                        @json($courses)
+                    </script>
 
-                            <a href="{{ route('profile.show', $profileUser) }}" class="profile-clear-filters">
-                                Eliminar filtros
-                            </a>
-                        </div>
-                    </form>
+                    <script>
+                        window.profileCoursesWithSubjects = JSON.parse(
+                            document.getElementById('profile-courses-with-subjects-data')?.textContent ?? '[]'
+                        );
+                    </script>
 
-                    <section class="profile-resources">
+                    <section class="profile-resources" data-profile-results>
                         @forelse ($resources as $resource)
                         @include('profile.partials.resource-card', ['resource' => $resource])
                         @empty
                         <div class="profile-empty">
                             <h3>No hay recursos todavía</h3>
+
                             <p>
                                 @if (($activeTab ?? 'resources') === 'favorites')
                                 Cuando guardes recursos en favoritos, aparecerán aquí.
@@ -187,19 +226,26 @@ $hasAboutInfo = $specialization !== ''
                         @endforelse
                     </section>
 
-                    @if ($resources->hasPages())
-                    <div class="profile-pagination">
-                        {{ $resources->links() }}
+                    <div class="profile-pagination" data-profile-pagination>
+                        @include('profile.partials.pagination', ['resources' => $resources])
                     </div>
                     @endif
                 </div>
 
+                @unless ($isPrivateBlocked)
                 <aside class="profile-sidebar">
                     <section class="profile-about-card">
                         <h2>Sobre mí</h2>
 
                         @if ($hasAboutInfo)
                         <div class="profile-about-list">
+                            @if ($profileDescription !== '')
+                            <div class="profile-about-item">
+                                <span>Descripción</span>
+                                <p>{{ $profileDescription }}</p>
+                            </div>
+                            @endif
+
                             @if ($specialization !== '')
                             <div class="profile-about-item">
                                 <span>Especialización</span>
@@ -221,6 +267,8 @@ $hasAboutInfo = $specialization !== ''
                             </div>
                             @endif
                         </div>
+                        @else
+                        <p class="profile-about-empty">Este usuario todavía no ha añadido información.</p>
                         @endif
                     </section>
 
@@ -234,15 +282,17 @@ $hasAboutInfo = $specialization !== ''
                         @endphp
 
                         <div class="profile-suggested-teacher">
-                            <a class="profile-suggested-link" href="{{ route('profile.show', $teacher) }}">
-                                <img src="{{ asset('assets/img/default-profile-img.png') }}" alt="Avatar de {{ $teacherDisplayName }}">
+                            <a class="profile-suggested-link" href="{{ route('profile.show', ['user' => $teacher->nickname]) }}">
+                                <x-user-avatar :user="$teacher" alt="Avatar de {{ $teacherDisplayName }}" />
 
                                 <div>
                                     <strong>{{ $teacherDisplayName }}</strong>
+
                                     <span>
                                         {{ '@' . ($teacher->nickname ?? 'usuario') }}
                                         <x-verified-badge :user="$teacher" />
                                     </span>
+
                                     <small>{{ $teacher->specialization ?: 'Profesor en Klassify' }}</small>
                                 </div>
                             </a>
@@ -262,10 +312,10 @@ $hasAboutInfo = $specialization !== ''
                         @endforelse
                     </section>
                 </aside>
+                @endunless
             </div>
         </section>
     </div>
 
-    @include('layouts.partials.footer')
 </div>
 @endsection

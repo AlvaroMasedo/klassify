@@ -38,6 +38,7 @@ class SuggestedTeachersService
             'role',
             'teacher_status',
             'specialization',
+            'foto_perfil_url',
         ];
 
         if ($usersHasInstitutionId) {

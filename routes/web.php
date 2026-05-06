@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\IncidentController as AdminIncidentController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\NotificationController;
 
 // Ruta de inicio
 Route::get('/', function () {
@@ -62,12 +63,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/feed/resources', [FeedController::class, 'resources'])->name('feed.resources');
     Route::get('/feed/search', [SearchController::class, 'feed'])->name('feed.search');
 
+    // Notificaciones
+    Route::get('/notificaciones', [NotificationController::class, 'index'])
+        ->name('notifications.index');
+
     // Ayuda / Incidencias
     Route::get('/ayuda', [IncidentController::class, 'create'])->name('incidents.create');
     Route::post('/ayuda/incidencias', [IncidentController::class, 'store'])->name('incidents.store');
 
     // Perfil de usuario
     Route::get('/perfil', [ProfileController::class, 'me'])->name('profile.me');
+
+    Route::get('/perfil/{user:nickname}/edit', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::put('/perfil/{user:nickname}', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::get('/perfil/{user:nickname}', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/perfil/{user:nickname}/resources', [ProfileController::class, 'resources'])->name('profile.resources');
     Route::get('/perfil/{user:nickname}', [ProfileController::class, 'show'])->name('profile.show');
 
     // Rutas para cargar más recursos destacados en el feed
