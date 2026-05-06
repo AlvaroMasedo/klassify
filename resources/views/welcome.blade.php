@@ -1,6 +1,42 @@
 @extends('layouts.guest')
 
 @section('title', 'Bienvenido a Klassify')
+@section('meta-description', 'Klassify es una plataforma educativa para compartir recursos, apuntes, exámenes, vídeos y materiales entre profesores y alumnos.')
+@section('meta-keywords', 'Klassify, plataforma educativa, recursos educativos, apuntes, exámenes, profesores, alumnos, comunidad escolar, compartir recursos')
+@section('canonical-url', route('home'))
+@section('og-title', 'Klassify | Recursos educativos para profesores y alumnos')
+@section('og-description', 'Comparte y descubre recursos educativos, apuntes, exámenes y materiales de aprendizaje en Klassify.')
+@section('og-image', asset('assets/img/k-logo.png'))
+@section('twitter-title', 'Klassify | Recursos educativos')
+@section('twitter-description', 'Plataforma educativa para compartir y descubrir apuntes, exámenes y materiales de aprendizaje.')
+@section('structured-data')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@graph' => [
+        [
+            '@type' => 'Organization',
+            '@id' => route('home') . '#organization',
+            'name' => 'Klassify',
+            'url' => route('home'),
+            'logo' => asset('assets/img/k-logo.png'),
+            'description' => 'Plataforma educativa para compartir recursos, apuntes, exámenes y materiales de aprendizaje.',
+        ],
+        [
+            '@type' => 'WebSite',
+            '@id' => route('home') . '#website',
+            'url' => route('home'),
+            'name' => 'Klassify',
+            'publisher' => [
+                '@id' => route('home') . '#organization',
+            ],
+            'inLanguage' => 'es',
+            'description' => 'Recursos educativos, apuntes, exámenes y materiales para estudiantes y profesores.',
+        ],
+    ],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endsection
 
 @section('page-css')
 <link rel="stylesheet" href="{{ asset('assets/css/pages/welcome.css') }}">

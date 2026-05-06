@@ -36,6 +36,33 @@ Route::get('/sobre-klassify', [PageController::class, 'about'])->name('pages.abo
 Route::get('/normas-comunidad', [PageController::class, 'community'])->name('pages.community');
 Route::get('/privacidad', [PageController::class, 'privacy'])->name('pages.privacy');
 
+Route::get('/sitemap.xml', function () {
+    $publicUrls = [
+        route('home'),
+        route('pages.about'),
+        route('pages.community'),
+        route('pages.privacy'),
+    ];
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+
+    foreach ($publicUrls as $url) {
+        $changefreq = $url === route('home') ? 'daily' : 'weekly';
+        $priority = $url === route('home') ? '1.0' : '0.7';
+
+        $xml .= "    <url>" . PHP_EOL;
+        $xml .= '        <loc>' . e($url) . '</loc>' . PHP_EOL;
+        $xml .= '        <changefreq>' . $changefreq . '</changefreq>' . PHP_EOL;
+        $xml .= '        <priority>' . $priority . '</priority>' . PHP_EOL;
+        $xml .= "    </url>" . PHP_EOL;
+    }
+
+    $xml .= '</urlset>' . PHP_EOL;
+
+    return response($xml, 200)->header('Content-Type', 'application/xml');
+})->name('sitemap');
+
 // Rutas para usuarios invitados
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');

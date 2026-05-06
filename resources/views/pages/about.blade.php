@@ -1,6 +1,50 @@
 @extends('layouts.app')
 
 @section('title', 'Sobre Klassify')
+@section('meta-description', 'Conoce Klassify, una plataforma para compartir y descubrir recursos educativos de forma sencilla.')
+@section('meta-keywords', 'sobre Klassify, plataforma educativa, recursos educativos, apuntes, exámenes, profesores, alumnos, comunidad escolar')
+@section('meta-robots', 'index, follow')
+@section('canonical-url', route('pages.about'))
+@section('og-title', 'Sobre Klassify')
+@section('og-description', 'Conoce Klassify y descubre cómo ayuda a profesores y alumnos a compartir recursos educativos.')
+@section('og-image', asset('assets/img/k-logo.png'))
+@section('twitter-title', 'Sobre Klassify')
+@section('twitter-description', 'Plataforma para compartir y descubrir recursos educativos de forma sencilla.')
+@section('structured-data')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'AboutPage',
+    'name' => 'Sobre Klassify',
+    'url' => route('pages.about'),
+    'description' => 'Klassify es una plataforma para compartir y descubrir recursos educativos de forma sencilla.',
+    'breadcrumb' => [
+        '@id' => route('pages.about') . '#breadcrumb',
+    ],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    '@id' => route('pages.about') . '#breadcrumb',
+    'itemListElement' => [
+        [
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Inicio',
+            'item' => route('home'),
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => 'Sobre Klassify',
+            'item' => route('pages.about'),
+        ],
+    ],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endsection
 
 @section('page-css')
 <link rel="stylesheet" href="{{ asset('assets/css/pages/static-pages.css') }}">

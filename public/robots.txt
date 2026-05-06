@@ -1,2 +1,27 @@
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: /sitemap.xml
+
+Disallow: /admin/
+Disallow: /teacher/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /feed
+Disallow: /perfil
+Disallow: /perfil/
+Disallow: /notificaciones
+Disallow: /perfil/*/edit
+Disallow: /logout
+Disallow: /resources/create
+Disallow: /resources/
+Disallow: /resources/*/edit
+Disallow: /resources/*/comments
+Disallow: /resources/*/favorite
+Disallow: /resources/*/like
+Disallow: /resources/*/report
+Disallow: /teacher/pending
+
+# Public content only. Sitemap is served at /sitemap.xml.
