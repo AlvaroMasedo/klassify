@@ -55,9 +55,10 @@ class UpdateProfileRequest extends FormRequest
             ],
             'foto_perfil' => [
                 'nullable',
-                'image',
-                'mimes:jpg,jpeg,png',
-                'max:2048',
+                'file',
+                'mimetypes:image/jpeg,image/png,image/x-png',
+                'extensions:jpg,jpeg,png',
+                'max:10240',
             ],
         ];
     }
@@ -84,9 +85,10 @@ class UpdateProfileRequest extends FormRequest
 
             'description.max' => 'La descripción no puede superar los :max caracteres.',
 
-            'foto_perfil.image' => 'La foto de perfil debe ser una imagen.',
-            'foto_perfil.mimes' => 'La foto de perfil debe ser JPG, JPEG o PNG.',
-            'foto_perfil.max' => 'La foto de perfil no puede pesar más de 2 MB.',
+            'foto_perfil.file' => 'La foto de perfil debe ser un archivo válido.',
+            'foto_perfil.mimetypes' => 'La foto de perfil debe ser JPG, JPEG o PNG.',
+            'foto_perfil.extensions' => 'La foto de perfil debe tener extensión JPG, JPEG o PNG.',
+            'foto_perfil.max' => 'La foto de perfil no puede pesar más de 10 MB.',
         ];
     }
 

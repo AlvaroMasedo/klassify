@@ -364,17 +364,45 @@ class ProfileController extends Controller
         $fileName = Str::uuid() . '.' . $extension;
         $folder = 'profiles/' . $user->id;
 
-        $path = Storage::disk('s3')->putFileAs($folder, $file, $fileName);
+        $path = Storage::disk('s3')->putFileAs(
+            $folder,
+            $file,
+            $fileName,
+            [
+                'visibility' => 'public',
+                'ContentType' => $file->getMimeType(),
+            ]
+        );
 
         if ($path === false) {
             throw new \RuntimeException('No se pudo subir la foto de perfil.');
         }
 
-        $baseUrl = rtrim((string) config('filesystems.disks.s3.url'), '/');
+        return $this->buildS3PublicUrl($path);
+    }
 
-        return $baseUrl !== ''
-            ? $baseUrl . '/' . ltrim($path, '/')
-            : $path;
+    private function buildS3PublicUrl(string $path): string
+    {
+        $normalizedPath = ltrim($path, '/');
+        $baseUrl = trim((string) config('filesystems.disks.s3.url'));
+
+        if ($baseUrl !== '') {
+            return rtrim($baseUrl, '/') . '/' . $normalizedPath;
+        }
+
+        $endpoint = trim((string) config('filesystems.disks.s3.endpoint'));
+        $bucket = trim((string) config('filesystems.disks.s3.bucket'));
+        $region = trim((string) config('filesystems.disks.s3.region'));
+
+        if ($endpoint !== '') {
+            return rtrim($endpoint, '/') . '/' . $bucket . '/' . $normalizedPath;
+        }
+
+        if ($bucket !== '' && $region !== '') {
+            return 'https://' . $bucket . '.s3.' . $region . '.amazonaws.com/' . $normalizedPath;
+        }
+
+        throw new \RuntimeException('No se puede construir la URL pública de S3. Falta configurar AWS_URL, AWS_ENDPOINT o los datos del bucket.');
     }
 
     private function deleteOldProfilePhoto(?string $url): void

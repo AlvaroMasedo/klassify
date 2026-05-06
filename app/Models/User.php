@@ -34,7 +34,6 @@ class User extends Authenticatable
         'description',
         'foto_perfil_url',
     ];
-
     /**
      * Los atributos que deben ser ocultados para las serializaciones.
      *

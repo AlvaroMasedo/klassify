@@ -1,13 +1,16 @@
 .k-footer{
+    display: block;
     width: 100%;
-    margin-top: 2rem;
+    max-width: 100%;
+    margin-top: 0;
+    box-sizing: border-box;
     background-color: #F3F3F3;
     color: white;
     font-family: "Open Sans", sans-serif;
     font-size: 1.2rem;
     padding: 2rem;
     text-align: center;
-    border-top: solid 1.5px #583473;
+    border-top: 0;
 }
 
 .k-footer a {
