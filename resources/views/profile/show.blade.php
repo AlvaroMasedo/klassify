@@ -120,8 +120,6 @@ $canShowFollowButton = (bool) ($canShowFollowButton ?? false);
                             Favoritos
                         </a>
                         @endif
-
-                        <a href="#" class="profile-tab">Calendario</a>
                     </nav>
 
                     @if (!($isPrivateBlocked ?? false))
