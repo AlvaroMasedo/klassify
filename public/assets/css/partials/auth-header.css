@@ -1,0 +1,47 @@
+.k-auth-header {
+    background: linear-gradient(90deg, #583473 0%, #A485BC 100%);
+    padding: 1rem 2rem;
+}
+
+.k-auth-header-inner {
+    width: 100%;
+    max-width: 100%;
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 38px;
+    box-sizing: border-box;
+}
+
+.k-auth-header-actions {
+    display: flex;
+    align-items: center;
+}
+
+.k-auth-header-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 150px;
+    height: 40px;
+    padding: 0 22px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+
+.k-auth-header-actions .k-btn--ghost{
+    background: #ffffff;
+    color: #583473;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.k-auth-header-actions .k-btn--ghost:hover {
+    transition: 0.5s;
+    background: #583473;
+    color: #ffffff;
+}

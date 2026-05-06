@@ -1,0 +1,312 @@
+.admin-users-page {
+    min-height: calc(100vh - 90px);
+    padding: 2rem;
+    background: #faf7fc;
+    color: #241432;
+}
+
+.admin-users-card {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    border: 1px solid rgba(88, 52, 115, 0.14);
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 22px 55px rgba(45, 27, 61, 0.1);
+}
+
+.admin-users-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(88, 52, 115, 0.14);
+}
+
+.admin-users-kicker {
+    display: inline-flex;
+    margin-bottom: 0.35rem;
+    color: #8b6ca5;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.admin-users-header h1 {
+    margin: 0;
+    color: #583473;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1;
+    font-weight: 900;
+}
+
+.admin-users-header p {
+    margin: 0.45rem 0 0;
+    color: #806c93;
+    font-size: 1rem;
+}
+
+.admin-users-filter-form {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 180px;
+}
+
+.admin-users-filter-label {
+    color: #7d6591;
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.admin-users-filter {
+    width: 100%;
+    border: 1px solid rgba(88, 52, 115, 0.22);
+    border-radius: 14px;
+    padding: 0.75rem 0.85rem;
+    background: #ffffff;
+    color: #583473;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(45, 27, 61, 0.06);
+}
+
+.admin-users-success,
+.admin-users-warning,
+.admin-users-error {
+    margin-bottom: 1rem;
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    font-weight: 800;
+}
+
+.admin-users-success {
+    background: #f5fbf7;
+    border: 1px solid rgba(57, 169, 107, 0.25);
+    color: #24784a;
+}
+
+.admin-users-warning {
+    background: #fffaf0;
+    border: 1px solid rgba(201, 151, 34, 0.28);
+    color: #8b6200;
+}
+
+.admin-users-error {
+    background: #fff7f7;
+    border: 1px solid rgba(192, 57, 43, 0.2);
+    color: #a93226;
+}
+
+.admin-users-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.admin-user-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.1rem;
+    border: 1px solid rgba(88, 52, 115, 0.14);
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(45, 27, 61, 0.06);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.admin-user-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(88, 52, 115, 0.24);
+    box-shadow: 0 16px 32px rgba(45, 27, 61, 0.09);
+}
+
+.admin-user-main {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+}
+
+.admin-user-avatar {
+    width: 54px;
+    height: 54px;
+    border: 2px solid rgba(88, 52, 115, 0.22);
+    border-radius: 999px;
+    overflow: hidden;
+    background: #f4eef8;
+}
+
+.admin-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-user-info {
+    min-width: 0;
+}
+
+.admin-user-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.admin-user-top h2 {
+    margin: 0;
+    color: #583473;
+    font-size: 1.15rem;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.admin-user-role,
+.admin-user-teacher-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    border: 1px solid rgba(88, 52, 115, 0.16);
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    background: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 900;
+}
+
+.admin-user-role.administrador {
+    color: #583473;
+}
+
+.admin-user-role.profesor {
+    color: #24784a;
+    border-color: rgba(36, 120, 74, 0.25);
+}
+
+.admin-user-role.estudiante {
+    color: #2f6fa3;
+    border-color: rgba(47, 111, 163, 0.25);
+}
+
+.admin-user-teacher-status.is-active {
+    color: #24784a;
+    border-color: rgba(36, 120, 74, 0.25);
+}
+
+.admin-user-teacher-status.is-pending {
+    color: #9a6d00;
+    border-color: rgba(154, 109, 0, 0.28);
+}
+
+.admin-user-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    color: #7d6591;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.admin-user-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.admin-user-profile-btn,
+.admin-user-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+    border: 0;
+    border-radius: 13px;
+    padding: 0.7rem 1rem;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-user-profile-btn {
+    background: #f0e8f5;
+    color: #583473;
+}
+
+.admin-user-profile-btn:hover {
+    background: #e7dcef;
+}
+
+.admin-user-delete-btn {
+    background: #c0392b;
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(192, 57, 43, 0.18);
+}
+
+.admin-user-delete-btn:hover {
+    background: #a93226;
+}
+
+.admin-users-empty {
+    display: grid;
+    gap: 0.25rem;
+    place-items: center;
+    min-height: 220px;
+    border: 1px dashed rgba(88, 52, 115, 0.22);
+    border-radius: 20px;
+    background: #ffffff;
+    color: #806c93;
+    text-align: center;
+}
+
+.admin-users-empty strong {
+    color: #583473;
+    font-size: 1.1rem;
+}
+
+.admin-users-pagination {
+    margin-top: 1.25rem;
+}
+
+.admin-users-pagination svg {
+    display: none;
+}
+
+@media (max-width: 850px) {
+    .admin-users-page {
+        padding: 1rem;
+    }
+
+    .admin-users-header,
+    .admin-user-item {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-users-header {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .admin-users-filter-form,
+    .admin-user-actions,
+    .admin-user-actions form,
+    .admin-user-profile-btn,
+    .admin-user-delete-btn {
+        width: 100%;
+    }
+
+    .admin-user-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}

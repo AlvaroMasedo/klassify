@@ -1,0 +1,207 @@
+body{
+    margin: 0;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+.k-body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.k-main {
+    flex: 1;
+}
+
+.user-avatar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.recurs-favorite-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #2d1b3d;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.recurs-favorite-btn svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 45px;
+    stroke-linejoin: round;
+    transition: fill 0.2s ease, stroke 0.2s ease, transform 0.2s ease;
+}
+
+.recurs-favorite-btn:hover {
+    background: rgba(88, 52, 115, 0.08);
+    transform: translateY(-1px);
+}
+
+.recurs-favorite-btn:focus-visible {
+    outline: 2px solid #583473;
+    outline-offset: 3px;
+}
+
+.recurs-favorite-btn.is-favorited {
+    color: #f4c542;
+}
+
+.recurs-favorite-btn.is-favorited svg {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+.recurs-favorite-btn.is-favorited:hover {
+    background: rgba(244, 197, 66, 0.12);
+}
+.k-button {
+    text-decoration: none;
+    background: linear-gradient(90deg, #583473 0%, #A485BC 100%);
+    color: white;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1.5rem;
+    border: solid 2px #808080;
+    border-radius: 10px;
+    padding: 1%;
+    font-weight: 600;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    height: 3rem;
+}
+
+.k-button:hover {
+    transition: all 0.3s ease;
+    background: linear-gradient(90deg, #53326d 0%, #65457e 100%);
+    transform: scale(1.03);
+}
+
+.k-button-second {
+    text-decoration: none;
+    background: white;
+    color: #583473;
+    border: #808080 solid 2px;
+    border-radius: 10px;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1.5rem;
+    padding: 1%;
+    font-weight: 600;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    height: 3rem;
+}
+
+.k-button-second:hover {
+    transition: all 0.3s ease;
+    background: #f7f7f7;
+    transform: scale(1.03);
+}
+
+h1 {
+    background: linear-gradient(#583473 10%, #A485BC 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: 7rem;
+    font-family: "Inter", sans-serif;
+}
+
+h2 {
+    font-family: "Open Sans", sans-serif;
+    color: #583473;
+    font-size: 2.7rem;
+}
+
+h3 {
+    font-family: "Open Sans", sans-serif;
+    color: #583473;
+    font-size: 2.5rem;
+    margin-bottom: 0;
+}
+
+p {
+    font-family: "Open Sans", sans-serif;
+    font-size: 1.5rem;
+    color: #3F2453;
+}
+
+.p-pequeño {
+    font-size: 1rem;
+}
+
+.p-stroke {
+    font-weight: 700;
+}
+
+.p-new {
+    font-size: 1rem;
+    background-color: rgba(243, 164, 128, 0.733);
+    width: fit-content;
+    padding: 0.5%;
+    padding-left: 1%;
+    padding-right: 1%;
+    border-radius: 100px;
+    font-weight: 700;
+}
+
+.k-alert-stack {
+    position: fixed;
+    top: 5.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    pointer-events: none;
+}
+
+.k-alert {
+    width: min(92vw, 380px);
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    box-shadow: 0 10px 24px rgba(34, 20, 46, 0.22);
+    font-family: "Open Sans", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+    background: #f8f3fc;
+    color: #43295b;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: auto;
+}
+
+.k-alert--error {
+    background: linear-gradient(90deg, #fff4f4 0%, #ffe9e9 100%);
+    border-color: #f3b2b2;
+    color: #8f1f2a;
+}
+
+.k-alert--success {
+    background: linear-gradient(90deg, #f4fff8 0%, #e7f8ef 100%);
+    border-color: #b4e2c4;
+    color: #1f6b3b;
+}
+
+.k-alert--hide {
+    opacity: 0;
+    transform: translateY(-8px);
+}
