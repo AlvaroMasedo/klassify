@@ -106,18 +106,6 @@ $canShowFollowButton = (bool) ($canShowFollowButton ?? false);
                         </div>
                     </header>
 
-                    @if ($isPrivateBlocked)
-                    <section class="profile-private-card">
-                        <div class="profile-private-lock" aria-hidden="true">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4V7Zm3 9.73V18h-2v-1.27a2 2 0 1 1 2 0Z" />
-                            </svg>
-                        </div>
-
-                        <h2>Este perfil es privado</h2>
-                        <p>No puedes ver sus recursos, seguidores ni seguir este perfil.</p>
-                    </section>
-                    @else
                     <nav class="profile-tabs" aria-label="Secciones del perfil">
                         <a
                             href="{{ route('profile.show', ['user' => $profileUser->nickname]) }}"
@@ -136,6 +124,7 @@ $canShowFollowButton = (bool) ($canShowFollowButton ?? false);
                         <a href="#" class="profile-tab">Calendario</a>
                     </nav>
 
+                    @if (!($isPrivateBlocked ?? false))
                     <div
                         class="profile-filters"
                         data-profile-filters
@@ -207,8 +196,12 @@ $canShowFollowButton = (bool) ($canShowFollowButton ?? false);
                             document.getElementById('profile-courses-with-subjects-data')?.textContent ?? '[]'
                         );
                     </script>
+                    @endif
 
                     <section class="profile-resources" data-profile-results>
+                        @if ($isPrivateBlocked ?? false)
+                        @include('profile.partials.private-resources')
+                        @else
                         @forelse ($resources as $resource)
                         @include('profile.partials.resource-card', ['resource' => $resource])
                         @empty
@@ -224,15 +217,16 @@ $canShowFollowButton = (bool) ($canShowFollowButton ?? false);
                             </p>
                         </div>
                         @endforelse
+                        @endif
                     </section>
 
+                    @if (!($isPrivateBlocked ?? false))
                     <div class="profile-pagination" data-profile-pagination>
                         @include('profile.partials.pagination', ['resources' => $resources])
                     </div>
                     @endif
                 </div>
 
-                @unless ($isPrivateBlocked)
                 <aside class="profile-sidebar">
                     <section class="profile-about-card">
                         <h2>Sobre mí</h2>
@@ -312,7 +306,6 @@ $canShowFollowButton = (bool) ($canShowFollowButton ?? false);
                         @endforelse
                     </section>
                 </aside>
-                @endunless
             </div>
         </section>
     </div>

@@ -51,17 +51,8 @@ class SuggestedTeachersService
 
         $query = User::query()
             ->where('id', '!=', $viewer->id)
-            ->where(function ($query) {
-                $query
-                    ->whereIn('role', ['TEACHER', 'teacher'])
-                    ->orWhereIn('role', ['ADMIN', 'admin']);
-            })
-            ->where(function ($query) {
-                $query
-                    ->where('is_private', false)
-                    ->orWhereNull('is_private');
-            });
-
+            ->whereRaw('UPPER(COALESCE(role, "")) = ?', ['TEACHER']);
+            
         if ($usersHasInstitutionId) {
             $query->with('institution:id,name');
 
