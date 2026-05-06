@@ -1,0 +1,67 @@
+name: Deploy to cdmon by FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Laravel app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, pdo_mysql, gd, zip, bcmath, fileinfo
+
+      - name: Instalar dependencias PHP
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias Node
+        run: npm ci
+
+      - name: Compilar assets
+        run: npm run build
+
+      - name: Preparar carpeta de deploy
+        run: |
+          mkdir deploy
+          rsync -a ./ deploy/ \
+            --exclude=".git" \
+            --exclude=".github" \
+            --exclude="node_modules" \
+            --exclude="tests" \
+            --exclude=".env" \
+            --exclude="storage/logs" \
+            --exclude="storage/framework/cache" \
+            --exclude="storage/framework/sessions" \
+            --exclude="storage/framework/views"
+
+      - name: Subir a cdmon por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.CDMON_FTP_SERVER }}
+          username: ${{ secrets.CDMON_FTP_USERNAME }}
+          password: ${{ secrets.CDMON_FTP_PASSWORD }}
+          local-dir: ./deploy/
+          server-dir: ${{ secrets.CDMON_FTP_PATH }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env
+            storage/logs/**
+            storage/framework/cache/**
+            storage/framework/sessions/**
+            storage/framework/views/**
