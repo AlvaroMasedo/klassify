@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: /sitemap.xml
+Sitemap: https://klassify.cat/sitemap.xml
 
 Disallow: /admin/
 Disallow: /teacher/
