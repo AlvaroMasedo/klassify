@@ -21,6 +21,13 @@ class ResourcePolicy
             return false;
         }
 
+        $role = strtoupper((string) ($user->role ?? ''));
+
+        // Els ADMIN sempre poden veure qualsevol recurs
+        if ($role === 'ADMIN') {
+            return true;
+        }
+
         // Els recursos d'usuaris privats no es poden visualitzar
         if ($resource->user && $resource->user->is_private) {
             return false;

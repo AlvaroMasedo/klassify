@@ -66,7 +66,7 @@
                 <article class="admin-user-item">
                     <div class="admin-user-main">
                         <div class="admin-user-avatar">
-                            <x-user-avatar :user="$profileUser" alt="Avatar de {{ $displayName }}" />
+                            <x-user-avatar :user="$listedUser" alt="Avatar de {{ $displayName }}" />
                         </div>
 
                         <div class="admin-user-info">

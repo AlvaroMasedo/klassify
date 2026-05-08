@@ -101,6 +101,7 @@ export function initAudioPlayers() {
             const durationEl = player.querySelector('[data-audio-duration]');
 
             if (!audio || !toggle || !icon || !seek || !currentEl || !durationEl || !volume || !muteBtn || !volumeIcon) {
+                console.debug('[audio-player] missing elements, skipping player', { audio, toggle, icon, seek, currentEl, durationEl, volume, muteBtn, volumeIcon });
                 return;
             }
 
@@ -118,6 +119,23 @@ export function initAudioPlayers() {
                 seek.value = String(progress);
                 seek.style.setProperty('--progress', `${progress}%`);
                 currentEl.textContent = formatTime(current);
+            };
+
+            // Debug helper to surface audio state during troubleshooting
+            const debugState = (ctx) => {
+                try {
+                    console.debug('[audio-player] state', ctx, {
+                        readyState: audio.readyState,
+                        duration: audio.duration,
+                        currentTime: audio.currentTime,
+                        paused: audio.paused,
+                        muted: audio.muted,
+                        volume: audio.volume,
+                        seekValue: seek.value
+                    });
+                } catch (e) {
+                    console.debug('[audio-player] debugState error', e);
+                }
             };
 
             const setPausedState = (isPaused) => {
@@ -143,13 +161,28 @@ export function initAudioPlayers() {
             };
 
             audio.addEventListener('loadedmetadata', () => {
+                console.debug('[audio-player] loadedmetadata fired');
                 durationEl.textContent = formatTime(audio.duration || 0);
                 updateProgress();
+                debugState('loadedmetadata');
+            });
+
+            // Algunos navegadores o servidores pueden retrasar el evento 'loadedmetadata'.
+            // Escuchamos también 'durationchange' para cubrir más casos donde la duración se actualice.
+            audio.addEventListener('durationchange', () => {
+                console.debug('[audio-player] durationchange fired');
+                durationEl.textContent = formatTime(audio.duration || 0);
+                updateProgress();
+                debugState('durationchange');
             });
 
             audio.addEventListener('timeupdate', () => {
                 if (!scrubbing) {
                     updateProgress();
+                }
+                // occasional debug when playing
+                if (!audio.paused) {
+                    debugState('timeupdate');
                 }
             });
 
@@ -182,12 +215,38 @@ export function initAudioPlayers() {
                 const progress = Number(seek.value);
                 seek.style.setProperty('--progress', `${progress}%`);
                 const duration = audio.duration || 0;
-                currentEl.textContent = formatTime((progress / 100) * duration);
-            });
+                const nextTime = duration > 0 ? (progress / 100) * duration : 0;
+                currentEl.textContent = formatTime(nextTime);
+
+                // Update audio position in real-time while dragging (scrubbing)
+                if (duration > 0) {
+                    try {
+                        if (Number.isFinite(nextTime)) {
+                            audio.currentTime = nextTime;
+                            console.debug('[audio-player] seek input set currentTime', nextTime);
+                        } else {
+                            console.debug('[audio-player] seek input: nextTime not finite', { nextTime, progress, duration, seekValue: seek.value });
+                        }
+                    } catch (e) {
+                        console.debug('[audio-player] seek input error setting currentTime', e);
+                        // Algunos navegadores pueden lanzar si el audio no está listo; ignoramos.
+                    }
+                }
+            });S
 
             seek.addEventListener('change', () => {
                 const duration = audio.duration || 0;
-                audio.currentTime = (Number(seek.value) / 100) * duration;
+                const desired = (Number(seek.value) / 100) * duration;
+                if (Number.isFinite(desired)) {
+                    try {
+                        audio.currentTime = desired;
+                        console.debug('[audio-player] seek change set currentTime', desired);
+                    } catch (e) {
+                        console.debug('[audio-player] seek change error setting currentTime', e);
+                    }
+                } else {
+                    console.debug('[audio-player] seek change: desired time not finite', { desired, duration, seekValue: seek.value });
+                }
                 scrubbing = false;
                 updateProgress();
             });
@@ -221,6 +280,10 @@ export function initAudioPlayers() {
 
             audio.volume = 0.8;
             setPausedState(true);
+            // Si la metadata ya está lista, aseguramos que la duración se muestre.
+            if (audio.readyState >= 1) {
+                durationEl.textContent = formatTime(audio.duration || 0);
+            }
             updateProgress();
             setVolumeUi();
         });

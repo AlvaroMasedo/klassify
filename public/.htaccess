@@ -4,6 +4,7 @@
     </IfModule>
 
     RewriteEngine On
+    DirectoryIndex index.php
 
     # Block hidden files and folders except well-known challenge files.
     RewriteRule (^|/)\.(?!well-known) - [F]
