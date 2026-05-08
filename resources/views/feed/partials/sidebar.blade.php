@@ -20,7 +20,6 @@
         </button>
     @endif
 </div>
-</div>
 
 <div class="sidebar-footer">
     <nav class="sidebar-footer-links">

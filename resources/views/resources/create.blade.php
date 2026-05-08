@@ -119,7 +119,7 @@
                     <p class="resource-upload-help">Formatos admitidos: PDF, DOC, DOCX, PPT, PPTX, MP4, MP3, PNG, JPEG. Tamaño máximo: 80 MB.</p>
 
                     <div class="resource-upload-controls">
-                        <input type="file" id="resource_file" name="resource_file" class="resource-upload-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.mp3,.png,.jpeg" @if(!$isEditMode) required @endif>
+                        <input type="file" id="resource_file" name="resource_file" class="resource-upload-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.mp3,.png,.jpeg,.jpg" @if(!$isEditMode) required @endif>
                         <label for="resource_file" class="resource-upload-button">Seleccionar archivo</label>
                         <span class="resource-upload-filename" id="resource_file_name">{{ $isEditMode ? $fileNameValue : 'Ningún archivo seleccionado' }}</span>
                     </div>

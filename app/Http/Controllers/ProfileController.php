@@ -14,8 +14,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -205,7 +207,13 @@ class ProfileController extends Controller
                 );
 
                 $this->deleteOldProfilePhoto($user->foto_perfil_url);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::error('Error al subir foto de perfil', [
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'user_id' => $user->id,
+                ]);
                 throw ValidationException::withMessages([
                     'foto_perfil' => 'No se pudo subir la foto de perfil. Inténtalo de nuevo.',
                 ]);
@@ -364,45 +372,40 @@ class ProfileController extends Controller
         $fileName = Str::uuid() . '.' . $extension;
         $folder = 'profiles/' . $user->id;
 
-        $path = Storage::disk('s3')->putFileAs(
-            $folder,
-            $file,
-            $fileName,
-            [
-                'visibility' => 'public',
-                'ContentType' => $file->getMimeType(),
-            ]
-        );
+        try {
+            $path = Storage::disk('s3')->putFileAs(
+                $folder,
+                $file,
+                $fileName,
+                [
+                    'ContentType' => $file->getMimeType(),
+                ]
+            );
 
-        if ($path === false) {
-            throw new \RuntimeException('No se pudo subir la foto de perfil.');
+            if ($path === false) {
+                Log::warning('S3 putFileAs retornó false', [
+                    'folder' => $folder,
+                    'fileName' => $fileName,
+                    'mimeType' => $file->getMimeType(),
+                    'user_id' => $user->id,
+                ]);
+                throw new \RuntimeException('S3 no pudo procesar la carga (putFileAs retornó false)');
+            }
+
+            /** @var FilesystemAdapter $s3 */
+            $s3 = Storage::disk('s3');
+
+            return $s3->url($path);
+        } catch (\Exception $e) {
+            Log::error('Excepción al subir a S3', [
+                'error' => $e->getMessage(),
+                'class' => get_class($e),
+                'folder' => $folder,
+                'fileName' => $fileName,
+                'user_id' => $user->id,
+            ]);
+            throw $e;
         }
-
-        return $this->buildS3PublicUrl($path);
-    }
-
-    private function buildS3PublicUrl(string $path): string
-    {
-        $normalizedPath = ltrim($path, '/');
-        $baseUrl = trim((string) config('filesystems.disks.s3.url'));
-
-        if ($baseUrl !== '') {
-            return rtrim($baseUrl, '/') . '/' . $normalizedPath;
-        }
-
-        $endpoint = trim((string) config('filesystems.disks.s3.endpoint'));
-        $bucket = trim((string) config('filesystems.disks.s3.bucket'));
-        $region = trim((string) config('filesystems.disks.s3.region'));
-
-        if ($endpoint !== '') {
-            return rtrim($endpoint, '/') . '/' . $bucket . '/' . $normalizedPath;
-        }
-
-        if ($bucket !== '' && $region !== '') {
-            return 'https://' . $bucket . '.s3.' . $region . '.amazonaws.com/' . $normalizedPath;
-        }
-
-        throw new \RuntimeException('No se puede construir la URL pública de S3. Falta configurar AWS_URL, AWS_ENDPOINT o los datos del bucket.');
     }
 
     private function deleteOldProfilePhoto(?string $url): void
@@ -411,34 +414,23 @@ class ProfileController extends Controller
             return;
         }
 
-        $path = $this->extractS3Path($url);
-
-        if (!$path) {
-            return;
-        }
-
         try {
-            Storage::disk('s3')->delete($path);
+            // Extraer la ruta relativa de la URL pública
+            // URL típica: https://klassify-files-alvaro.s3.eu-south-2.amazonaws.com/profiles/13/uuid.jpg
+            $parsed = parse_url($url, PHP_URL_PATH);
+
+            if (is_string($parsed) && $parsed !== '') {
+                $path = ltrim($parsed, '/');
+                // Si la ruta incluye el bucket (algunas URLs), eliminar prefijo
+                $bucket = (string) config('filesystems.disks.s3.bucket');
+                if ($bucket !== '' && str_starts_with($path, $bucket . '/')) {
+                    $path = substr($path, strlen($bucket) + 1);
+                }
+
+                Storage::disk('s3')->delete($path);
+            }
         } catch (\Throwable) {
             // No bloqueamos el guardado del perfil si falla borrar la imagen antigua.
         }
-    }
-
-    private function extractS3Path(string $url): ?string
-    {
-        $parsed = parse_url($url, PHP_URL_PATH);
-
-        if (!is_string($parsed) || $parsed === '') {
-            return null;
-        }
-
-        $path = ltrim($parsed, '/');
-        $bucket = (string) config('filesystems.disks.s3.bucket');
-
-        if ($bucket !== '' && str_starts_with($path, $bucket . '/')) {
-            $path = substr($path, strlen($bucket) + 1);
-        }
-
-        return $path ?: null;
     }
 }

@@ -24,7 +24,8 @@
     <meta name="twitter:image" content="@yield('twitter-image', asset('assets/img/k-logo.png'))">
     @yield('structured-data')
     <title>@yield('title', 'Klassify')</title>
-    <link rel="icon" href="{{ asset('Favicon.ico') }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('assets/css/partials/header.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/partials/footer.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/components/contact-modal.css') }}">
